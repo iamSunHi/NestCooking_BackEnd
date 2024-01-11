@@ -1,0 +1,6 @@
+@NESTCOOKING_API.Presentation_HostAddress = http://localhost:5080
+
+GET {{NESTCOOKING_API.Presentation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
