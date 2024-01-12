@@ -1,17 +1,10 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using NESTCOOKING_API.DataAccess.Data;
-using NESTCOOKING_API.DataAccess.Models;
+using NESTCOOKING_API.Business.ServiceManager;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
-	options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
-});
-builder.Services.AddIdentity<User, IdentityRole>()
-	.AddEntityFrameworkStores<ApplicationDbContext>();
+var dependencyInjection = new DependencyInjection();
+dependencyInjection.ConfigureServices(builder.Services);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
