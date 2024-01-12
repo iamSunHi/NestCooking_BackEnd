@@ -21,11 +21,8 @@ namespace NESTCOOKING_API.Business.ServiceManager
 					   .AddJsonFile("appsettings.json");
 			var configurationRoot = configBuilder.Build();
 
-			// Add repositories to the container.
-			service.AddScoped<IUserRepository, UserRepository>();
-
 			// Add services to the container.
-			service.AddScoped<IAuthService, AuthService>();
+			service.AddScoped<IUserRepository, UserRepository>();
 			service.AddScoped<IUserService, UserService>();
 
 			//DBContext and Identity
