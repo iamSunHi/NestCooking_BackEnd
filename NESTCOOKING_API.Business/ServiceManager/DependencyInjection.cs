@@ -54,8 +54,8 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			.AddCookie()  // Đăng ký xử lý xác thực cookie
 			.AddFacebook(options =>
 			{
-				options.AppId = "908508097680340";
-				options.AppSecret = "7b6feab51027cb084c57f8638c38a456";
+				options.AppId = "";
+				options.AppSecret = "";
 			});
 				
 
