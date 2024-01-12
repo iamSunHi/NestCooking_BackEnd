@@ -54,8 +54,8 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			.AddCookie()  // Đăng ký xử lý xác thực cookie
 			.AddFacebook(options =>
 			{
-				options.AppId = configurationRoot["GoogleAPISettings:ClientId"];
-				options.AppSecret = configurationRoot["GoogleAPISettings:ClientSecret"];
+				options.AppId = configurationRoot["FacebookAPISettings:ClientId"];
+				options.AppSecret = configurationRoot["FacebookAPISettings:ClientSecret"];
 			});
 		}
 	}
