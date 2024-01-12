@@ -8,12 +8,12 @@ namespace NESTCOOKING_API.Presentation.Controllers
 {
 	[Route("api/auth")]
 	[ApiController]
-	public class AuthenticationController : ControllerBase
+	public class AuthController : ControllerBase
 	{
 		protected ResponseDTO _responseDTO;
 		private readonly IAuthService _authService;
 
-		public AuthenticationController(IAuthService authService)
+		public AuthController(IAuthService authService)
 		{
 			this._responseDTO = new ResponseDTO();
 			_authService = authService;
