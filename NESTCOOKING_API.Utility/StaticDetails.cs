@@ -7,9 +7,9 @@
 			GET, POST, PUT, DELETE
 		}
 
-		public const string Role_Admin = "Admin";
-		public const string Role_User = "User";
-		public const string Role_Chef = "Chef";
+		public const string Role_Admin = "admin";
+		public const string Role_User = "user";
+		public const string Role_Chef = "chef";
 
 		public const string ActionStatus_PENDING = "PENDING";
 		public const string ActionStatus_ACCEPTED = "ACCEPTED";
