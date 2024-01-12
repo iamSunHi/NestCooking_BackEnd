@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using System.Net;
@@ -66,5 +67,41 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			_responseDTO.Result = null;
 			return BadRequest(_responseDTO);
 		}
-	}
+
+        [HttpGet("facebook")]
+        public IActionResult FacebookLogin()
+        {
+            var properties = new AuthenticationProperties
+            {
+                RedirectUri = Url.Action("FacebookCallback"),
+                Items = { { "scheme", "Facebook" } }
+            };
+
+            return Challenge(properties, "Facebook");
+        }
+
+
+
+        [HttpGet("FacebookCallback")]
+        public async Task<IActionResult> FacebookCallback()
+        {
+            var result = await HttpContext.AuthenticateAsync("Facebook");
+
+            if (!result.Succeeded)
+            {
+
+                return BadRequest("Facebook authentication failed.");
+            }
+
+            var userId = result.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userName = result.Principal.FindFirst(ClaimTypes.Name)?.Value;
+
+            return Ok(new
+            {
+                UserId = userId,
+                UserName = userName
+
+            });
+        }
+    }
 }
