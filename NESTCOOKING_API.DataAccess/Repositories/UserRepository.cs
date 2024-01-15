@@ -4,6 +4,9 @@ using NESTCOOKING_API.DataAccess.Data;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using NESTCOOKING_API.Utility;
+using System.Text.RegularExpressions;
+using System.Text;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace NESTCOOKING_API.DataAccess.Repositories
 {
@@ -21,7 +24,26 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 			_roleManager = roleManager;
 		}
 
-		public bool IsUniqueUserName(string username)
+   //     public Task<string> convertToUnSign(string s)
+   //     {
+			//String result;
+			//if (s == null)
+			//{
+			//	result =
+			//	return result;
+			//}
+
+   //         // Chuyển đổi chuỗi có dấu thành chuỗi không dấu
+   //         string normalizedString = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(s));
+
+   //         // Chuyển lại từ Base64Url
+   //         byte[] bytes = WebEncoders.Base64UrlDecode(normalizedString);
+   //          result = Encoding.UTF8.GetString(bytes);
+
+   //         return result;
+   //     }
+
+        public bool IsUniqueUserName(string username)
 		{
 			var user = _context.Users.FirstOrDefault(x => x.UserName == username);
 			if (user == null)

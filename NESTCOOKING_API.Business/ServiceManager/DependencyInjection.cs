@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Facebook;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -18,45 +19,64 @@ using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 
 namespace NESTCOOKING_API.Business.ServiceManager
 {
-	public class DependencyInjection
-	{
-		public void ConfigureServices(IServiceCollection service)
-		{
-			var configBuilder = new ConfigurationBuilder()
-					   .SetBasePath(Directory.GetCurrentDirectory())
-					   .AddJsonFile("appsettings.json");
-			var configurationRoot = configBuilder.Build();
+    public class DependencyInjection
+    {
+        public void ConfigureServices(IServiceCollection service)
+        {
+            var configBuilder = new ConfigurationBuilder()
+                       .SetBasePath(Directory.GetCurrentDirectory())
+                       .AddJsonFile("appsettings.json");
+            var configurationRoot = configBuilder.Build();
 
-			// Add repositories to the container.
-			service.AddScoped<IUserRepository, UserRepository>();
+            // Add repositories to the container.
+            service.AddScoped<IUserRepository, UserRepository>();
+            service.AddScoped<IProviderRepository, ProviderRepository>();
 
-			// Add services to the container.
-			service.AddScoped<IAuthService, AuthService>();
-			service.AddScoped<IUserService, UserService>();
+            // Add services to the container.
+            service.AddScoped<IAuthService, AuthService>();
+            service.AddScoped<IUserService, UserService>();
 
-			//DBContext and Identity
-			service.AddDbContext<ApplicationDbContext>(options =>
-			{
-				options.UseSqlServer(configurationRoot.GetConnectionString("Default"));
-			});
-			service.AddIdentityCore<User>().AddRoles<IdentityRole>()
-				.AddEntityFrameworkStores<ApplicationDbContext>();
-			service.AddAutoMapper(typeof(AutoMapperProfile));
+            service.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+
+            //DBContext and Identity
+            service.AddDbContext<ApplicationDbContext>(options =>
+
+            
+            {
+                options.UseSqlServer(configurationRoot.GetConnectionString("Default"));
+            });
+            service
+                .AddIdentityCore<User>()
+                .AddRoles<IdentityRole>()
+                .AddSignInManager<SignInManager<User>>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
+            service.AddAutoMapper(typeof(AutoMapperProfile));
 
 
-			//AddService Login Facebook
+            service.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme= CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                //options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme; // Use Google scheme for external logins
+            })
+            .AddCookie()
+            .AddGoogle(options =>
+              {
+                  //options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+                  options.ClientId = configurationRoot["Authentication:Google:ClientId"];
+                  options.ClientSecret = configurationRoot["Authentication:Google:ClientSecret"];
+              })
+            .AddFacebook(FacebookDefaults.AuthenticationScheme, options =>
+            {
+                options.AppId = configurationRoot["Authentication:Facebook:AppId"];
+                options.AppSecret = configurationRoot["Authentication:Facebook:AppSecret"];
+            });
 
-			service.AddAuthentication(options =>
-			{
-				options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-				options.DefaultChallengeScheme = FacebookDefaults.AuthenticationScheme;
-			})
-			.AddCookie()  // Đăng ký xử lý xác thực cookie
-			.AddFacebook(options =>
-			{
-				options.AppId = configurationRoot["FacebookAPISettings:ClientId"];
-				options.AppSecret = configurationRoot["FacebookAPISettings:ClientSecret"];
-			});
-		}
-	}
+
+
+        }
+    }
 }
