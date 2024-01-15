@@ -36,8 +36,6 @@ namespace NESTCOOKING_API.Business.Services
 			{
 				return null;
 			}
-
-			var userDTO = _mapper.Map<UserDTO>(user);
 			var roles = await _userManager.GetRolesAsync(user);
 
 			// Generate JWT token
@@ -55,12 +53,9 @@ namespace NESTCOOKING_API.Business.Services
 			};
 
 			var token = tokenHandler.CreateToken(tokenDescriptor);
-
 			LoginResponseDTO loginResponseDTO = new()
 			{
-				User = userDTO,
-				Role = roles.FirstOrDefault(),
-				Token = tokenHandler.WriteToken(token),
+				AccessToken = tokenHandler.WriteToken(token),
 			};
 
 			return loginResponseDTO;

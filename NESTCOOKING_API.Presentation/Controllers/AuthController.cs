@@ -25,7 +25,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		{
 			var loginResponse = await _authService.Login(model);
 
-			if (loginResponse == null || string.IsNullOrEmpty(loginResponse.Token))
+			if (loginResponse == null || string.IsNullOrEmpty(loginResponse.AccessToken))
 			{
 				_responseDTO.StatusCode = HttpStatusCode.BadRequest;
 				_responseDTO.Message = "Username or password is incorrect!";
