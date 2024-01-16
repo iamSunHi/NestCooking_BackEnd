@@ -7,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using NESTCOOKING_API.Business.Authorization;
+using Microsoft.Extensions.Options;
+using NESTCOOKING_API.Business.DTOs.EmailDTO;
 using NESTCOOKING_API.Business.Mapping;
 using NESTCOOKING_API.Business.Services;
 using NESTCOOKING_API.Business.Services.IServices;
@@ -36,8 +38,20 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			service.AddScoped<IJwtUtils, JwtUtils>();
 			service.AddScoped<IAuthService, AuthService>();
 			service.AddScoped<IUserService, UserService>();
+			service.AddScoped<IEmailService, EmailService>();
 
-			service.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+            service.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+
+			// Configure for email
+			service.Configure<IdentityOptions>(
+				options => options.SignIn.RequireConfirmedEmail = true);
+			// Set time Token for Email Confirm
+			service.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromMinutes(20));
+
+			var emailConfig = configurationRoot.GetSection("EmailConfiguration").Get<EmailRequest>();
+			service.AddSingleton(emailConfig);
+
+
 
 			// DBContext and Identity
 			service.AddDbContext<ApplicationDbContext>(options =>

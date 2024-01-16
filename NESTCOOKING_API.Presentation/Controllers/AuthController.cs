@@ -3,6 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.Services.IServices;
+using System.Net;
+using NESTCOOKING_API.Business.DTOs.EmailDTO;
+using NESTCOOKING_API.Business.DTOs.ResetPassword;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
+using NESTCOOKING_API.DataAccess.Models;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.Facebook;
@@ -15,9 +22,19 @@ namespace NESTCOOKING_API.Presentation.Controllers
 	public class AuthController : ControllerBase
 	{
 		private readonly IAuthService _authService;
-		public AuthController(IAuthService authService)
+		private readonly IEmailService _emailService;
+		private readonly IConfiguration _configuration;
+		private readonly UserManager<IdentityUser> _userManager;
+		private readonly RoleManager<IdentityRole> _roleManager;
+		public AuthController(IAuthService authService, IEmailService emailService, IConfiguration configuration, UserManager<IdentityUser> userManager,
+			RoleManager<IdentityRole> roleManager)
 		{
 			_authService = authService;
+			_emailService = emailService;
+			_configuration = configuration;
+			_roleManager = roleManager;
+			_userManager = userManager;
+
 		}
 
 		[HttpPost("login")]
@@ -146,6 +163,85 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				RedirectUri = Url.Action(redirectUri),
 				Items = { { "scheme", scheme } }
 			};
+		}
+
+		[HttpGet("Demo Send Email")]
+		public IActionResult SendEmail(string email, string content)
+		{
+
+			var message = new EmailResponse(
+				new string[] { email }, "NestCooking", content);
+			_emailService.SendEmail(message);
+
+			return StatusCode(StatusCodes.Status200OK,
+				new ResponseDTO
+				{
+					StatusCode = HttpStatusCode.OK,
+					Message = "Email Send Successfully",
+					Result = email
+				}
+				);
+
+		}
+
+		[HttpPost("RequestForgotPassword")]
+		[AllowAnonymous]
+		public async Task<IActionResult> ForgotPassword([Required] string email)
+		{
+			var user = await _userManager.FindByEmailAsync(email);
+			if (user != null)
+			{
+				var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+				var forgotPasswordlink = Url.Action(nameof(ResetPassword), "Authentication", new { token, email = user.Email }, Request.Scheme);
+				var message = new EmailResponse(new string[] { user.Email! }, "Forgot Password Link", forgotPasswordlink!);
+				_emailService.SendEmail(message);
+
+				return StatusCode(StatusCodes.Status200OK,
+				   new ResponseDTO { StatusCode = HttpStatusCode.OK, Message = $"Password Changed request is sent on Email {user.Email}. Please Open Email And Click Link To Verify" });
+			}
+			return StatusCode(StatusCodes.Status400BadRequest,
+			   new ResponseDTO { StatusCode = HttpStatusCode.BadRequest, Message = $"Coulnot send link to email, Please try again" });
+		}
+
+
+		[HttpGet("reset-password")]
+		public async Task<IActionResult> ResetPassword(string token, string email)
+		{
+			var modelResetPassword = new ResetPassword
+			{
+				Token = token,
+				Email = email
+			};
+			return Ok(new
+			{
+				modelResetPassword
+			});
+		}
+
+		[HttpPost("Reset Password")]
+		[AllowAnonymous]
+		public async Task<IActionResult> SetPassword(ResetPassword resetPassword)
+		{
+
+			var user = await _userManager.FindByEmailAsync(resetPassword.Email);
+			if (user != null)
+			{
+				var resetPasswordResult = await _userManager.ResetPasswordAsync(user, resetPassword.Token, resetPassword.Password);
+				if (!resetPasswordResult.Succeeded)
+				{
+					foreach (var error in resetPasswordResult.Errors)
+					{
+						ModelState.AddModelError(error.Code, error.Description);
+					}
+					return Ok(ModelState);
+				}
+				return StatusCode(StatusCodes.Status200OK,
+			   new ResponseDTO { StatusCode = HttpStatusCode.OK, Result = "Success", Message = $"Password Has Been Changed" });
+
+			}
+			return StatusCode(StatusCodes.Status400BadRequest,
+			   new ResponseDTO { StatusCode = HttpStatusCode.BadRequest, Result = "Error", Message = $"Coulnot send link to email, Please try again" });
+
 		}
 	}
 }
