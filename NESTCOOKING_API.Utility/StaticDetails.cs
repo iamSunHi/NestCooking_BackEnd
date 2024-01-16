@@ -25,6 +25,7 @@
 		public const string NotificationType_COMMENT = "COMMENT";
 		public const string NotificationType_REPORT = "REPORT";
 		public const string NotificationType_REQUEST = "REQUEST";
+
         public enum Provider { Google, Facebook }
     }
 }

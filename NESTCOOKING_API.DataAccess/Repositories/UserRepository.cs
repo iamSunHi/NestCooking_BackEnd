@@ -24,7 +24,6 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 			_roleManager = roleManager;
 		}
 
-  
         public bool IsUniqueUserName(string username)
 		{
 			var user = _context.Users.FirstOrDefault(x => x.UserName == username);
