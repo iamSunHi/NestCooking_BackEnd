@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using NESTCOOKING_API.Business.Mapping;
 using NESTCOOKING_API.Business.Services;
 using NESTCOOKING_API.Business.Services.IServices;
@@ -14,6 +15,7 @@ using NESTCOOKING_API.DataAccess.Data;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
+using System.Text;
 
 
 
@@ -39,9 +41,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
             //DBContext and Identity
-            service.AddDbContext<ApplicationDbContext>(options =>
-
-            
+            service.AddDbContext<ApplicationDbContext>(options =>    
             {
                 options.UseSqlServer(configurationRoot.GetConnectionString("Default"));
             });
@@ -62,6 +62,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
                 options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 //options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme; // Use Google scheme for external logins
             })
+            
             .AddCookie()
             .AddGoogle(options =>
               {

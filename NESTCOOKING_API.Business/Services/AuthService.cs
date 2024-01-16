@@ -68,9 +68,7 @@ namespace NESTCOOKING_API.Business.Services
 
             LoginResponseDTO loginResponseDTO = new()
             {
-                User = userDTO,
-                Role = roles.FirstOrDefault(),
-                Token = tokenHandler.WriteToken(token),
+                AccessToken = tokenHandler.WriteToken(token),
             };
 
             return loginResponseDTO;
@@ -168,8 +166,7 @@ namespace NESTCOOKING_API.Business.Services
             }
             catch (Exception ex)
             {
-                // Log the exception or handle it appropriately
-                // For simplicity, we return an error message here
+                
                 return $"Error: {ex.Message}";
             }
         }
@@ -248,8 +245,7 @@ namespace NESTCOOKING_API.Business.Services
             }
             catch (Exception ex)
             {
-                // Log the exception or handle it appropriately
-                // For simplicity, we return an error message here
+               
                 return $"Error: {ex.Message}";
             }
         }
