@@ -32,7 +32,6 @@ namespace NESTCOOKING_API.Business.ServiceManager
 
             // Add repositories to the container.
             service.AddScoped<IUserRepository, UserRepository>();
-            service.AddScoped<IProviderRepository, ProviderRepository>();
 
             // Add services to the container.
             service.AddScoped<IAuthService, AuthService>();
@@ -74,6 +73,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
             {
                 options.AppId = configurationRoot["Authentication:Facebook:AppId"];
                 options.AppSecret = configurationRoot["Authentication:Facebook:AppSecret"];
+                options.SaveTokens = true;
             });
 
 
