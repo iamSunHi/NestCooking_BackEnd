@@ -8,7 +8,7 @@ namespace NESTCOOKING_API.Business.Services.IServices
     {
         Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO);
         Task<string> Register(RegistrationRequestDTO registrationRequestDTO);
-        Task<string> LoginByGoogle(GoogleRequestDTO info);
-        Task<string> LoginByFacebook(FacebookRequestDTO info);
+        Task<string> LoginByGoogle(ProviderRequestDTO info);
+        Task<string> LoginByFacebook(ProviderRequestDTO info);
     }
 }

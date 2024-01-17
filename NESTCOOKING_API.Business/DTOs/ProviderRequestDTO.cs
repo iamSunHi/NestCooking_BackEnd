@@ -1,4 +1,4 @@
-﻿using NESTCOOKING_API.Utility;
+using NESTCOOKING_API.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NESTCOOKING_API.Business.DTOs
 {
-    public class FacebookRequestDTO
+    public class ProviderRequestDTO
     {
         public StaticDetails.Provider LoginProvider { get; set; }
         public string ProviderDisplayName { get; set; }

@@ -1,10 +1,7 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.Services.IServices;
@@ -84,7 +81,7 @@ namespace NESTCOOKING_API.Business.Services
 			return result;
 		}
 
-		public async Task<string> LoginByGoogle(GoogleRequestDTO info)
+		public async Task<string> LoginByGoogle(ProviderRequestDTO info)
 		{
 			try
 			{
@@ -160,7 +157,7 @@ namespace NESTCOOKING_API.Business.Services
 			}
 		}
 
-		public async Task<string> LoginByFacebook(FacebookRequestDTO info)
+		public async Task<string> LoginByFacebook(ProviderRequestDTO info)
 		{
 			try
 			{
@@ -176,7 +173,7 @@ namespace NESTCOOKING_API.Business.Services
 					// Create a new user if not exists
 					var newUser = new User
 					{
-						UserName = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(info.UserName)),
+						UserName = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(info.Email)),
 						FirstName = info.FirstName,
 						LastName = info.LastName,
 						Email = info.Email,

@@ -3,14 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.Services.IServices;
-using System.Net;
-using Microsoft.AspNetCore.Identity;
-using NESTCOOKING_API.DataAccess.Models;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.Facebook;
 using static NESTCOOKING_API.Utility.StaticDetails;
-using Microsoft.IdentityModel.Tokens;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
@@ -18,11 +14,9 @@ namespace NESTCOOKING_API.Presentation.Controllers
 	[ApiController]
 	public class AuthController : ControllerBase
 	{
-		protected ResponseDTO _responseDTO;
 		private readonly IAuthService _authService;
 		public AuthController(IAuthService authService)
 		{
-			this._responseDTO = new ResponseDTO();
 			_authService = authService;
 		}
 
@@ -33,17 +27,9 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 			if (loginResponse == null || string.IsNullOrEmpty(loginResponse.AccessToken))
 			{
-				_responseDTO.StatusCode = HttpStatusCode.BadRequest;
-				_responseDTO.Message = "Username or password is incorrect!";
-				_responseDTO.Result = null;
-				return BadRequest(_responseDTO);
+				return BadRequest(ResponseDTO.BadRequest(message: "Username or password is incorrect!"));
 			}
-
-			_responseDTO.StatusCode = HttpStatusCode.OK;
-			_responseDTO.Message = "";
-			_responseDTO.Result = loginResponse;
-
-			return Ok(_responseDTO);
+			return Ok(ResponseDTO.Accept(result: loginResponse));
 		}
 
 		[HttpPost("register")]
@@ -55,23 +41,12 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 				if (!string.IsNullOrEmpty(registrationResponse))
 				{
-					_responseDTO.StatusCode = HttpStatusCode.BadRequest;
-					_responseDTO.Message = registrationResponse;
-					_responseDTO.Result = null;
-					return BadRequest(_responseDTO);
+					return BadRequest(ResponseDTO.BadRequest(message: registrationResponse));
 				}
 
-				_responseDTO.StatusCode = HttpStatusCode.OK;
-				_responseDTO.Message = "Successful account registration!";
-				_responseDTO.Result = null;
-
-				return Ok(_responseDTO);
+				return Ok(ResponseDTO.Accept(message: registrationResponse));
 			}
-
-			_responseDTO.StatusCode = HttpStatusCode.BadRequest;
-			_responseDTO.Message = "Error in request!";
-			_responseDTO.Result = null;
-			return BadRequest(_responseDTO);
+			return BadRequest(ResponseDTO.BadRequest(message: "Error in request!"));
 		}
 
 		[AllowAnonymous]
@@ -79,13 +54,9 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		public IActionResult FacebookLogin()
 
 		{
-			var properties = new AuthenticationProperties
-			{
-				RedirectUri = Url.Action("FacebookCallback"),
-				Items = { { "scheme", FacebookDefaults.AuthenticationScheme } }
-			};
+			var authenticationProperties = CreateAuthenticationProperties("FacebookCallback", FacebookDefaults.AuthenticationScheme);
 
-			return Challenge(properties, FacebookDefaults.AuthenticationScheme);
+			return Challenge(authenticationProperties, FacebookDefaults.AuthenticationScheme);
 		}
 
 		[AllowAnonymous]
@@ -95,36 +66,16 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			var result = await HttpContext.AuthenticateAsync("Facebook");
 			if (!result.Succeeded)
 			{
-				return BadRequest(_responseDTO);
+				return BadRequest(ResponseDTO.BadRequest());
 			}
-			var userId = result.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value; //ProviderKey
-			var userName = result.Principal.FindFirst(ClaimTypes.Name)?.Value; // ProviderDisplayName
-			var firstName = result.Principal.Claims.FirstOrDefault(filter => filter.Type == ClaimTypes.GivenName)?.Value;
-			var lastName = result.Principal.Claims.FirstOrDefault(filter => filter.Type == ClaimTypes.Surname)?.Value;
-			var email = result.Principal.FindFirst(ClaimTypes.Email)?.Value;
-			var address = result.Principal.FindFirst(ClaimTypes.StreetAddress)?.Value;
-			var phoneNumber = result.Principal.FindFirst(ClaimTypes.MobilePhone)?.Value;
 
-			var userFbDTO = new FacebookRequestDTO
-			{
-				LoginProvider = Provider.Facebook,
-				ProviderKey = userId,
-				ProviderDisplayName = userName,
-				FirstName = firstName,
-				LastName = lastName,
-				Phone = phoneNumber,
-				Email = email,
-				Address = address,
-			};
+			var userProviderDTO = this.CreateProviderRequestDTO(result.Principal, Provider.Facebook);
 
-			var token = await _authService.LoginByFacebook(userFbDTO);
+			var token = await _authService.LoginByFacebook(userProviderDTO);
 
 			if (token == null)
 			{
-				_responseDTO.StatusCode = HttpStatusCode.BadRequest;
-				_responseDTO.Message = "Authentication failed";
-				_responseDTO.Result = null;
-				return BadRequest(_responseDTO);
+				return BadRequest(ResponseDTO.BadRequest(message: "Authentication failed"));
 			}
 
 			LoginResponseDTO loginResponseDTO = new()
@@ -132,23 +83,15 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				AccessToken = token
 			};
 
-			_responseDTO.Result = loginResponseDTO;
-			_responseDTO.StatusCode = HttpStatusCode.OK;
-			_responseDTO.Message = "";
-			return Ok(_responseDTO);
+			return Ok(ResponseDTO.Accept(result: loginResponseDTO));
 		}
 
 		[AllowAnonymous]
 		[HttpGet("signin-google")]
 		public IActionResult GoogleLogin()
 		{
-			var authenticationProperties = new AuthenticationProperties
-			{
-				RedirectUri = Url.Action("GoogleLoginCallback"),
-				Items = { { "scheme", GoogleDefaults.AuthenticationScheme } }
-			};
 
-
+			var authenticationProperties = CreateAuthenticationProperties(redirectUri: "GoogleLoginCallback", scheme: GoogleDefaults.AuthenticationScheme);
 			return Challenge(authenticationProperties, GoogleDefaults.AuthenticationScheme);
 		}
 
@@ -160,37 +103,15 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 			if (!result.Succeeded)
 			{
-				return BadRequest(_responseDTO);
+				return BadRequest(ResponseDTO.BadRequest());
 			}
-			var userId = result.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value; // ProviderKey
-			var userName = result.Principal.FindFirst(ClaimTypes.Name)?.Value; // ProviderDisplayName
-			var firstName = result.Principal.Claims.FirstOrDefault(filter => filter.Type == ClaimTypes.GivenName)?.Value;
-			var lastName = result.Principal.Claims.FirstOrDefault(filter => filter.Type == ClaimTypes.Surname)?.Value;
-			var email = result.Principal.FindFirst(ClaimTypes.Email)?.Value;
-			var address = result.Principal.FindFirst(ClaimTypes.StreetAddress)?.Value;
-			var phoneNumber = result.Principal.FindFirst(ClaimTypes.MobilePhone)?.Value;
-			string[] nameParts = userName.Split(' ');
+			var userProviderDTO = this.CreateProviderRequestDTO(result.Principal, Provider.Google);
 
-			var googleRequestDTO = new GoogleRequestDTO
-			{
-				LoginProvider = Utility.StaticDetails.Provider.Google,
-				ProviderKey = userId,
-				ProviderDisplayName = userName,
-				FirstName = firstName,
-				LastName = lastName,
-				Phone = phoneNumber,
-				Email = email,
-				Address = address,
-			};
-
-			var token = await _authService.LoginByGoogle(googleRequestDTO);
+			var token = await _authService.LoginByGoogle(userProviderDTO);
 
 			if (token == null)
 			{
-				_responseDTO.StatusCode = HttpStatusCode.BadRequest;
-				_responseDTO.Message = "Authentication failed";
-				_responseDTO.Result = null;
-				return BadRequest(_responseDTO);
+				return BadRequest(ResponseDTO.BadRequest(message: "Authentication failed"));
 			}
 
 			LoginResponseDTO loginResponseDTO = new()
@@ -198,11 +119,33 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				AccessToken = token
 			};
 
-			_responseDTO.Result = loginResponseDTO;
-			_responseDTO.StatusCode = HttpStatusCode.OK;
-			_responseDTO.Message = "";
-			return Ok(_responseDTO);
+			return Ok(ResponseDTO.Accept(result: loginResponseDTO));
 
+		}
+
+		private ProviderRequestDTO CreateProviderRequestDTO(ClaimsPrincipal principal, Provider provider)
+		{
+			return new ProviderRequestDTO
+			{
+				LoginProvider = provider,
+				ProviderKey = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "",
+				ProviderDisplayName = principal.FindFirst(ClaimTypes.Name)?.Value ?? "",
+				FirstName = principal.Claims.FirstOrDefault(filter => filter.Type == ClaimTypes.GivenName)?.Value ?? "",
+				LastName = principal.Claims.FirstOrDefault(filter => filter.Type == ClaimTypes.Surname)?.Value ?? "",
+				Phone = principal.FindFirst(ClaimTypes.MobilePhone)?.Value ?? "",
+				Email = principal.FindFirst(ClaimTypes.Email)?.Value ?? "",
+				Address = principal.FindFirst(ClaimTypes.StreetAddress)?.Value ?? "",
+			};
+		}
+
+
+		private AuthenticationProperties CreateAuthenticationProperties(string redirectUri, string scheme)
+		{
+			return new AuthenticationProperties
+			{
+				RedirectUri = Url.Action(redirectUri),
+				Items = { { "scheme", scheme } }
+			};
 		}
 	}
 }
