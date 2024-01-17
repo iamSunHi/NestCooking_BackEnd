@@ -4,6 +4,9 @@ using NESTCOOKING_API.DataAccess.Data;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using NESTCOOKING_API.Utility;
+using System.Text.RegularExpressions;
+using System.Text;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace NESTCOOKING_API.DataAccess.Repositories
 {
@@ -21,7 +24,8 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 			_roleManager = roleManager;
 		}
 
-		public bool IsUniqueUserName(string username)
+  
+        public bool IsUniqueUserName(string username)
 		{
 			var user = _context.Users.FirstOrDefault(x => x.UserName == username);
 			if (user == null)
@@ -69,12 +73,8 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 				}
 				else
 				{
-					string errors = "";
-					foreach (var e in result.Errors)
-					{
-						errors += e.Description;
-					}
-					return errors;
+					string error = result.Errors.FirstOrDefault()?.Description;
+					return error;
 				}
 			}
 			catch (Exception ex)

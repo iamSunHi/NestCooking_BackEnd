@@ -3,7 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.Services.IServices;
-using System.Net;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.Facebook;
+using static NESTCOOKING_API.Utility.StaticDetails;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
@@ -11,12 +14,9 @@ namespace NESTCOOKING_API.Presentation.Controllers
 	[ApiController]
 	public class AuthController : ControllerBase
 	{
-		protected ResponseDTO _responseDTO;
 		private readonly IAuthService _authService;
-
 		public AuthController(IAuthService authService)
 		{
-			this._responseDTO = new ResponseDTO();
 			_authService = authService;
 		}
 
@@ -27,17 +27,9 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 			if (loginResponse == null || string.IsNullOrEmpty(loginResponse.AccessToken))
 			{
-				_responseDTO.StatusCode = HttpStatusCode.BadRequest;
-				_responseDTO.Message = "Username or password is incorrect!";
-				_responseDTO.Result = null;
-				return BadRequest(_responseDTO);
+				return BadRequest(ResponseDTO.BadRequest(message: "Username or password is incorrect!"));
 			}
-
-			_responseDTO.StatusCode = HttpStatusCode.OK;
-			_responseDTO.Message = "";
-			_responseDTO.Result = loginResponse;
-
-			return Ok(_responseDTO);
+			return Ok(ResponseDTO.Accept(result: loginResponse));
 		}
 
 		[HttpPost("register")]
@@ -49,59 +41,111 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 				if (!string.IsNullOrEmpty(registrationResponse))
 				{
-					_responseDTO.StatusCode = HttpStatusCode.BadRequest;
-					_responseDTO.Message = registrationResponse;
-					_responseDTO.Result = null;
-					return BadRequest(_responseDTO);
+					return BadRequest(ResponseDTO.BadRequest(message: registrationResponse));
 				}
 
-				_responseDTO.StatusCode = HttpStatusCode.OK;
-				_responseDTO.Message = "Successful account registration!";
-				_responseDTO.Result = null;
-
-				return Ok(_responseDTO);
+				return Ok(ResponseDTO.Accept(message: registrationResponse));
 			}
-
-			_responseDTO.StatusCode = HttpStatusCode.BadRequest;
-			_responseDTO.Message = "Error in request!";
-			_responseDTO.Result = null;
-			return BadRequest(_responseDTO);
+			return BadRequest(ResponseDTO.BadRequest(message: "Error in request!"));
 		}
 
-        [HttpGet("facebook")]
-        public IActionResult FacebookLogin()
-        {
-            var properties = new AuthenticationProperties
-            {
-                RedirectUri = Url.Action("FacebookCallback"),
-                Items = { { "scheme", "Facebook" } }
-            };
+		[AllowAnonymous]
+		[HttpGet("signin-facebook")]
+		public IActionResult FacebookLogin()
 
-            return Challenge(properties, "Facebook");
-        }
+		{
+			var authenticationProperties = CreateAuthenticationProperties("FacebookCallback", FacebookDefaults.AuthenticationScheme);
+
+			return Challenge(authenticationProperties, FacebookDefaults.AuthenticationScheme);
+		}
+
+		[AllowAnonymous]
+		[HttpGet("facebook-response")]
+		public async Task<IActionResult> FacebookCallback()
+		{
+			var result = await HttpContext.AuthenticateAsync("Facebook");
+			if (!result.Succeeded)
+			{
+				return BadRequest(ResponseDTO.BadRequest());
+			}
+
+			var userProviderDTO = this.CreateProviderRequestDTO(result.Principal, Provider.Facebook);
+
+			var token = await _authService.LoginByFacebook(userProviderDTO);
+
+			if (token == null)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: "Authentication failed"));
+			}
+
+			LoginResponseDTO loginResponseDTO = new()
+			{
+				AccessToken = token
+			};
+
+			return Ok(ResponseDTO.Accept(result: loginResponseDTO));
+		}
+
+		[AllowAnonymous]
+		[HttpGet("signin-google")]
+		public IActionResult GoogleLogin()
+		{
+
+			var authenticationProperties = CreateAuthenticationProperties(redirectUri: "GoogleLoginCallback", scheme: GoogleDefaults.AuthenticationScheme);
+			return Challenge(authenticationProperties, GoogleDefaults.AuthenticationScheme);
+		}
+
+		[AllowAnonymous]
+		[HttpGet("google-response")]
+		public async Task<IActionResult> GoogleLoginCallback()
+		{
+			var result = await HttpContext.AuthenticateAsync("Google");
+
+			if (!result.Succeeded)
+			{
+				return BadRequest(ResponseDTO.BadRequest());
+			}
+			var userProviderDTO = this.CreateProviderRequestDTO(result.Principal, Provider.Google);
+
+			var token = await _authService.LoginByGoogle(userProviderDTO);
+
+			if (token == null)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: "Authentication failed"));
+			}
+
+			LoginResponseDTO loginResponseDTO = new()
+			{
+				AccessToken = token
+			};
+
+			return Ok(ResponseDTO.Accept(result: loginResponseDTO));
+
+		}
+
+		private ProviderRequestDTO CreateProviderRequestDTO(ClaimsPrincipal principal, Provider provider)
+		{
+			return new ProviderRequestDTO
+			{
+				LoginProvider = provider,
+				ProviderKey = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "",
+				ProviderDisplayName = principal.FindFirst(ClaimTypes.Name)?.Value ?? "",
+				FirstName = principal.Claims.FirstOrDefault(filter => filter.Type == ClaimTypes.GivenName)?.Value ?? "",
+				LastName = principal.Claims.FirstOrDefault(filter => filter.Type == ClaimTypes.Surname)?.Value ?? "",
+				Phone = principal.FindFirst(ClaimTypes.MobilePhone)?.Value ?? "",
+				Email = principal.FindFirst(ClaimTypes.Email)?.Value ?? "",
+				Address = principal.FindFirst(ClaimTypes.StreetAddress)?.Value ?? "",
+			};
+		}
 
 
-
-        [HttpGet("FacebookCallback")]
-        public async Task<IActionResult> FacebookCallback()
-        {
-            var result = await HttpContext.AuthenticateAsync("Facebook");
-
-            if (!result.Succeeded)
-            {
-
-                return BadRequest("Facebook authentication failed.");
-            }
-
-            var userId = result.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var userName = result.Principal.FindFirst(ClaimTypes.Name)?.Value;
-
-            return Ok(new
-            {
-                UserId = userId,
-                UserName = userName
-
-            });
-        }
-    }
+		private AuthenticationProperties CreateAuthenticationProperties(string redirectUri, string scheme)
+		{
+			return new AuthenticationProperties
+			{
+				RedirectUri = Url.Action(redirectUri),
+				Items = { { "scheme", scheme } }
+			};
+		}
+	}
 }
