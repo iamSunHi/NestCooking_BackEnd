@@ -36,6 +36,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
             // Add services to the container.
             service.AddScoped<IAuthService, AuthService>();
             service.AddScoped<IUserService, UserService>();
+            service.AddScoped<UserService>();
 
             service.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
@@ -56,12 +57,27 @@ namespace NESTCOOKING_API.Business.ServiceManager
 
             service.AddAuthentication(options =>
             {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultAuthenticateScheme= CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 //options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme; // Use Google scheme for external logins
             })
-            
+            .AddJwtBearer(options =>
+            {
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidAudience = configurationRoot["JWT:ValidAudience"],
+                    ValidIssuer = configurationRoot["JWT:ValidIssuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configurationRoot["JWT:Secret"])),
+                };
+            })
+
             .AddCookie()
             .AddGoogle(options =>
               {
