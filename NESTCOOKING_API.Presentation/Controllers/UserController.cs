@@ -41,5 +41,27 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 			return Unauthorized();
 		}
+
+		[HttpPost("edit-profile")]
+		public async Task<IActionResult> EditProfile([FromBody] UserInfoDTO userInfoDTO)
+		{
+			var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+
+			if (userId != null)
+			{
+				var isSuccess = await _userService.EditProfile(userId, userInfoDTO);
+
+				if (isSuccess)
+				{
+					return Ok(ResponseDTO.Accept(message: "Your information changed successfully."));
+				}
+				else
+				{
+					return BadRequest(ResponseDTO.BadRequest(message: "Something went wrong when update your information."));
+				}
+			}
+
+			return Unauthorized();
+		}
 	}
 }

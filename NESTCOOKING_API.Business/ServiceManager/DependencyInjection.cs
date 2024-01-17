@@ -59,7 +59,6 @@ namespace NESTCOOKING_API.Business.ServiceManager
 				// For Google & Facebook login
 				options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 				options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-				options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 			})
 			.AddCookie()
 			.AddJwtBearer(options =>
