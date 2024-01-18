@@ -4,9 +4,6 @@ using NESTCOOKING_API.DataAccess.Data;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using NESTCOOKING_API.Utility;
-using System.Text.RegularExpressions;
-using System.Text;
-using Microsoft.AspNetCore.WebUtilities;
 
 namespace NESTCOOKING_API.DataAccess.Repositories
 {
@@ -45,19 +42,28 @@ namespace NESTCOOKING_API.DataAccess.Repositories
             return false;
         }
 
-        public async Task<User> Login(string username, string password)
-        {
-            var user = _context.Users.FirstOrDefault(u => u.UserName == username);
-            if (user != default)
-            {
-                bool isValid = await _userManager.CheckPasswordAsync(user, password);
-                if (!isValid)
-                {
-                    return null;
-                }
-            }
-            return user;
-        }
+		public async Task<User> Login(string username, string password)
+		{
+			var user = _context.Users.FirstOrDefault(u => u.UserName == username || u.Email == username);
+			if (user != null)
+			{
+				bool isValid = await _userManager.CheckPasswordAsync(user, password);
+				if (!isValid)
+				{
+					if (!_userManager.IsLockedOutAsync(user).Result)
+					{
+						await _userManager.AccessFailedAsync(user);
+						if (await _userManager.GetAccessFailedCountAsync(user) == 3)
+						{
+							await _userManager.SetLockoutEndDateAsync(user, DateTime.UtcNow.AddMinutes(30));
+							await _userManager.ResetAccessFailedCountAsync(user);
+						}
+					}
+					return null;
+				}
+			}
+			return user;
+		}
 
         public async Task<string> Register(User newUser, string password)
         {

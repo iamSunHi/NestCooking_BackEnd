@@ -40,7 +40,13 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			service.AddScoped<IUserService, UserService>();
 			service.AddScoped<IEmailService, EmailService>();
 
-            service.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+			service.AddCors(options =>
+			{
+				options.AddPolicy("AllowAnyOrigin", builder =>
+				{
+					builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+				});
+			});
 
             // Configure for email
             service.Configure<IdentityOptions>(
@@ -59,7 +65,12 @@ namespace NESTCOOKING_API.Business.ServiceManager
 				options.UseSqlServer(configurationRoot.GetConnectionString("Default"));
 			});
 			service
-				.AddIdentityCore<User>()
+				.AddIdentityCore<User>(options =>
+				{
+					options.Lockout.AllowedForNewUsers = true;
+					options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+					options.Lockout.MaxFailedAccessAttempts = 3;
+				})
 				.AddRoles<IdentityRole>()
 				.AddSignInManager<SignInManager<User>>()
 				.AddEntityFrameworkStores<ApplicationDbContext>()
