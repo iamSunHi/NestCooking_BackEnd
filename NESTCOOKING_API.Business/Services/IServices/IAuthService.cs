@@ -10,10 +10,9 @@ namespace NESTCOOKING_API.Business.Services.IServices
     {
         Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO);
         Task<string> Register(RegistrationRequestDTO registrationRequestDTO);
-        Task<string> LoginByGoogle(ProviderRequestDTO info);
-        Task<string> LoginByFacebook(ProviderRequestDTO info);
         Task<string> GenerateResetPasswordToken(User user);
         Task<IdentityResult> ResetPassword(User user, string resetPasswordToken, string resetPassword);
         Task<bool> VerifyResetPasswordToken(User user, string token);
+        Task<string> LoginWithThirdParty(ProviderRequestDTO info);
     }
 }

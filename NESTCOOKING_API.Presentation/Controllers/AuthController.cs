@@ -41,9 +41,13 @@ namespace NESTCOOKING_API.Presentation.Controllers
         {
             var loginResponse = await _authService.Login(model);
 
-            if (loginResponse == null || string.IsNullOrEmpty(loginResponse.AccessToken))
+            if (loginResponse == null)
             {
                 return BadRequest(ResponseDTO.BadRequest(message: "Username or password is incorrect!"));
+            }
+            else if (string.IsNullOrEmpty(loginResponse.AccessToken))
+            {
+                return BadRequest(ResponseDTO.BadRequest(message: "This account is locked out!"));
             }
             return Ok(ResponseDTO.Accept(result: loginResponse));
         }
@@ -85,14 +89,14 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 return BadRequest(ResponseDTO.BadRequest());
             }
 
-            var userProviderDTO = this.CreateProviderRequestDTO(result.Principal, Provider.Facebook);
+			var userProviderDTO = this.CreateProviderRequestDTO(result.Principal, Provider.Facebook);
 
-            var token = await _authService.LoginByFacebook(userProviderDTO);
+            var token = await _authService.LoginWithThirdParty(userProviderDTO);
 
-            if (token == null)
-            {
-                return BadRequest(ResponseDTO.BadRequest(message: "Authentication failed"));
-            }
+			if (token == null)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: "Authentication failed"));
+			}
 
             LoginResponseDTO loginResponseDTO = new()
             {
@@ -123,12 +127,12 @@ namespace NESTCOOKING_API.Presentation.Controllers
             }
             var userProviderDTO = this.CreateProviderRequestDTO(result.Principal, Provider.Google);
 
-            var token = await _authService.LoginByGoogle(userProviderDTO);
+            var token = await _authService.LoginWithThirdParty(userProviderDTO);
 
-            if (token == null)
-            {
-                return BadRequest(ResponseDTO.BadRequest(message: "Authentication failed"));
-            }
+			if (token == null)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: "Authentication failed"));
+			}
 
             LoginResponseDTO loginResponseDTO = new()
             {
@@ -191,7 +195,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
             User user = null;
 
 
-            if (identifier.Contains("@")) // Validation for email
+            if (Validation.CheckEmailValid(identifier)) // Validation for email
             {
                 user = await _userService.GetUserByEmail(identifier);
             }

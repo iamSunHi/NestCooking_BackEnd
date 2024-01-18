@@ -42,7 +42,9 @@ namespace NESTCOOKING_API.Business.Services
 			{
 				return null;
 			}
-			return _mapper.Map<UserInfoDTO>(user);
+			var userDTO = _mapper.Map<UserInfoDTO>(user);
+			userDTO.Role = _userManager.GetRolesAsync(user).Result.FirstOrDefault();
+			return userDTO;
 		}
 
 		public async Task<bool> ChangePassword(string userId, string currentPassword, string newPassword, string confirPassword)
@@ -71,11 +73,11 @@ namespace NESTCOOKING_API.Business.Services
 				return false;
 			}
 
+			user.UserName = userInfoDTO.UserName;
 			user.FirstName = userInfoDTO.FirstName;
 			user.LastName = userInfoDTO.LastName;
 			user.IsMale = userInfoDTO.IsMale;
 			user.PhoneNumber = userInfoDTO.PhoneNumber;
-			user.Email = userInfoDTO.Email;
 			user.Address = userInfoDTO.Address;
 			user.AvatarUrl = userInfoDTO.AvatarUrl;
 			user.UpdatedAt = DateTime.UtcNow;
