@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using NESTCOOKING_API.Business.Authorization;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.Services.IServices;
@@ -10,7 +9,7 @@ using NESTCOOKING_API.Utility;
 
 namespace NESTCOOKING_API.Business.Services
 {
-    public class AuthService : IAuthService
+	public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
         private readonly IJwtUtils _jwtUtils;
@@ -131,22 +130,59 @@ namespace NESTCOOKING_API.Business.Services
                 return $"Error: {ex.Message}";
             }
         }
-        public Task<string> GenerateResetPasswordToken(User user)
-        {
-            return _userManager.GeneratePasswordResetTokenAsync(user);
+        public async Task<(string, string)> GenerateResetPasswordToken(string identifier)
+		{
+			User user = null;
+
+			if (Validation.CheckEmailValid(identifier))
+			{
+				user = await _userManager.FindByEmailAsync(identifier);
+			}
+			else
+			{
+				user = await _userManager.FindByNameAsync(identifier);
+			}
+
+            if (user != null)
+			{
+				var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+				if (!string.IsNullOrEmpty(token))
+				{
+                    return (token, user.Email);
+				}
+			}
+
+			return (null, null);
         }
 
-        public async Task<IdentityResult> ResetPassword(User user, string resetPasswordToken, string resetPassword)
+        public async Task<string> ResetPassword(ResetPasswordRequestDTO resetPasswordRequestDTO)
+		{
+			var user = await _userManager.FindByEmailAsync(resetPasswordRequestDTO.Email);
+			if (user != null)
+			{
+				var result = await _userManager.ResetPasswordAsync(user, resetPasswordRequestDTO.Token, resetPasswordRequestDTO.NewPassword);
+				if (!result.Succeeded)
+				{
+                    return result.Errors.ToList().FirstOrDefault().Description;
+				}
+				return "";
+			}
+			else
+			{
+                return "Something went wrong!";
+			}
+		}
+
+        public async Task<bool> VerifyResetPasswordToken(string email, string token)
         {
-            return await _userManager.ResetPasswordAsync(user, resetPasswordToken, resetPassword);
-        }
+			var user = await _userManager.FindByEmailAsync(email);
 
-        public async Task<bool> VerifyResetPasswordToken(User user, string token)
-        {
+			if (user == null)
+			{
+                return false;
+			}
 
-            var result = await _userManager.VerifyUserTokenAsync(user, TokenOptions.DefaultProvider, UserManager<User>.ResetPasswordTokenPurpose, token);
-
-            return result;
+            return await _userManager.VerifyUserTokenAsync(user, TokenOptions.DefaultProvider, UserManager<User>.ResetPasswordTokenPurpose, token); ;
         }
     }
 }

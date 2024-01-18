@@ -54,7 +54,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			// Set time Token for Email Confirm
 			service.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromMinutes(20));
 
-			var emailConfig = configurationRoot.GetSection("EmailConfiguration").Get<EmailRequest>();
+			var emailConfig = configurationRoot.GetSection("EmailConfiguration").Get<EmailRequestDTO>();
 			service.AddSingleton(emailConfig);
 
 
