@@ -16,6 +16,18 @@ namespace NESTCOOKING_API.Business.Services
 			_userManager = userManager;
 			_mapper = mapper;
 		}
+
+		public async Task<UserInfoDTO> GetUserById(string id)
+		{
+			var user = await _userManager.FindByIdAsync(id);
+
+			if (user == null)
+			{
+				return null;
+			}
+			return _mapper.Map<UserInfoDTO>(user);
+		}
+
 		public async Task<bool> ChangePassword(string userId, string currentPassword, string newPassword, string confirPassword)
 		{
 			var user = await _userManager.FindByIdAsync(userId);

@@ -20,8 +20,27 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			_userService = userService;
 		}
 
+		[HttpGet]
+		public async Task<IActionResult> GetInfo()
+		{
+			var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+
+			if (userId != null)
+			{
+				var userInfo = await _userService.GetUserById(userId);
+
+				if (userInfo != null)
+				{
+					return Ok(ResponseDTO.Accept(result: userInfo));
+				}
+				else { return BadRequest(ResponseDTO.BadRequest()); }
+			}
+
+			return Unauthorized();
+		}
+
 		[HttpPost("change-password")]
-		public async Task<IActionResult> ChangePassword([FromHeader] string authorization, [FromBody] ChangePasswordDTO changePasswordDTO)
+		public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO changePasswordDTO)
 		{
 			var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
 
