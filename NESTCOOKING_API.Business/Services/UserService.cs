@@ -1,21 +1,38 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
+using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 
 namespace NESTCOOKING_API.Business.Services
 {
-	public class UserService : IUserService
-	{
-		private readonly UserManager<User> _userManager;
+    public class UserService : IUserService
+    {
+        private readonly IUserRepository _userRepository;
+        private readonly UserManager<User> _userManager;
 		private readonly IMapper _mapper;
 
-		public UserService(UserManager<User> userManager, IMapper mapper)
-		{
-			_userManager = userManager;
-			_mapper = mapper;
-		}
+        public UserService(IUserRepository userRepository, UserManager<User> userManager)
+        {
+            _userRepository = userRepository;
+            _userManager = userManager;
+        }
+
+        public Task<User> GetUserByEmail(string email)
+        {
+            return _userManager.FindByEmailAsync(email);
+        }
+
+        public Task<User> GetUserByUsername(string username)
+        {
+            return _userManager.FindByNameAsync(username);
+        }
+
+        public bool IsUniqueEmail(string email)
+        {
+            return this._userRepository.IsUniqueEmail(email);
+        }
 
 		public async Task<UserInfoDTO> GetUserById(string id)
 		{

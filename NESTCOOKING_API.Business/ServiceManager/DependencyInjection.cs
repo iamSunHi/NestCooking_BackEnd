@@ -42,8 +42,8 @@ namespace NESTCOOKING_API.Business.ServiceManager
 
             service.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
-			// Configure for email
-			service.Configure<IdentityOptions>(
+            // Configure for email
+            service.Configure<IdentityOptions>(
 				options => options.SignIn.RequireConfirmedEmail = true);
 			// Set time Token for Email Confirm
 			service.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromMinutes(20));
