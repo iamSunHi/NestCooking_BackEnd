@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using NESTCOOKING_API.Business.Authorization;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
@@ -17,14 +18,16 @@ namespace NESTCOOKING_API.Business.Services
 	public class AuthService : IAuthService
 	{
 		private readonly IUserRepository _userRepository;
+		private readonly IJwtUtils _jwtUtils;
 		private readonly UserManager<User> _userManager;
 		private readonly RoleManager<IdentityRole> _roleManager;
 		private readonly IMapper _mapper;
 		private string secretKey;
-		public AuthService(IUserRepository userRepository, IConfiguration configuration,
+		public AuthService(IUserRepository userRepository, IJwtUtils jwtUtils, IConfiguration configuration,
 			UserManager<User> userManager, IMapper mapper, RoleManager<IdentityRole> roleManager)
 		{
 			_userRepository = userRepository;
+			_jwtUtils = jwtUtils;
 			_userManager = userManager;
 			_roleManager = roleManager;
 			_mapper = mapper;
@@ -37,31 +40,12 @@ namespace NESTCOOKING_API.Business.Services
 
 			if (user == null)
 			{
-				// Handle error
 				return null;
 			}
 
-			var roles = await _userManager.GetRolesAsync(user);
-
-			// Generate JWT token
-			var key = Encoding.ASCII.GetBytes(secretKey);
-			var tokenHandler = new JwtSecurityTokenHandler();
-			var tokenDescriptor = new SecurityTokenDescriptor
-			{
-				Subject = new ClaimsIdentity(new Claim[]
-				{
-					new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-					new Claim(ClaimTypes.Role, roles.FirstOrDefault())
-				}),
-				Expires = DateTime.UtcNow.AddDays(7),
-				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-			};
-
-			var token = tokenHandler.CreateToken(tokenDescriptor);
-
 			LoginResponseDTO loginResponseDTO = new()
 			{
-				AccessToken = tokenHandler.WriteToken(token),
+				AccessToken = await _jwtUtils.GenerateJwtToken(user)
 			};
 
 			return loginResponseDTO;
@@ -87,7 +71,6 @@ namespace NESTCOOKING_API.Business.Services
 			{
 				if (info == null)
 				{
-					// Handle error
 					return null;
 				}
 
@@ -130,25 +113,8 @@ namespace NESTCOOKING_API.Business.Services
 				{
 					return null;
 				}
-				var roles = await _userManager.GetRolesAsync(user);
 
-				// Generate JWT token
-				var key = Encoding.ASCII.GetBytes(secretKey);
-				var tokenHandler = new JwtSecurityTokenHandler();
-				var tokenDescriptor = new SecurityTokenDescriptor
-				{
-					Subject = new ClaimsIdentity(new Claim[]
-					{
-						new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-						new Claim(ClaimTypes.Role, roles.FirstOrDefault())
-					}),
-					Expires = DateTime.UtcNow.AddDays(7),
-					SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-				};
-
-				var token = tokenHandler.CreateToken(tokenDescriptor);
-
-				return tokenHandler.WriteToken(token);
+				return await _jwtUtils.GenerateJwtToken(user);
 			}
 			catch (Exception ex)
 			{
@@ -163,7 +129,6 @@ namespace NESTCOOKING_API.Business.Services
 			{
 				if (info == null)
 				{
-					// Handle error
 					return null;
 				}
 
@@ -203,36 +168,10 @@ namespace NESTCOOKING_API.Business.Services
 
 				if (user == null)
 				{
-					// Handle error
 					return null;
 				}
-				var roles = await _userManager.GetRolesAsync(user);
 
-				// Generate JWT token
-				var key = Encoding.ASCII.GetBytes(secretKey);
-				var tokenHandler = new JwtSecurityTokenHandler();
-				var tokenDescriptor = new SecurityTokenDescriptor
-				{
-					Subject = new ClaimsIdentity(new Claim[]
-					{
-						new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-						new Claim(ClaimTypes.Role, roles.FirstOrDefault())
-					}),
-					Expires = DateTime.UtcNow.AddDays(7),
-					SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-				};
-
-				// Add role claim if roles are available
-				if (roles != null && roles.Any())
-				{
-					var roleClaim = new Claim(ClaimTypes.Role, roles.FirstOrDefault());
-					tokenDescriptor.Subject.AddClaim(roleClaim);
-				}
-
-				var token = tokenHandler.CreateToken(tokenDescriptor);
-				var tokenString = tokenHandler.WriteToken(token);
-
-				return tokenString;
+				return await _jwtUtils.GenerateJwtToken(user); ;
 			}
 			catch (Exception ex)
 			{
@@ -240,6 +179,5 @@ namespace NESTCOOKING_API.Business.Services
 				return $"Error: {ex.Message}";
 			}
 		}
-
 	}
 }
