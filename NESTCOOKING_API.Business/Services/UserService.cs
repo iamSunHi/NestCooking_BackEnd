@@ -13,10 +13,11 @@ namespace NESTCOOKING_API.Business.Services
         private readonly UserManager<User> _userManager;
 		private readonly IMapper _mapper;
 
-        public UserService(IUserRepository userRepository, UserManager<User> userManager)
+        public UserService(IUserRepository userRepository, UserManager<User> userManager, IMapper mapper)
         {
             _userRepository = userRepository;
             _userManager = userManager;
+			_mapper = mapper;
         }
 
         public Task<User> GetUserByEmail(string email)
