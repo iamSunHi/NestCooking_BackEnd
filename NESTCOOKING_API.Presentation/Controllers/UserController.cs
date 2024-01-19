@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.Services.IServices;
+using NESTCOOKING_API.Utility;
 using System.Security.Claims;
 
 namespace NESTCOOKING_API.Presentation.Controllers
@@ -11,16 +12,14 @@ namespace NESTCOOKING_API.Presentation.Controllers
 	[Authorize]
 	public class UserController : ControllerBase
 	{
-		protected ResponseDTO _responseDTO;
 		private readonly IUserService _userService;
-     
-        public UserController(IUserService userService,IConfiguration configuration)
-        {
-            this._responseDTO = new ResponseDTO();
-            _userService = userService;
-        }
 
-        [HttpGet]
+		public UserController(IUserService userService)
+		{
+			_userService = userService;
+		}
+
+		[HttpGet]
 		public async Task<IActionResult> GetInfo()
 		{
 			var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -39,9 +38,19 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			return Unauthorized();
 		}
 
-		[HttpPost("change-password")]
+		[HttpPatch("password")]
 		public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO changePasswordDTO)
 		{
+			if (changePasswordDTO.ConfirmPassword != changePasswordDTO.NewPassword)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: AppString.ConfirmPasswordMismatchErrorMessage));
+			}
+
+			if (changePasswordDTO.CurrentPassword == changePasswordDTO.NewPassword)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: AppString.SamePasswordErrorMessage));
+			}
+
 			var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
 
 			if (userId != null)
@@ -50,18 +59,18 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 				if (isPasswordChanged)
 				{
-					return Ok(ResponseDTO.Accept(message: "Password changed successfully."));
+					return Ok(ResponseDTO.Accept(message: AppString.ChangePasswordSuccessMessage));
 				}
 				else
 				{
-					return BadRequest(ResponseDTO.BadRequest(message: "Invalid password."));
+					return BadRequest(ResponseDTO.BadRequest(message: AppString.InvalidPasswordErrorMessage));
 				}
 			}
 
 			return Unauthorized();
 		}
 
-		[HttpPost("edit-profile")]
+		[HttpPatch("")]
 		public async Task<IActionResult> EditProfile([FromBody] UserInfoDTO userInfoDTO)
 		{
 			var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -72,43 +81,48 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 				if (isSuccess)
 				{
-					return Ok(ResponseDTO.Accept(message: "Your information changed successfully."));
+					return Ok(ResponseDTO.Accept(message: AppString.UpdateInformationSuccessMessage));
 				}
 				else
 				{
-					return BadRequest(ResponseDTO.BadRequest(message: "Something went wrong when update your information."));
+					return BadRequest(ResponseDTO.BadRequest(message: AppString.UpdateInformationErrorMessage));
 				}
 			}
 
 			return Unauthorized();
 		}
 
-        [HttpPost("change-avatar")]
-        public async Task<IActionResult> ChangeAvatar(IFormFile file)
-        {
-            try
-            {
-				var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;				
+		[HttpPost("avatar")]
+		public async Task<IActionResult> ChangeAvatar(IFormFile file)
+		{
+			try
+			{
+				if (file == null || !Validation.IsValidImageFileExtension(file))
+				{
+					return BadRequest(ResponseDTO.BadRequest(message: AppString.InvalidImageErrorMessage));
+				}
 
-                if (userId != null)
+				var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+
+				if (userId != null)
 				{
 					var result = await _userService.ChangeAvatar(userId, file);
 					if (result == true)
 					{
-						return Ok(ResponseDTO.Accept());
+						return Ok(ResponseDTO.Accept(message: AppString.UpdateAvatarSuccessMessage));
 					}
 					else
 					{
-						return BadRequest(ResponseDTO.BadRequest());
+						return BadRequest(ResponseDTO.BadRequest(AppString.UpdateAvatarErrorMessage));
 					}
 				}
 				return Unauthorized();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-    }
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, $"Internal server error: {ex.Message}");
+			}
+		}
+	}
 }
 
