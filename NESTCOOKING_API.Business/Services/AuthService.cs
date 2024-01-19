@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
+using Google.Apis.Auth.OAuth2;
+using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using NESTCOOKING_API.Business.Authorization;
 using NESTCOOKING_API.Business.DTOs;
@@ -12,6 +15,7 @@ using NESTCOOKING_API.Utility;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using FirebaseAdmin;
 
 namespace NESTCOOKING_API.Business.Services
 {
@@ -179,5 +183,7 @@ namespace NESTCOOKING_API.Business.Services
 				return $"Error: {ex.Message}";
 			}
 		}
-	}
+
+      
+    }
 }

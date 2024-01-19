@@ -1,5 +1,9 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
@@ -70,6 +74,44 @@ namespace NESTCOOKING_API.Business.Services
 			}
 			return true;
 		}
-	}
 
-}
+        public async Task<bool> ChangeAvatar(string userId, IFormFile file)
+        {
+            
+                var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "images");
+                var uploadOldPath= Path.Combine(Directory.GetCurrentDirectory());
+                var fileName = $"{Guid.NewGuid()}_{file.FileName}";
+                var filePath = Path.Combine(uploadPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+               
+                var user = await _userManager.FindByIdAsync(userId);
+
+               
+                if (user.AvatarUrl != null)
+                {
+                    var oldFilePath = Path.Combine(uploadOldPath, user.AvatarUrl);
+                    System.IO.File.Delete(oldFilePath);
+                    
+                }
+                user.AvatarUrl = Path.Combine("images",fileName);
+               
+                
+                var result= await _userManager.UpdateAsync(user);
+
+            if(!result.Succeeded)
+            {
+                return false;
+            }      
+            return true;
+        }
+    }
+
+
+
+      
+    }

@@ -1,26 +1,28 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Google.Cloud.Storage.V1;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
+using NESTCOOKING_API.Business.Services;
 using NESTCOOKING_API.Business.Services.IServices;
 using System.Security.Claims;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
 	[Route("api/user")]
-	[Authorize]
 	[ApiController]
+	[Authorize]
 	public class UserController : ControllerBase
 	{
 		protected ResponseDTO _responseDTO;
 		private readonly IUserService _userService;
+     
+        public UserController(IUserService userService,IConfiguration configuration)
+        {
+            this._responseDTO = new ResponseDTO();
+            _userService = userService;
+        }
 
-		public UserController(IUserService userService)
-		{
-			this._responseDTO = new ResponseDTO();
-			_userService = userService;
-		}
-
-		[HttpGet]
+        [HttpGet]
 		public async Task<IActionResult> GetInfo()
 		{
 			var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -82,5 +84,33 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 			return Unauthorized();
 		}
-	}
+
+        [HttpPost("change-avatar")]
+        public async Task<IActionResult> ChangeAvatar(IFormFile file)
+        {
+            try
+            {
+				var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;				
+
+                if (userId != null)
+				{
+					var result = await _userService.ChangeAvatar(userId, file);
+					if (result == true)
+					{
+						return Ok();
+					}
+					else
+					{
+						return BadRequest();
+					}
+				}
+				return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+    }
 }
+

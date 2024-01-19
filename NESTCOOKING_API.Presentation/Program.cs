@@ -1,3 +1,5 @@
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.OpenApi.Models;
 using NESTCOOKING_API.Business.Authorization;
 using NESTCOOKING_API.Business.ServiceManager;
@@ -41,6 +43,7 @@ builder.Services.AddSwaggerGen(options =>
 	options.AddSecurityRequirement(securityRequirement);
 });
 builder.Services.AddHttpContextAccessor();
+
 
 var app = builder.Build();
 

@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
+using Google.Cloud.Storage.V1;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -28,16 +31,22 @@ namespace NESTCOOKING_API.Business.ServiceManager
 					   .SetBasePath(Directory.GetCurrentDirectory())
 					   .AddJsonFile("appsettings.json");
 			var configurationRoot = configBuilder.Build();
-
-			// Add repositories to the container.
-			service.AddScoped<IUserRepository, UserRepository>();
+            
+            // Add repositories to the container.
+            service.AddScoped<IUserRepository, UserRepository>();
 
 			// Add services to the container.
 			service.AddScoped<IJwtUtils, JwtUtils>();
 			service.AddScoped<IAuthService, AuthService>();
 			service.AddScoped<IUserService, UserService>();
+           
+            //FirebaseApp.Create(new AppOptions
+            //{
+            //    Credential = GoogleCredential.FromFile(@"nestcooking-firebase-adminsdk-4t9kt-572999f1fd.json"),
+            //});
 
-			service.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+
+            service.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
 			// DBContext and Identity
 			service.AddDbContext<ApplicationDbContext>(options =>
@@ -82,6 +91,8 @@ namespace NESTCOOKING_API.Business.ServiceManager
 				options.AppId = configurationRoot["Authentication:Facebook:AppId"];
 				options.AppSecret = configurationRoot["Authentication:Facebook:AppSecret"];
 			});
-		}
+        
+
+        }
 	}
 }
