@@ -23,9 +23,9 @@ namespace NESTCOOKING_API.Business.Authorization
 				if (userId != null)
 				{
 					var claims = new List<Claim>
-				{
-					new Claim(ClaimTypes.NameIdentifier, userId)
-                };
+					{
+						new Claim(ClaimTypes.NameIdentifier, userId)
+					};
 
 					var identity = new ClaimsIdentity(claims, "jwt");
 					context.User = new ClaimsPrincipal(identity);

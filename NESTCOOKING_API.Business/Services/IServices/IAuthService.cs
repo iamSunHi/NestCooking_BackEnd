@@ -1,15 +1,14 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using NESTCOOKING_API.Business.DTOs;
+﻿using NESTCOOKING_API.Business.DTOs;
 
 namespace NESTCOOKING_API.Business.Services.IServices
 {
-    public interface IAuthService
+	public interface IAuthService
     {
         Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO);
         Task<string> Register(RegistrationRequestDTO registrationRequestDTO);
-        Task<string> LoginByGoogle(ProviderRequestDTO info);
-        Task<string> LoginByFacebook(ProviderRequestDTO info);
+		Task<(string, string)> GenerateResetPasswordToken(string userName);
+        Task<string> ResetPassword(ResetPasswordRequestDTO resetPasswordRequestDTO);
+        Task<bool> VerifyResetPasswordToken(string email, string token);
+        Task<string> LoginWithThirdParty(ProviderRequestDTO info);
     }
 }

@@ -56,6 +56,7 @@ if (app.Environment.IsDevelopment())
 
 // Add Middleware
 app.UseMiddleware<JwtMiddleware>();
+app.UseCors("AllowAnyOrigin");
 
 app.UseHttpsRedirection();
 

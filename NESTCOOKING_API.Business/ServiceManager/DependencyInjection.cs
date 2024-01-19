@@ -3,6 +3,7 @@ using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Storage.V1;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Facebook;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using NESTCOOKING_API.Business.Authorization;
+using NESTCOOKING_API.Business.DTOs.EmailDTO;
 using NESTCOOKING_API.Business.Mapping;
 using NESTCOOKING_API.Business.Services;
 using NESTCOOKING_API.Business.Services.IServices;
@@ -39,14 +41,24 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			service.AddScoped<IJwtUtils, JwtUtils>();
 			service.AddScoped<IAuthService, AuthService>();
 			service.AddScoped<IUserService, UserService>();
-           
-            //FirebaseApp.Create(new AppOptions
-            //{
-            //    Credential = GoogleCredential.FromFile(@"nestcooking-firebase-adminsdk-4t9kt-572999f1fd.json"),
-            //});
+			service.AddScoped<IEmailService, EmailService>();
 
+			service.AddCors(options =>
+			{
+				options.AddPolicy("AllowAnyOrigin", builder =>
+				{
+					builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+				});
+			});
 
-            service.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+            // Configure for email
+            service.Configure<IdentityOptions>(
+				options => options.SignIn.RequireConfirmedEmail = true);
+			// Set time Token for Email Confirm
+			service.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromMinutes(20));
+
+			var emailConfig = configurationRoot.GetSection("EmailConfiguration").Get<EmailRequestDTO>();
+			service.AddSingleton(emailConfig);
 
 			// DBContext and Identity
 			service.AddDbContext<ApplicationDbContext>(options =>
@@ -54,7 +66,12 @@ namespace NESTCOOKING_API.Business.ServiceManager
 				options.UseSqlServer(configurationRoot.GetConnectionString("Default"));
 			});
 			service
-				.AddIdentityCore<User>()
+				.AddIdentityCore<User>(options =>
+				{
+					options.Lockout.AllowedForNewUsers = true;
+					options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+					options.Lockout.MaxFailedAccessAttempts = 3;
+				})
 				.AddRoles<IdentityRole>()
 				.AddSignInManager<SignInManager<User>>()
 				.AddEntityFrameworkStores<ApplicationDbContext>()
@@ -70,7 +87,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
 				options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 			})
 			.AddCookie()
-			.AddJwtBearer(options =>
+			.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
 			{
 				options.SaveToken = true;
 				options.RequireHttpsMetadata = false;
@@ -81,7 +98,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
 					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configurationRoot["ApiSettings:Secret"])),
 				};
 			})
-			.AddGoogle(options =>
+			.AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
 			{
 				options.ClientId = configurationRoot["Authentication:Google:ClientId"];
 				options.ClientSecret = configurationRoot["Authentication:Google:ClientSecret"];
