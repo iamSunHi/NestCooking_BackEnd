@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Facebook;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using NESTCOOKING_API.Business.Authorization;
-using Microsoft.Extensions.Options;
 using NESTCOOKING_API.Business.DTOs.EmailDTO;
 using NESTCOOKING_API.Business.Mapping;
 using NESTCOOKING_API.Business.Services;
@@ -57,8 +57,6 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			var emailConfig = configurationRoot.GetSection("EmailConfiguration").Get<EmailRequestDTO>();
 			service.AddSingleton(emailConfig);
 
-
-
 			// DBContext and Identity
 			service.AddDbContext<ApplicationDbContext>(options =>
 			{
@@ -86,7 +84,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
 				options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 			})
 			.AddCookie()
-			.AddJwtBearer(options =>
+			.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
 			{
 				options.SaveToken = true;
 				options.RequireHttpsMetadata = false;
@@ -97,7 +95,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
 					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configurationRoot["ApiSettings:Secret"])),
 				};
 			})
-			.AddGoogle(options =>
+			.AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
 			{
 				options.ClientId = configurationRoot["Authentication:Google:ClientId"];
 				options.ClientSecret = configurationRoot["Authentication:Google:ClientSecret"];

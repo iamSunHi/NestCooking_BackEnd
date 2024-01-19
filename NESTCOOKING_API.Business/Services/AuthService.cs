@@ -32,7 +32,6 @@ namespace NESTCOOKING_API.Business.Services
 
             if (user == null)
             {
-                // Handle error
                 return null;
             }
 
@@ -82,7 +81,7 @@ namespace NESTCOOKING_API.Business.Services
                         UserName = info.Email,
                         FirstName = info.FirstName,
                         LastName = info.LastName,
-                        Email = info.Email.ToString(),
+                        Email = info.Email,
                         CreatedAt = DateTime.UtcNow,
                     };
 
@@ -130,18 +129,9 @@ namespace NESTCOOKING_API.Business.Services
                 return $"Error: {ex.Message}";
             }
         }
-        public async Task<(string, string)> GenerateResetPasswordToken(string identifier)
+        public async Task<(string, string)> GenerateResetPasswordToken(string userName)
 		{
-			User user = null;
-
-			if (Validation.CheckEmailValid(identifier))
-			{
-				user = await _userManager.FindByEmailAsync(identifier);
-			}
-			else
-			{
-				user = await _userManager.FindByNameAsync(identifier);
-			}
+			var user = await _userManager.FindByNameAsync(userName);
 
             if (user != null)
 			{

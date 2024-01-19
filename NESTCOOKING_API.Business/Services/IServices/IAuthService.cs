@@ -6,7 +6,7 @@ namespace NESTCOOKING_API.Business.Services.IServices
     {
         Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO);
         Task<string> Register(RegistrationRequestDTO registrationRequestDTO);
-		Task<(string, string)> GenerateResetPasswordToken(string identifier);
+		Task<(string, string)> GenerateResetPasswordToken(string userName);
         Task<string> ResetPassword(ResetPasswordRequestDTO resetPasswordRequestDTO);
         Task<bool> VerifyResetPasswordToken(string email, string token);
         Task<string> LoginWithThirdParty(ProviderRequestDTO info);

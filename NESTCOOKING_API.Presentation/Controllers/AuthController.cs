@@ -80,13 +80,13 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				return BadRequest(ResponseDTO.BadRequest());
 			}
 
-			var userProviderDTO = this.CreateProviderRequestDTO(result.Principal, Provider.Facebook);
+			var userProviderDTO = CreateProviderRequestDTO(result.Principal, Provider.Facebook);
 
 			var token = await _authService.LoginWithThirdParty(userProviderDTO);
 
 			if (token == null)
 			{
-				return BadRequest(ResponseDTO.BadRequest(message: "Authentication failed"));
+				return BadRequest(ResponseDTO.BadRequest(message: "Authentication failed!"));
 			}
 
 			LoginResponseDTO loginResponseDTO = new()
@@ -115,13 +115,13 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			{
 				return BadRequest(ResponseDTO.BadRequest());
 			}
-			var userProviderDTO = this.CreateProviderRequestDTO(result.Principal, Provider.Google);
+			var userProviderDTO = CreateProviderRequestDTO(result.Principal, Provider.Google);
 
 			var token = await _authService.LoginWithThirdParty(userProviderDTO);
 
 			if (token == null)
 			{
-				return BadRequest(ResponseDTO.BadRequest(message: "Authentication failed"));
+				return BadRequest(ResponseDTO.BadRequest(message: "Authentication failed!"));
 			}
 
 			LoginResponseDTO loginResponseDTO = new()
@@ -137,13 +137,11 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			return new ProviderRequestDTO
 			{
 				LoginProvider = provider,
-				ProviderKey = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "",
-				ProviderDisplayName = principal.FindFirst(ClaimTypes.Name)?.Value ?? "",
-				FirstName = principal.Claims.FirstOrDefault(filter => filter.Type == ClaimTypes.GivenName)?.Value ?? "",
-				LastName = principal.Claims.FirstOrDefault(filter => filter.Type == ClaimTypes.Surname)?.Value ?? "",
-				Phone = principal.FindFirst(ClaimTypes.MobilePhone)?.Value ?? "",
-				Email = principal.FindFirst(ClaimTypes.Email)?.Value ?? "",
-				Address = principal.FindFirst(ClaimTypes.StreetAddress)?.Value ?? "",
+				ProviderKey = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+				ProviderDisplayName = principal.FindFirst(ClaimTypes.Name)?.Value,
+				FirstName = principal.Claims.FirstOrDefault(filter => filter.Type == ClaimTypes.GivenName)?.Value,
+				LastName = principal.Claims.FirstOrDefault(filter => filter.Type == ClaimTypes.Surname)?.Value,
+				Email = principal.FindFirst(ClaimTypes.Email)?.Value,
 			};
 		}
 
@@ -157,19 +155,19 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpPost("verify-reset-password")]
-		public async Task<IActionResult> ForgotPassword([FromBody] string identifier)
+		public async Task<IActionResult> ForgotPassword([FromBody] string userName)
 		{
-			(string Token, string Email) result = await _authService.GenerateResetPasswordToken(identifier);
+			(string Token, string Email) result = await _authService.GenerateResetPasswordToken(userName);
 			if (!string.IsNullOrEmpty(result.Token))
 			{
 				var forgotPasswordLink = Url.Action(nameof(ResetPassword), "auth", new { result.Token, email = result.Email }, Request.Scheme);
 				var message = new EmailResponseDTO(new string[] { result.Email! }, AppString.ResetPasswordSubjectEmail, AppString.ResetPasswordContentEmail(forgotPasswordLink));
 				_emailService.SendEmail(message);
 
-				return Ok(ResponseDTO.Accept(message: $"Password Changed request is sent on Email {result.Email}. Please Open Email And Click Link To Verify"));
+				return Ok(ResponseDTO.Accept(message: "A password change request has been sent on your email. Please open your email to continue verify."));
 			}
 
-			return BadRequest(ResponseDTO.BadRequest(message: $"Could not send link. User not found. Please try again with a valid username or email."));
+			return BadRequest(ResponseDTO.BadRequest(message: "Error when sending a password change request. The user was not found; please try again with another username."));
 		}
 
 		[HttpGet("reset-password")]
@@ -195,7 +193,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 			if (resetPasswordRequestDTO.NewPassword != resetPasswordRequestDTO.ConfirmPassword)
 			{
-				return BadRequest(ResponseDTO.BadRequest(message: "The 2 passwords must match!"));
+				return BadRequest(ResponseDTO.BadRequest(message: "Two passwords must match!"));
 			}
 
 			var result = await _authService.ResetPassword(resetPasswordRequestDTO);
