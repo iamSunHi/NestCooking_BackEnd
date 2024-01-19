@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Google.Apis.Auth.OAuth2;
-using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.AspNetCore.Identity;
 using NESTCOOKING_API.Business.Authorization;
 using NESTCOOKING_API.Business.DTOs;

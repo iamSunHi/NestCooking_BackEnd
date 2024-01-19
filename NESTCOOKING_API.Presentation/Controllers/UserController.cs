@@ -1,8 +1,6 @@
-﻿using Google.Cloud.Storage.V1;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
-using NESTCOOKING_API.Business.Services;
 using NESTCOOKING_API.Business.Services.IServices;
 using System.Security.Claims;
 
@@ -97,11 +95,11 @@ namespace NESTCOOKING_API.Presentation.Controllers
 					var result = await _userService.ChangeAvatar(userId, file);
 					if (result == true)
 					{
-						return Ok();
+						return Ok(ResponseDTO.Accept());
 					}
 					else
 					{
-						return BadRequest();
+						return BadRequest(ResponseDTO.BadRequest());
 					}
 				}
 				return Unauthorized();
