@@ -30,9 +30,9 @@ namespace NESTCOOKING_API.Business.ServiceManager
 					   .SetBasePath(Directory.GetCurrentDirectory())
 					   .AddJsonFile("appsettings.json");
 			var configurationRoot = configBuilder.Build();
-
-			// Add repositories to the container.
-			service.AddScoped<IUserRepository, UserRepository>();
+            
+            // Add repositories to the container.
+            service.AddScoped<IUserRepository, UserRepository>();
 
 			// Add services to the container.
 			service.AddScoped<IJwtUtils, JwtUtils>();
@@ -105,6 +105,8 @@ namespace NESTCOOKING_API.Business.ServiceManager
 				options.AppId = configurationRoot["Authentication:Facebook:AppId"];
 				options.AppSecret = configurationRoot["Authentication:Facebook:AppSecret"];
 			});
-		}
+        
+
+        }
 	}
 }

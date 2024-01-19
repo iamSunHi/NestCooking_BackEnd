@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.DataAccess.Models;
 
@@ -12,6 +12,6 @@ namespace NESTCOOKING_API.Business.Services.IServices
 		bool IsUniqueEmail(string email);
 		Task<User> GetUserByEmail(string email);
 		Task<User> GetUserByUsername(string username);
-		
+		Task<bool> ChangeAvatar(string userId, IFormFile file);
 	}
 }

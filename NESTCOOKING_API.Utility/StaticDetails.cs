@@ -26,6 +26,11 @@
 		public const string NotificationType_REPORT = "REPORT";
 		public const string NotificationType_REQUEST = "REQUEST";
 
-        public enum Provider { Google, Facebook }
-    }
+		public enum Provider { Google, Facebook }
+		public const string AvatarFolderPath = "images/avatar";
+		public static readonly Dictionary<string, string> FolderPath = new Dictionary<string, string>
+		{
+			{ "avatar", "images/avatar" }
+		};
+	}
 }
