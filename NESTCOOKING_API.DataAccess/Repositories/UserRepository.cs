@@ -42,62 +42,54 @@ namespace NESTCOOKING_API.DataAccess.Repositories
             return false;
         }
 
-		public async Task<User> Login(string username, string password)
-		{
-			var user = _context.Users.FirstOrDefault(u => u.UserName == username || u.Email == username);
-			if (user != null)
-			{
-				bool isValid = await _userManager.CheckPasswordAsync(user, password);
-				if (!isValid)
-				{
-					if (!_userManager.IsLockedOutAsync(user).Result)
-					{
-						await _userManager.AccessFailedAsync(user);
-						if (await _userManager.GetAccessFailedCountAsync(user) == 3)
-						{
-							await _userManager.SetLockoutEndDateAsync(user, DateTime.UtcNow.AddMinutes(30));
-							await _userManager.ResetAccessFailedCountAsync(user);
-						}
-					}
-					return null;
-				}
-			}
-			return user;
-		}
-
-        public async Task<string> Register(User newUser, string password)
+        public async Task<User> Login(string username, string password)
         {
-            try
+            var user = _context.Users.FirstOrDefault(u => u.UserName == username || u.Email == username);
+            if (user != null)
             {
-                var result = await _userManager.CreateAsync(newUser, password);
-                if (result.Succeeded)
+                bool isValid = await _userManager.CheckPasswordAsync(user, password);
+                if (!isValid)
                 {
-                    if (!_roleManager.RoleExistsAsync(StaticDetails.Role_Admin).GetAwaiter().GetResult())
+                    if (!_userManager.IsLockedOutAsync(user).Result)
                     {
-                        await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_Admin));
-                        await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_User));
-                        await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_Chef));
+                        await _userManager.AccessFailedAsync(user);
+                        if (await _userManager.GetAccessFailedCountAsync(user) == 3)
+                        {
+                            await _userManager.SetLockoutEndDateAsync(user, DateTime.UtcNow.AddMinutes(30));
+                            await _userManager.ResetAccessFailedCountAsync(user);
+                        }
                     }
-                    //await _userManager.AddToRoleAsync(newUser, StaticDetails.Role_Admin);
-                    await _userManager.AddToRoleAsync(newUser, StaticDetails.Role_User);
-
-                    var userToReturn = await _context.Users.FirstOrDefaultAsync(u => u.UserName == newUser.UserName);
-                    if (userToReturn == null)
-                    {
-                        return "Error while registering!";
-                    }
-                }
-                else
-                {
-                    string error = result.Errors.FirstOrDefault()?.Description;
-                    return error;
+                    return null;
                 }
             }
-            catch (Exception ex)
+            return user;
+        }
+
+        public async Task<bool> Register(User newUser, string password)
+        {
+            if (!_roleManager.RoleExistsAsync(StaticDetails.Role_Admin).GetAwaiter().GetResult())
             {
+                await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_Admin)).ConfigureAwait(false);
+                await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_User)).ConfigureAwait(false);
+                await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_Chef)).ConfigureAwait(false);
             }
 
-            return string.Empty;
+            var result = await _userManager.CreateAsync(newUser, password).ConfigureAwait(false);
+
+            if (!result.Succeeded)
+            {
+                throw new Exception(result.Errors.FirstOrDefault()?.Description);
+            }
+
+            await _userManager.AddToRoleAsync(newUser, StaticDetails.Role_User).ConfigureAwait(false);
+
+            var userExists = await _context.Users.AnyAsync(u => u.UserName == newUser.UserName).ConfigureAwait(false);
+            if (!userExists)
+            {
+                throw new Exception(AppString.SomethingWrongMessage);
+            }
+
+            return true;
         }
 
         public async Task UpdateAsync(User entity)

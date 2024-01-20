@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using NESTCOOKING_API.Business.Authorization;
 using NESTCOOKING_API.Business.DTOs;
+using NESTCOOKING_API.Business.Exceptions;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
@@ -9,7 +10,7 @@ using NESTCOOKING_API.Utility;
 
 namespace NESTCOOKING_API.Business.Services
 {
-	public class AuthService : IAuthService
+    public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
         private readonly IJwtUtils _jwtUtils;
@@ -35,24 +36,32 @@ namespace NESTCOOKING_API.Business.Services
                 return null;
             }
 
-            LoginResponseDTO loginResponseDTO = new();
-            if (!_userManager.IsLockedOutAsync(user).Result)
+            if (!_userManager.IsEmailConfirmedAsync(user).Result)
             {
-                loginResponseDTO.AccessToken = await _jwtUtils.GenerateJwtToken(user);
+                throw new EmailNotConfirmedException(AppString.NotEmailConfirmedErrorMessage);
             }
+            if (_userManager.IsLockedOutAsync(user).Result)
+            {
+                throw new Exception(AppString.LockoutAccountErrorMessage);
+            }
+
+            LoginResponseDTO loginResponseDTO = new()
+            {
+                AccessToken = await _jwtUtils.GenerateJwtToken(user)
+            };
 
             return loginResponseDTO;
         }
 
-        public async Task<string> Register(RegistrationRequestDTO registrationRequestDTO)
+        public async Task<bool> Register(RegistrationRequestDTO registrationRequestDTO)
         {
             if (!_userRepository.IsUniqueUserName(registrationRequestDTO.UserName))
             {
-                return "Your username is already exist!";
+                throw new Exception("Your username is already exist!");
             }
             if (!_userRepository.IsUniqueEmail(registrationRequestDTO.Email))
             {
-                return "Your email is already exist!";
+                throw new Exception("Your email is already exist!");
             }
 
             var newUser = _mapper.Map<User>(registrationRequestDTO);
@@ -130,49 +139,84 @@ namespace NESTCOOKING_API.Business.Services
             }
         }
         public async Task<(string, string)> GenerateResetPasswordToken(string userName)
-		{
-			var user = await _userManager.FindByNameAsync(userName);
+        {
+            var user = await _userManager.FindByNameAsync(userName);
 
             if (user != null)
-			{
-				var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-				if (!string.IsNullOrEmpty(token))
-				{
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                if (!string.IsNullOrEmpty(token))
+                {
                     return (token, user.Email);
-				}
-			}
+                }
+            }
 
-			return (null, null);
+            return (null, null);
         }
 
         public async Task<string> ResetPassword(ResetPasswordRequestDTO resetPasswordRequestDTO)
-		{
-			var user = await _userManager.FindByEmailAsync(resetPasswordRequestDTO.Email);
-			if (user != null)
-			{
-				var result = await _userManager.ResetPasswordAsync(user, resetPasswordRequestDTO.Token, resetPasswordRequestDTO.NewPassword);
-				if (!result.Succeeded)
-				{
+        {
+            var user = await _userManager.FindByEmailAsync(resetPasswordRequestDTO.Email);
+            if (user != null)
+            {
+                var result = await _userManager.ResetPasswordAsync(user, resetPasswordRequestDTO.Token, resetPasswordRequestDTO.NewPassword);
+                if (!result.Succeeded)
+                {
                     return result.Errors.ToList().FirstOrDefault().Description;
-				}
-				return "";
-			}
-			else
-			{
+                }
+                return "";
+            }
+            else
+            {
                 return "Something went wrong!";
-			}
-		}
+            }
+        }
 
         public async Task<bool> VerifyResetPasswordToken(string email, string token)
         {
-			var user = await _userManager.FindByEmailAsync(email);
+            var user = await _userManager.FindByEmailAsync(email);
 
-			if (user == null)
-			{
+            if (user == null)
+            {
                 return false;
-			}
+            }
 
             return await _userManager.VerifyUserTokenAsync(user, TokenOptions.DefaultProvider, UserManager<User>.ResetPasswordTokenPurpose, token); ;
+        }
+
+        public async Task<(string, string)> GenerateEmailConfirmationTokenAsync(string identifier)
+        {
+            var user = await _userManager.FindByNameAsync(identifier) ?? await _userManager.FindByEmailAsync(identifier);
+
+            if (user == null)
+            {
+                throw new Exception(AppString.UserNotFoundMessage);
+            }
+
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new Exception(AppString.SomethingWrongMessage);
+            }
+
+            return (email: user.Email, token);
+        }
+
+        public async Task<bool> VerifyEmailConfirmation(string email, string token)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                throw new Exception(AppString.UserNotFoundMessage);
+            }
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+
+            if (!result.Succeeded) throw new Exception(AppString.InvalidTokenErrorMessage);
+
+            return true;
         }
     }
 }
