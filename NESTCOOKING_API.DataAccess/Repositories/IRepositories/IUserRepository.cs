@@ -8,6 +8,6 @@ namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
         bool IsUniqueUserName(string username);
         Task UpdateAsync(User entity);
         Task<User> Login(string username, string password);
-        Task<string> Register(User newUser, string password);
+        Task<bool> Register(User newUser, string password);
     }
 }

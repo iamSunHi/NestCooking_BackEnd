@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.EmailDTO;
+using NESTCOOKING_API.Business.Exceptions;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.Utility;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using static NESTCOOKING_API.Utility.StaticDetails;
 
@@ -31,34 +33,83 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		[HttpPost("login")]
 		public async Task<IActionResult> Login([FromBody] LoginRequestDTO model)
 		{
-			var loginResponse = await _authService.Login(model);
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: "Error in request!"));
+			}
+			try
+			{
 
-			if (loginResponse == null)
-			{
-				return BadRequest(ResponseDTO.BadRequest(message: "Username or password is incorrect!"));
+				var loginResponse = await _authService.Login(model);
+
+				if (loginResponse == null)
+				{
+					return BadRequest(ResponseDTO.BadRequest(message: AppString.IncorrectCredentialsLoginErrorMessage));
+				}
+				else if (string.IsNullOrEmpty(loginResponse.AccessToken))
+				{
+					return BadRequest(ResponseDTO.BadRequest(message: AppString.AccountLockedOutLoginErrorMessage));
+				}
+				return Ok(ResponseDTO.Accept(result: loginResponse));
 			}
-			else if (string.IsNullOrEmpty(loginResponse.AccessToken))
+			catch (EmailNotConfirmedException exception)
 			{
-				return BadRequest(ResponseDTO.BadRequest(message: "This account is locked out!"));
+				var (email, token) = await _authService.GenerateEmailConfirmationTokenAsync(model.UserName);
+
+				var emailConfirmationLink = Url.Action(nameof(VerifyEmailConfirmation), "auth", new { token, email }, Request.Scheme);
+
+				_emailService.SendEmail(new EmailResponseDTO(
+					to: new string[] { email },
+					subject: AppString.ResendEmailConfirmationSubjectEmail,
+					content: AppString.ResendEmailConfirmationContentEmail(emailConfirmationLink)
+				));
+
+				return BadRequest(ResponseDTO.BadRequest(message: exception.Message));
 			}
-			return Ok(ResponseDTO.Accept(result: loginResponse));
+			catch (Exception error)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: error.Message));
+			}
 		}
 
 		[HttpPost("register")]
 		public async Task<IActionResult> Register([FromBody] RegistrationRequestDTO model)
 		{
-			if (ModelState.IsValid)
+
+			if (!Validation.CheckEmailValid(model.Email))
 			{
-				var registrationResponse = await _authService.Register(model);
-
-				if (!string.IsNullOrEmpty(registrationResponse))
-				{
-					return BadRequest(ResponseDTO.BadRequest(message: registrationResponse));
-				}
-
-				return Ok(ResponseDTO.Accept(message: registrationResponse));
+				return BadRequest(ResponseDTO.BadRequest(message: AppString.InvalidEmailErrorMessage));
 			}
-			return BadRequest(ResponseDTO.BadRequest(message: "Error in request!"));
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: AppString.RequestErrorMessage));
+			}
+
+			try
+			{
+				var isRegisted = await _authService.Register(model);
+				if (isRegisted)
+				{
+					var (email, token) = await _authService.GenerateEmailConfirmationTokenAsync(model.Email);
+
+					var emailConfirmationLink = Url.Action(nameof(VerifyEmailConfirmation), "auth", new { token, email = model.Email }, Request.Scheme);
+
+					_emailService.SendEmail(new EmailResponseDTO(
+						to: new string[] { model.Email },
+						subject: AppString.EmailConfirmationSubjectEmail,
+						content: AppString.EmailConfirmationContentEmail(emailConfirmationLink)
+					));
+
+					return Ok(ResponseDTO.Accept(message: AppString.RegisterSuccessMessage));
+				}
+				return BadRequest(ResponseDTO.BadRequest(message: AppString.RegisterErrorMessage));
+			}
+			catch (Exception error)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: error.Message));
+			}
+
+
 		}
 
 		[AllowAnonymous]
@@ -202,6 +253,28 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				return Ok(ResponseDTO.Accept());
 			}
 			return BadRequest(ResponseDTO.BadRequest($"{result}"));
+		}
+
+		[HttpGet("verify-email")]
+		public async Task<IActionResult> VerifyEmailConfirmation([Required] string email, [Required] string token)
+		{
+			try
+			{
+				var isVerified = await _authService.VerifyEmailConfirmation(email, token);
+
+				if (isVerified)
+				{
+					return Ok(ResponseDTO.Accept(message: AppString.EmailConfirmationSuccessMessage));
+				}
+
+				return BadRequest(ResponseDTO.BadRequest(message: AppString.SomethingWrongMessage));
+			}
+			catch (Exception exception)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: exception.Message));
+			}
+
+
 		}
 	}
 }
