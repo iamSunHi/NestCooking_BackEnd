@@ -13,7 +13,23 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-	options.SwaggerDoc("v1", new OpenApiInfo { Title = "NESTCOOKING_API", Version = "v1" });
+	options.SwaggerDoc("v1", new OpenApiInfo
+	{
+		Version = "v1.0",
+		Title = "NestCooking V1",
+		Description = "API of NestCooking Project",
+		TermsOfService = new Uri("https://example.com/terms"),
+		Contact = new OpenApiContact
+		{
+			Name = "Github Repository",
+			Url = new Uri("https://github.com/iamSunHi/NestCooking_BackEnd")
+		},
+		License = new OpenApiLicense
+		{
+			Name = "Example License",
+			Url = new Uri("https://example.com/license")
+		}
+	});
 	options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
 	{
 		Description =
@@ -49,7 +65,19 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
 	app.UseSwagger();
-	app.UseSwaggerUI();
+	app.UseSwaggerUI(options =>
+	{
+		options.SwaggerEndpoint("/swagger/v1/swagger.json", "NestCooking_V1");
+	});
+}
+else
+{
+	app.UseSwagger();
+	app.UseSwaggerUI(options =>
+	{
+		options.SwaggerEndpoint("/swagger/v1/swagger.json", "NestCooking_V1");
+		options.RoutePrefix = String.Empty;
+	});
 }
 
 // Add Middleware
