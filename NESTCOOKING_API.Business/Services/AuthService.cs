@@ -7,6 +7,7 @@ using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using NESTCOOKING_API.Utility;
+using System.ComponentModel.DataAnnotations;
 
 namespace NESTCOOKING_API.Business.Services
 {
@@ -140,11 +141,21 @@ namespace NESTCOOKING_API.Business.Services
                 return $"Error: {ex.Message}";
             }
         }
-        public async Task<(string, string)> GenerateResetPasswordToken(string userName)
-        {
-            var user = await _userManager.FindByNameAsync(userName);
+        public async Task<(string, string)> GenerateResetPasswordToken(string identifier)
+		{
+			User? user;
+			var email = new EmailAddressAttribute();
 
-            if (user != null)
+			if (email.IsValid(identifier))
+			{
+				user = await _userManager.FindByEmailAsync(identifier);
+			}
+			else
+			{
+				user = await _userManager.FindByNameAsync(identifier);
+			}
+
+			if (user != null)
             {
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                 if (!string.IsNullOrEmpty(token))
@@ -187,10 +198,20 @@ namespace NESTCOOKING_API.Business.Services
         }
 
         public async Task<(string, string)> GenerateEmailConfirmationTokenAsync(string identifier)
-        {
-            var user = await _userManager.FindByNameAsync(identifier) ?? await _userManager.FindByEmailAsync(identifier);
+		{
+			User? user;
+			var email = new EmailAddressAttribute();
 
-            if (user == null)
+			if (email.IsValid(identifier))
+			{
+				user = await _userManager.FindByEmailAsync(identifier);
+			}
+			else
+			{
+				user = await _userManager.FindByNameAsync(identifier);
+			}
+
+			if (user == null)
             {
                 throw new Exception(AppString.UserNotFoundMessage);
             }
