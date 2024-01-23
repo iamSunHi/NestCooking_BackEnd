@@ -80,7 +80,7 @@ namespace NESTCOOKING_API.Business.Services
                     return null;
                 }
 
-                var user = await _userManager.FindByLoginAsync(info.LoginProvider.ToString(), info.ProviderKey);
+                var user = await _userManager.FindByEmailAsync(info.Email);
 
                 if (user == null)
                 {
@@ -127,7 +127,9 @@ namespace NESTCOOKING_API.Business.Services
                     return null;
                 }
 
-                if (_userManager.IsLockedOutAsync(user).Result)
+                bool isLockedOut = await _userManager.IsLockedOutAsync(user);
+
+				if (isLockedOut)
                 {
                     return null;
                 }
