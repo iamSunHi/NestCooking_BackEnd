@@ -3,7 +3,6 @@
 	public class AppString
 	{
 		public static string NameEmailOwnerDisplay = "NestCooking";
-
 		public static string ResetPasswordSubjectEmail = "Reset Your Password";
 		public static string ResetPasswordContentEmail(string resetPasswordLink)
 		{
@@ -13,10 +12,8 @@
 				$"</a></td>\r\n</tr>\r\n</table>\r\n</td>\r\n</tr>\r\n</table>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td bgcolor=\"#ffffff\" align=\"left\"\r\nstyle=\"padding: 0px 30px 20px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;\">\r\n<p style=\"margin: 0;\">If you have any questions, just reply to this email&mdash;we're\r\nalways happy to help out.</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td bgcolor=\"#ffffff\" align=\"left\"\r\nstyle=\"padding: 0px 30px 40px 30px; border-radius: 0px 0px 4px 4px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;\">\r\n<p style=\"margin: 0;\">Cheers,<br>NestCooking</p>\r\n</td>\r\n</tr>\r\n</table>\r\n</td>\r\n</tr>\r\n</table>\r\n</body>\r\n</html>";
 		}
 		public static string ConfirmPasswordMismatchErrorMessage = "The confirm password does not match the new password.";
-
 		public static string SamePasswordErrorMessage = "New password must be different from current password.";
 		public static string ChangePasswordSuccessMessage = "Password changed successfully.";
-
 		public static string InvalidPasswordErrorMessage = "Invalid password.";
 		public static string InvalidImageErrorMessage = "Please choose a valid image file to upload.";
 		public static string UpdateAvatarSuccessMessage = "Change avatar successfully.";
@@ -25,7 +22,6 @@
 		public static string UpdateInformationErrorMessage = "Something went wrong when update your information.";
 		public static string RegisterSuccessMessage = "Register successfully. Please check your email.";
 		public static string RegisterErrorMessage = "Something went wrong when register.";
-
 		public static string EmailConfirmationSubjectEmail = "Confirm Your Account.";
 		public static string EmailConfirmationContentEmail(string emailConfirmationLink)
 		{
@@ -34,7 +30,6 @@
 				$"Verify Account" +
 				$"</a></td>\r\n</tr>\r\n</table>\r\n</td>\r\n</tr>\r\n</table>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td bgcolor=\"#ffffff\" align=\"left\"\r\nstyle=\"padding: 0px 30px 20px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;\">\r\n<p style=\"margin: 0;\">If you have any questions, just reply to this email&mdash;we're\r\nalways happy to help out.</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td bgcolor=\"#ffffff\" align=\"left\"\r\nstyle=\"padding: 0px 30px 40px 30px; border-radius: 0px 0px 4px 4px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;\">\r\n<p style=\"margin: 0;\">Cheers,<br>NestCooking</p>\r\n</td>\r\n</tr>\r\n</table>\r\n</td>\r\n</tr>\r\n</table>\r\n</body>\r\n</html>";
 		}
-
 		public static string UserNotFoundMessage = "User not found";
 		public static string EmailConfirmationSuccessMessage = "Email confirmation successfully";
 		public static string SomethingWrongMessage = "Something went wrong";
@@ -53,5 +48,7 @@
 		public static string IncorrectCredentialsLoginErrorMessage = "Username or password is incorrect!";
 		public static string AccountLockedOutLoginErrorMessage = "This account is locked out!";
 		public static string RequestErrorMessage = "Error in request !";
+		public static string ResetPasswordSuccessMessage = "Reset password was successfully.";
+		public static string ResetPasswordSendMailMessage = "A password change request has been sent on your email. Please open your email to continue verify.";
 	}
 }

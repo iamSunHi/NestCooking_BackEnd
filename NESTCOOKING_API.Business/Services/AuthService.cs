@@ -130,7 +130,7 @@ namespace NESTCOOKING_API.Business.Services
 
                 bool isLockedOut = await _userManager.IsLockedOutAsync(user);
 
-				if (isLockedOut)
+                if (isLockedOut)
                 {
                     return null;
                 }
@@ -141,33 +141,36 @@ namespace NESTCOOKING_API.Business.Services
                 return $"Error: {ex.Message}";
             }
         }
-        public async Task<(string, string)> GenerateResetPasswordToken(string identifier)
-		{
-			User? user;
-			var email = new EmailAddressAttribute();
+        public async Task<(string, string, string, string)> GenerateResetPasswordToken(string identifier)
+        {
+            User? user;
 
-			if (email.IsValid(identifier))
-			{
-				user = await _userManager.FindByEmailAsync(identifier);
-			}
-			else
-			{
-				user = await _userManager.FindByNameAsync(identifier);
-			}
+            if (Validation.CheckEmailValid(identifier))
+            {
+                user = await _userManager.FindByEmailAsync(identifier);
+            }
+            else
+            {
+                user = await _userManager.FindByNameAsync(identifier);
+            }
 
-			if (user != null)
+            if (user != null)
             {
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                 if (!string.IsNullOrEmpty(token))
                 {
-                    return (token, user.Email);
+                    return (token, user.Email, user.UserName, user.AvatarUrl);
                 }
             }
+            else
+            {
+                throw new Exception(AppString.UserNotFoundMessage);
+            }
 
-            return (null, null);
+            return (null, null, null, null);
         }
 
-        public async Task<string> ResetPassword(ResetPasswordRequestDTO resetPasswordRequestDTO)
+        public async Task<bool> ResetPassword(ResetPasswordRequestDTO resetPasswordRequestDTO)
         {
             var user = await _userManager.FindByEmailAsync(resetPasswordRequestDTO.Email);
             if (user != null)
@@ -175,13 +178,13 @@ namespace NESTCOOKING_API.Business.Services
                 var result = await _userManager.ResetPasswordAsync(user, resetPasswordRequestDTO.Token, resetPasswordRequestDTO.NewPassword);
                 if (!result.Succeeded)
                 {
-                    return result.Errors.ToList().FirstOrDefault().Description;
+                    throw new Exception(result.Errors.ToList().FirstOrDefault().Description);
                 }
-                return "";
+                return true;
             }
             else
             {
-                return "Something went wrong!";
+                throw new Exception(AppString.UserNotFoundMessage);
             }
         }
 
@@ -191,27 +194,27 @@ namespace NESTCOOKING_API.Business.Services
 
             if (user == null)
             {
-                return false;
+                throw new Exception(AppString.UserNotFoundMessage);
             }
 
             return await _userManager.VerifyUserTokenAsync(user, TokenOptions.DefaultProvider, UserManager<User>.ResetPasswordTokenPurpose, token); ;
         }
 
         public async Task<(string, string)> GenerateEmailConfirmationTokenAsync(string identifier)
-		{
-			User? user;
-			var email = new EmailAddressAttribute();
+        {
+            User? user;
+            var email = new EmailAddressAttribute();
 
-			if (email.IsValid(identifier))
-			{
-				user = await _userManager.FindByEmailAsync(identifier);
-			}
-			else
-			{
-				user = await _userManager.FindByNameAsync(identifier);
-			}
+            if (email.IsValid(identifier))
+            {
+                user = await _userManager.FindByEmailAsync(identifier);
+            }
+            else
+            {
+                user = await _userManager.FindByNameAsync(identifier);
+            }
 
-			if (user == null)
+            if (user == null)
             {
                 throw new Exception(AppString.UserNotFoundMessage);
             }
