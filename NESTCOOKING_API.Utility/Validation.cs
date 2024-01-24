@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 
 namespace NESTCOOKING_API.Utility;
@@ -8,8 +9,8 @@ public class Validation
     {
         try
         {
-            var add = new System.Net.Mail.MailAddress(email);
-            return add.Address == email;
+            var emailValidation = new EmailAddressAttribute();
+            return emailValidation.IsValid(email);
         }
         catch
         {

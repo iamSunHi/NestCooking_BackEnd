@@ -2,6 +2,7 @@
 {
 	public class StaticDetails
 	{
+		public const string FE_URL = "https://nest-cooking.onrender.com";
 		public enum ApiType
 		{
 			GET, POST, PUT, DELETE

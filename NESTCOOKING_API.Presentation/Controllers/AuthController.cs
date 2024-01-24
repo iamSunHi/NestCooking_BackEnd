@@ -20,14 +20,10 @@ namespace NESTCOOKING_API.Presentation.Controllers
 	{
 		private readonly IAuthService _authService;
 		private readonly IEmailService _emailService;
-		private readonly IConfiguration _configuration;
-		private readonly IUserService _userService;
-		public AuthController(IAuthService authService, IEmailService emailService, IConfiguration configuration, IUserService userService)
+		public AuthController(IAuthService authService, IEmailService emailService)
 		{
 			_authService = authService;
 			_emailService = emailService;
-			_configuration = configuration;
-			_userService = userService;
 		}
 
 		[HttpPost("login")]
@@ -39,7 +35,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			}
 			try
 			{
-
 				var loginResponse = await _authService.Login(model);
 
 				if (loginResponse == null)
@@ -56,7 +51,8 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			{
 				var (email, token) = await _authService.GenerateEmailConfirmationTokenAsync(model.UserName);
 
-				var emailConfirmationLink = Url.Action(nameof(VerifyEmailConfirmation), "auth", new { token, email }, Request.Scheme);
+				//var emailConfirmationLink = Url.Action(nameof(VerifyEmailConfirmation), "auth", new { token, email = model.Email }, Request.Scheme);
+				var emailConfirmationLink = $"{StaticDetails.FE_URL}/verify-email?token={token}&email={email}";
 
 				_emailService.SendEmail(new EmailResponseDTO(
 					to: new string[] { email },
@@ -92,7 +88,8 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				{
 					var (email, token) = await _authService.GenerateEmailConfirmationTokenAsync(model.Email);
 
-					var emailConfirmationLink = Url.Action(nameof(VerifyEmailConfirmation), "auth", new { token, email = model.Email }, Request.Scheme);
+					//var emailConfirmationLink = Url.Action(nameof(VerifyEmailConfirmation), "auth", new { token, email = model.Email }, Request.Scheme);
+					var emailConfirmationLink = $"{StaticDetails.FE_URL}/verify-email?token={token}&email={email}";
 
 					_emailService.SendEmail(new EmailResponseDTO(
 						to: new string[] { model.Email },
@@ -108,8 +105,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			{
 				return BadRequest(ResponseDTO.BadRequest(message: error.Message));
 			}
-
-
 		}
 
 		[AllowAnonymous]
@@ -205,54 +200,76 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			};
 		}
 
-		[HttpPost("verify-reset-password")]
-		public async Task<IActionResult> ForgotPassword([FromBody] string userName)
+		[HttpPost("forgot-password")]
+		public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO forgotPasswordDTO)
 		{
-			(string Token, string Email) result = await _authService.GenerateResetPasswordToken(userName);
-			if (!string.IsNullOrEmpty(result.Token))
+			try
 			{
-				var forgotPasswordLink = Url.Action(nameof(ResetPassword), "auth", new { result.Token, email = result.Email }, Request.Scheme);
-				var message = new EmailResponseDTO(new string[] { result.Email! }, AppString.ResetPasswordSubjectEmail, AppString.ResetPasswordContentEmail(forgotPasswordLink));
-				_emailService.SendEmail(message);
+				if (string.IsNullOrEmpty(forgotPasswordDTO.Identifier))
+				{
+					return BadRequest(ResponseDTO.BadRequest(message: AppString.RequestErrorMessage));
+				}
 
-				return Ok(ResponseDTO.Accept(message: "A password change request has been sent on your email. Please open your email to continue verify."));
+				(string Token, string Email, string Username, string AvatarURL) result = await _authService.GenerateResetPasswordToken(forgotPasswordDTO.Identifier);
+				if (!string.IsNullOrEmpty(result.Token))
+				{
+					string forgotPasswordLink = $"${StaticDetails.FE_URL}/reset-password?token={result.Token}&email={result.Email}";
+
+					var message = new EmailResponseDTO(new string[] { result.Email! }, AppString.ResetPasswordSubjectEmail, AppString.ResetPasswordContentEmail(forgotPasswordLink));
+
+					_emailService.SendEmail(message);
+
+					return Ok(ResponseDTO.Accept(message: AppString.ResetPasswordSendMailMessage, result: new
+					{
+						email = result.Email,
+						username = result.Username,
+						avatarURL = result.AvatarURL,
+						token = result.Token
+					}));
+				}
+
+				return BadRequest(ResponseDTO.BadRequest(message: AppString.SomethingWrongMessage));
 			}
-
-			return BadRequest(ResponseDTO.BadRequest(message: "Error when sending a password change request. The user was not found; please try again with another username."));
-		}
-
-		[HttpGet("reset-password")]
-		public async Task<IActionResult> ResetPassword(string email, string token)
-		{
-			var isVerifiedToken = await _authService.VerifyResetPasswordToken(email, token);
-
-			if (!isVerifiedToken)
+			catch (Exception error)
 			{
-				return BadRequest(ResponseDTO.BadRequest("Something went wrong!"));
+				return BadRequest(ResponseDTO.BadRequest(message: error.Message));
 			}
-
-			return Ok(ResponseDTO.Accept(result: new { token = token, email = email }));
 		}
 
 		[HttpPost("reset-password")]
 		public async Task<IActionResult> ResetPassword(ResetPasswordRequestDTO resetPasswordRequestDTO)
 		{
-			if (resetPasswordRequestDTO == null)
+			try
 			{
-				return BadRequest(ResponseDTO.BadRequest());
-			}
+				if (resetPasswordRequestDTO == null)
+				{
+					return BadRequest(ResponseDTO.BadRequest());
+				}
 
-			if (resetPasswordRequestDTO.NewPassword != resetPasswordRequestDTO.ConfirmPassword)
-			{
-				return BadRequest(ResponseDTO.BadRequest(message: "Two passwords must match!"));
-			}
 
-			var result = await _authService.ResetPassword(resetPasswordRequestDTO);
-			if (string.IsNullOrEmpty(result))
-			{
-				return Ok(ResponseDTO.Accept());
+				if (resetPasswordRequestDTO.NewPassword != resetPasswordRequestDTO.ConfirmPassword)
+				{
+					return BadRequest(ResponseDTO.BadRequest(message: AppString.ConfirmPasswordMismatchErrorMessage));
+				}
+
+				var isVerifiedToken = await _authService.VerifyResetPasswordToken(resetPasswordRequestDTO.Email, resetPasswordRequestDTO.Token);
+
+				if (!isVerifiedToken)
+				{
+					return BadRequest(ResponseDTO.BadRequest(AppString.InvalidTokenErrorMessage));
+				}
+
+				var result = await _authService.ResetPassword(resetPasswordRequestDTO);
+				if (result)
+				{
+					return Ok(ResponseDTO.Accept(AppString.ResetPasswordSuccessMessage));
+				}
+				return BadRequest(ResponseDTO.BadRequest(message: AppString.SomethingWrongMessage));
 			}
-			return BadRequest(ResponseDTO.BadRequest($"{result}"));
+			catch (Exception error)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: error.Message));
+			}
 		}
 
 		[HttpGet("verify-email")]
@@ -273,8 +290,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			{
 				return BadRequest(ResponseDTO.BadRequest(message: exception.Message));
 			}
-
-
 		}
 	}
 }
