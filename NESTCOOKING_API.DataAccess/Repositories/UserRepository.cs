@@ -73,7 +73,6 @@ namespace NESTCOOKING_API.DataAccess.Repositories
                 await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_User)).ConfigureAwait(false);
                 await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_Chef)).ConfigureAwait(false);
             }
-
             var result = await _userManager.CreateAsync(newUser, password).ConfigureAwait(false);
 
             if (!result.Succeeded)

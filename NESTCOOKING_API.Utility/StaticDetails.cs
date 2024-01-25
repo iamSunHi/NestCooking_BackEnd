@@ -2,6 +2,10 @@
 {
 	public class StaticDetails
 	{
+		// For Local
+		// public const string FE_URL = "http://localhost:3000";
+
+		// For Production
 		public const string FE_URL = "https://nest-cooking.onrender.com";
 		public enum ApiType
 		{
