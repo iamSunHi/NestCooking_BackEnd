@@ -141,7 +141,7 @@ namespace NESTCOOKING_API.Business.Services
                 return $"Error: {ex.Message}";
             }
         }
-        public async Task<(string, string, string, string)> GenerateResetPasswordToken(string identifier)
+        public async Task<(string, string)> GenerateResetPasswordToken(string identifier)
         {
             User? user;
 
@@ -154,20 +154,20 @@ namespace NESTCOOKING_API.Business.Services
                 user = await _userManager.FindByNameAsync(identifier);
             }
 
-            if (user != null)
-            {
-                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                if (!string.IsNullOrEmpty(token))
-                {
-                    return (token, user.Email, user.UserName, user.AvatarUrl);
-                }
-            }
-            else
+            if (user == null)
             {
                 throw new Exception(AppString.UserNotFoundMessage);
             }
 
-            return (null, null, null, null);
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new Exception(AppString.SomethingWrongMessage);
+            }
+
+            return (token, user.Email);
+
         }
 
         public async Task<bool> ResetPassword(ResetPasswordRequestDTO resetPasswordRequestDTO)
@@ -241,6 +241,43 @@ namespace NESTCOOKING_API.Business.Services
             var result = await _userManager.ConfirmEmailAsync(user, token);
 
             if (!result.Succeeded) throw new Exception(AppString.InvalidTokenErrorMessage);
+
+            return true;
+        }
+
+        public async Task<(string Email, string Username, string AvatarURL)> VerifyIdentifierResetPassword(string identifier)
+        {
+            User? user;
+
+            if (Validation.CheckEmailValid(identifier))
+            {
+                user = await _userManager.FindByEmailAsync(identifier);
+            }
+            else
+            {
+                user = await _userManager.FindByNameAsync(identifier);
+            }
+
+            if (user == null)
+            {
+                throw new Exception(AppString.UserNotFoundMessage);
+            }
+
+            return (user.Email, user.UserName, user.AvatarUrl);
+        }
+
+        public async Task<bool> VerifyEmailResetPassword(string email, string token)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                throw new Exception(AppString.UserNotFoundMessage);
+            }
+
+            var result = await _userManager.VerifyUserTokenAsync(user, TokenOptions.DefaultProvider, UserManager<User>.ResetPasswordTokenPurpose, token);
+
+            if (!result) throw new Exception(AppString.InvalidTokenErrorMessage);
 
             return true;
         }
