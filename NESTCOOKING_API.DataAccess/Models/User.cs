@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NESTCOOKING_API.DataAccess.Models
 {
@@ -12,5 +13,7 @@ namespace NESTCOOKING_API.DataAccess.Models
 		public double? BookingPrice { get; set; }
 		public DateTime CreatedAt { get; set; }
 		public DateTime UpdatedAt { get; set; }
+
+		public string RoleId { get; set; } = null!;
 	}
 }

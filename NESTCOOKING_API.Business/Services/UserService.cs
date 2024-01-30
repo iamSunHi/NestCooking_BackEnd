@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using NESTCOOKING_API.Business.DTOs;
+using NESTCOOKING_API.Business.DTOs.UserDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
@@ -14,12 +14,14 @@ namespace NESTCOOKING_API.Business.Services
 	public class UserService : IUserService
 	{
 		private readonly IUserRepository _userRepository;
+		private readonly IRoleRepository _roleRepository;
 		private readonly UserManager<User> _userManager;
 		private readonly IMapper _mapper;
 
-		public UserService(IUserRepository userRepository, UserManager<User> userManager, IMapper mapper)
+		public UserService(IUserRepository userRepository, IRoleRepository roleRepository, UserManager<User> userManager, IMapper mapper)
 		{
 			_userRepository = userRepository;
+			_roleRepository = roleRepository;
 			_userManager = userManager;
 			_mapper = mapper;
 		}
@@ -48,7 +50,7 @@ namespace NESTCOOKING_API.Business.Services
 				return null;
 			}
 			var userDTO = _mapper.Map<UserInfoDTO>(user);
-			userDTO.Role = _userManager.GetRolesAsync(user).Result.FirstOrDefault();
+			userDTO.Role = await _roleRepository.GetRoleNameByIdAsync(user.RoleId);
 			return userDTO;
 		}
 
@@ -121,8 +123,7 @@ namespace NESTCOOKING_API.Business.Services
 			if (user.AvatarUrl != null)
 			{
 				var oldFilePath = Path.Combine(currentDirectory, user.AvatarUrl);
-				System.IO.File.Delete(oldFilePath);
-
+				File.Delete(oldFilePath);
 			}
 			user.AvatarUrl = Path.Combine(StaticDetails.AvatarFolderPath, fileName);
 

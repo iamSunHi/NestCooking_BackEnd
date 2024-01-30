@@ -1,12 +1,12 @@
 ﻿using MimeKit;
-using NESTCOOKING_API.Business.DTOs.EmailDTO;
+using NESTCOOKING_API.Business.DTOs.EmailDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.Utility;
 using SmtpClient = MailKit.Net.Smtp.SmtpClient;
 
 namespace NESTCOOKING_API.Business.Services
 {
-	public class EmailService : IEmailService
+    public class EmailService : IEmailService
     {
         private readonly EmailRequestDTO _emailRequest;
 

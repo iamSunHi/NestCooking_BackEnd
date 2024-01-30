@@ -1,13 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NESTCOOKING_API.DataAccess.Models
 {
-	public class PurchasedPost
+	public class PurchasedRecipe
 	{
 		[Key]
 		public int Id { get; set; }
 		public User User { get; set; }
-		public Post Post { get; set; }
+		public Recipe Recipe { get; set; }
 	}
 }

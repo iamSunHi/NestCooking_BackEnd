@@ -11,6 +11,6 @@ namespace NESTCOOKING_API.DataAccess.Models
 		public IEnumerable<string> Reasons { get; set; }
 		public IEnumerable<string> AchievementImageUrls { get; set; }
 		public IEnumerable<string> AchievementDescriptions { get; set; }
-		
+
 	}
 }

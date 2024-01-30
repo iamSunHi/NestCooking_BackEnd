@@ -1,6 +1,6 @@
-﻿namespace NESTCOOKING_API.Business.DTOs.EmailDTO
+﻿namespace NESTCOOKING_API.Business.DTOs.EmailDTOs
 {
-	public class EmailRequestDTO
+    public class EmailRequestDTO
     {
         public string From { get; set; } = null;
         public string SmtpServer { get; set; } = null;

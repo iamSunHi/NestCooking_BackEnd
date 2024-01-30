@@ -1,4 +1,4 @@
-namespace NESTCOOKING_API.Business.DTOs
+namespace NESTCOOKING_API.Business.DTOs.AuthDTOs
 {
     public class VerifyEmailTokenRequestDTO
     {

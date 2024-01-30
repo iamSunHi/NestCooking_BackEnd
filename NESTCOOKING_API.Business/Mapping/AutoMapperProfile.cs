@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using NESTCOOKING_API.Business.DTOs;
+using NESTCOOKING_API.Business.DTOs.AuthDTOs;
+using NESTCOOKING_API.Business.DTOs.UserDTOs;
 using NESTCOOKING_API.DataAccess.Models;
 
 namespace NESTCOOKING_API.Business.Mapping
@@ -10,8 +12,8 @@ namespace NESTCOOKING_API.Business.Mapping
 		{
 			CreateMap<User, UserDTO>().ReverseMap();
 			CreateMap<User, RegistrationRequestDTO>().ReverseMap();
-            CreateMap<User, ProviderRequestDTO>().ReverseMap();
+			CreateMap<User, LoginWithThirdPartyRequestDTO>().ReverseMap();
 			CreateMap<User, UserInfoDTO>().ReverseMap();
-        }
-    }
+		}
+	}
 }

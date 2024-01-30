@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using NESTCOOKING_API.Business.Authorization;
-using NESTCOOKING_API.Business.DTOs.EmailDTO;
+using NESTCOOKING_API.Business.DTOs.EmailDTOs;
 using NESTCOOKING_API.Business.Mapping;
 using NESTCOOKING_API.Business.Services;
 using NESTCOOKING_API.Business.Services.IServices;
@@ -30,9 +30,10 @@ namespace NESTCOOKING_API.Business.ServiceManager
 					   .SetBasePath(Directory.GetCurrentDirectory())
 					   .AddJsonFile("appsettings.json");
 			var configurationRoot = configBuilder.Build();
-            
-            // Add repositories to the container.
-            service.AddScoped<IUserRepository, UserRepository>();
+
+			// Add repositories to the container.
+			service.AddScoped<IUserRepository, UserRepository>();
+			service.AddScoped<IRoleRepository, RoleRepository>();
 
 			// Add services to the container.
 			service.AddScoped<IJwtUtils, JwtUtils>();
@@ -48,9 +49,8 @@ namespace NESTCOOKING_API.Business.ServiceManager
 				});
 			});
 
-            // Configure for email
-            service.Configure<IdentityOptions>(
-				options => options.SignIn.RequireConfirmedEmail = true);
+			// Configure for email
+			service.Configure<IdentityOptions>(options => options.SignIn.RequireConfirmedEmail = true);
 			// Set time Token for Email Confirm
 			service.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromMinutes(20));
 
@@ -105,8 +105,8 @@ namespace NESTCOOKING_API.Business.ServiceManager
 				options.AppId = configurationRoot["Authentication:Facebook:AppId"];
 				options.AppSecret = configurationRoot["Authentication:Facebook:AppSecret"];
 			});
-        
 
-        }
+
+		}
 	}
 }

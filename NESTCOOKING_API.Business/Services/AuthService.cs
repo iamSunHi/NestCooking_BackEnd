@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using NESTCOOKING_API.Business.Authorization;
 using NESTCOOKING_API.Business.DTOs;
+using NESTCOOKING_API.Business.DTOs.AuthDTOs;
 using NESTCOOKING_API.Business.Exceptions;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
@@ -14,14 +15,16 @@ namespace NESTCOOKING_API.Business.Services
     public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IRoleRepository _roleRepository;
         private readonly IJwtUtils _jwtUtils;
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IMapper _mapper;
-        public AuthService(IUserRepository userRepository, IJwtUtils jwtUtils,
+        public AuthService(IUserRepository userRepository, IRoleRepository roleRepository, IJwtUtils jwtUtils,
             UserManager<User> userManager, IMapper mapper, RoleManager<IdentityRole> roleManager)
         {
             _userRepository = userRepository;
+            _roleRepository = roleRepository;
             _jwtUtils = jwtUtils;
             _userManager = userManager;
             _roleManager = roleManager;
@@ -72,7 +75,7 @@ namespace NESTCOOKING_API.Business.Services
             return result;
         }
 
-        public async Task<string> LoginWithThirdParty(ProviderRequestDTO info)
+        public async Task<string> LoginWithThirdParty(LoginWithThirdPartyRequestDTO info)
         {
             try
             {
@@ -86,6 +89,10 @@ namespace NESTCOOKING_API.Business.Services
                 if (user == null)
                 {
                     // Create a new user if not exists
+                    if (!await _roleManager.RoleExistsAsync(StaticDetails.Role_User))
+                    {
+                        await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_User));
+                    }
                     var newUser = new User
                     {
                         UserName = info.Email,
@@ -93,34 +100,14 @@ namespace NESTCOOKING_API.Business.Services
                         LastName = info.LastName,
                         Email = info.Email,
                         CreatedAt = DateTime.UtcNow,
+                        RoleId = await _roleRepository.GetRoleIdByNameAsync(StaticDetails.Role_User)
                     };
 
                     var result = await _userManager.CreateAsync(newUser);
                     if (result.Succeeded)
                     {
-                        if (!await _roleManager.RoleExistsAsync(StaticDetails.Role_User))
-                        {
-                            await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_User));
-                        }
-                        await _userManager.AddToRoleAsync(newUser, StaticDetails.Role_User);
-                        await _userManager.AddLoginAsync(newUser, new UserLoginInfo(
-                            info.LoginProvider.ToString(),
-                            info.ProviderKey,
-                            info.ProviderDisplayName
-                        ));
                         user = await _userManager.FindByEmailAsync(info.Email);
                     }
-                }
-                else
-                {
-                    await _userManager.AddLoginAsync(
-                        user,
-                        new UserLoginInfo(
-                            info.LoginProvider.ToString(),
-                            info.ProviderKey,
-                            info.ProviderDisplayName
-                        )
-                    );
                 }
 
                 if (user == null)
@@ -128,8 +115,10 @@ namespace NESTCOOKING_API.Business.Services
                     return null;
                 }
 
-                bool isLockedOut = await _userManager.IsLockedOutAsync(user);
+                // Auto confirm email when login with third party application
+                await _userManager.ConfirmEmailAsync(user, await _userManager.GenerateEmailConfirmationTokenAsync(user));
 
+                bool isLockedOut = await _userManager.IsLockedOutAsync(user);
                 if (isLockedOut)
                 {
                     return null;
