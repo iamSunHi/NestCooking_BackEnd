@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using NESTCOOKING_API.Business.DTOs;
+using NESTCOOKING_API.Business.DTOs.UserDTOs;
 using NESTCOOKING_API.DataAccess.Models;
 
 namespace NESTCOOKING_API.Business.Services.IServices

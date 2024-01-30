@@ -7,7 +7,7 @@ namespace NESTCOOKING_API.DataAccess.Models
 		[Key]
 		public string Id { get; set; } = null!;
 		public User User { get; set; }
-		public Post Post { get; set; }
+		public Recipe Recipe { get; set; }
 		public string Content { get; set; } = null!;
 		public DateTime CreatedAt { get; set; }
 		public DateTime UpdatedAt { get; set; }

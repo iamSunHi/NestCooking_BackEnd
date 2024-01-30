@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using NESTCOOKING_API.DataAccess.Models;
+using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -16,18 +17,18 @@ namespace NESTCOOKING_API.Business.Authorization
 
 	public class JwtUtils : IJwtUtils
 	{
-		private readonly UserManager<User> _userManager;
+		private readonly IRoleRepository _roleRepository;
 		private readonly string secretKey;
 
-		public JwtUtils(UserManager<User> userManager, IConfiguration configuration)
+		public JwtUtils(IRoleRepository roleRepository, IConfiguration configuration)
 		{
-			_userManager = userManager;
+			_roleRepository = roleRepository;
 			secretKey = configuration.GetSection("ApiSettings:Secret").Value;
 		}
 
 		public async Task<string> GenerateJwtToken(User user)
 		{
-			var roles = await _userManager.GetRolesAsync(user);
+			var role = await _roleRepository.GetRoleNameByIdAsync(user.RoleId);
 
 			var key = Encoding.ASCII.GetBytes(secretKey);
 			var tokenHandler = new JwtSecurityTokenHandler();
@@ -36,7 +37,7 @@ namespace NESTCOOKING_API.Business.Authorization
 				Subject = new ClaimsIdentity(new Claim[]
 				{
 					new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-					new Claim(ClaimTypes.Role, roles.FirstOrDefault())
+					new Claim(ClaimTypes.Role, role)
 				}),
 				Expires = DateTime.UtcNow.AddDays(7),
 				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

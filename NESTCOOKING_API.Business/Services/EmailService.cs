@@ -1,12 +1,12 @@
 ﻿using MimeKit;
-using NESTCOOKING_API.Business.DTOs.EmailDTO;
+using NESTCOOKING_API.Business.DTOs.EmailDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.Utility;
 using SmtpClient = MailKit.Net.Smtp.SmtpClient;
 
 namespace NESTCOOKING_API.Business.Services
 {
-	public class EmailService : IEmailService
+    public class EmailService : IEmailService
     {
         private readonly EmailRequestDTO _emailRequest;
 
@@ -28,7 +28,7 @@ namespace NESTCOOKING_API.Business.Services
             emailMessage.From.Add(new MailboxAddress(AppString.NameEmailOwnerDisplay, _emailRequest.From));
             emailMessage.To.AddRange(message.To);
             emailMessage.Subject = message.Subject;
-            emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Text) { Text = message.Content };
+            emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = message.Content };
 
             return emailMessage;
         }

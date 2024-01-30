@@ -2,6 +2,11 @@
 {
 	public class StaticDetails
 	{
+		// For Local
+		// public const string FE_URL = "http://localhost:3000";
+
+		// For Production
+		public const string FE_URL = "https://nest-cooking.onrender.com";
 		public enum ApiType
 		{
 			GET, POST, PUT, DELETE
@@ -26,7 +31,6 @@
 		public const string NotificationType_REPORT = "REPORT";
 		public const string NotificationType_REQUEST = "REQUEST";
 
-		public enum Provider { Google, Facebook }
 		public const string AvatarFolderPath = "images/avatar";
 		public static readonly Dictionary<string, string> FolderPath = new Dictionary<string, string>
 		{
