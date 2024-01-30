@@ -10,12 +10,12 @@ using NESTCOOKING_API.Business.Exceptions;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.Utility;
 using System.Security.Claims;
-using static NESTCOOKING_API.Utility.StaticDetails;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
 	[Route("api/auth")]
 	[ApiController]
+	[AllowAnonymous]
 	public class AuthController : ControllerBase
 	{
 		private readonly IAuthService _authService;
@@ -107,7 +107,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			}
 		}
 
-		[AllowAnonymous]
 		[HttpGet("signin-facebook")]
 		public IActionResult FacebookLogin()
 
@@ -116,7 +115,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			return Challenge(authenticationProperties, FacebookDefaults.AuthenticationScheme);
 		}
 
-		[AllowAnonymous]
 		[HttpGet("facebook-response")]
 		public async Task<IActionResult> FacebookCallback()
 		{
@@ -126,9 +124,9 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				return BadRequest(ResponseDTO.BadRequest());
 			}
 
-			var userProviderDTO = CreateProviderRequestDTO(result.Principal, Provider.Facebook);
+			var loginRequest = CreateLoginWithThirdPartyRequest(result.Principal);
 
-			var token = await _authService.LoginWithThirdParty(userProviderDTO);
+			var token = await _authService.LoginWithThirdParty(loginRequest);
 
 			if (token == null)
 			{
@@ -143,7 +141,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			return Ok(ResponseDTO.Accept(result: loginResponseDTO));
 		}
 
-		[AllowAnonymous]
 		[HttpGet("signin-google")]
 		public IActionResult GoogleLogin()
 		{
@@ -151,7 +148,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			return Challenge(authenticationProperties, GoogleDefaults.AuthenticationScheme);
 		}
 
-		[AllowAnonymous]
 		[HttpGet("google-response")]
 		public async Task<IActionResult> GoogleLoginCallback()
 		{
@@ -161,9 +157,9 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			{
 				return BadRequest(ResponseDTO.BadRequest());
 			}
-			var userProviderDTO = CreateProviderRequestDTO(result.Principal, Provider.Google);
+			var loginRequest = CreateLoginWithThirdPartyRequest(result.Principal);
 
-			var token = await _authService.LoginWithThirdParty(userProviderDTO);
+			var token = await _authService.LoginWithThirdParty(loginRequest);
 
 			if (token == null)
 			{
@@ -178,13 +174,10 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			return Ok(ResponseDTO.Accept(result: loginResponseDTO));
 		}
 
-		private ProviderRequestDTO CreateProviderRequestDTO(ClaimsPrincipal principal, Provider provider)
+		private LoginWithThirdPartyRequestDTO CreateLoginWithThirdPartyRequest(ClaimsPrincipal principal)
 		{
-			return new ProviderRequestDTO
+			return new LoginWithThirdPartyRequestDTO
 			{
-				LoginProvider = provider,
-				ProviderKey = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value,
-				ProviderDisplayName = principal.FindFirst(ClaimTypes.Name)?.Value,
 				FirstName = principal.Claims.FirstOrDefault(filter => filter.Type == ClaimTypes.GivenName)?.Value,
 				LastName = principal.Claims.FirstOrDefault(filter => filter.Type == ClaimTypes.Surname)?.Value,
 				Email = principal.FindFirst(ClaimTypes.Email)?.Value,

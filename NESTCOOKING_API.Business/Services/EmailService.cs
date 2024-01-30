@@ -1,5 +1,5 @@
 ﻿using MimeKit;
-using NESTCOOKING_API.Business.DTOs;
+using NESTCOOKING_API.Business.DTOs.EmailDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.Utility;
 using SmtpClient = MailKit.Net.Smtp.SmtpClient;

@@ -73,7 +73,7 @@ namespace NESTCOOKING_API.Business.Services
             return result;
         }
 
-        public async Task<string> LoginWithThirdParty(ProviderRequestDTO info)
+        public async Task<string> LoginWithThirdParty(LoginWithThirdPartyRequestDTO info)
         {
             try
             {
@@ -104,24 +104,8 @@ namespace NESTCOOKING_API.Business.Services
                             await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_User));
                         }
                         await _userManager.AddToRoleAsync(newUser, StaticDetails.Role_User);
-                        await _userManager.AddLoginAsync(newUser, new UserLoginInfo(
-                            info.LoginProvider.ToString(),
-                            info.ProviderKey,
-                            info.ProviderDisplayName
-                        ));
                         user = await _userManager.FindByEmailAsync(info.Email);
                     }
-                }
-                else
-                {
-                    await _userManager.AddLoginAsync(
-                        user,
-                        new UserLoginInfo(
-                            info.LoginProvider.ToString(),
-                            info.ProviderKey,
-                            info.ProviderDisplayName
-                        )
-                    );
                 }
 
                 if (user == null)
@@ -129,8 +113,10 @@ namespace NESTCOOKING_API.Business.Services
                     return null;
                 }
 
-                bool isLockedOut = await _userManager.IsLockedOutAsync(user);
+                // Auto confirm email when login with third party application
+                await _userManager.ConfirmEmailAsync(user, await _userManager.GenerateEmailConfirmationTokenAsync(user));
 
+                bool isLockedOut = await _userManager.IsLockedOutAsync(user);
                 if (isLockedOut)
                 {
                     return null;
