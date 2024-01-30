@@ -11,7 +11,7 @@ using NESTCOOKING_API.Utility;
 
 namespace NESTCOOKING_API.Business.Services
 {
-    public class UserService : IUserService
+	public class UserService : IUserService
 	{
 		private readonly IUserRepository _userRepository;
 		private readonly IRoleRepository _roleRepository;
@@ -50,7 +50,7 @@ namespace NESTCOOKING_API.Business.Services
 				return null;
 			}
 			var userDTO = _mapper.Map<UserInfoDTO>(user);
-			userDTO.Role = await _roleRepository.GetRoleNameAsync(user.RoleId);
+			userDTO.Role = await _roleRepository.GetRoleNameByIdAsync(user.RoleId);
 			return userDTO;
 		}
 

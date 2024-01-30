@@ -34,7 +34,7 @@ namespace NESTCOOKING_API.DataAccess.Data
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			base.OnModelCreating(modelBuilder);
-			
+
 			modelBuilder.Entity<User>(user =>
 			{
 				// Each User can have only one Role

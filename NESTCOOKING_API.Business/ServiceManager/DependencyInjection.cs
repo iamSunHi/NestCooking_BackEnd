@@ -22,7 +22,7 @@ using System.Text;
 
 namespace NESTCOOKING_API.Business.ServiceManager
 {
-    public class DependencyInjection
+	public class DependencyInjection
 	{
 		public void ConfigureServices(IServiceCollection service)
 		{
@@ -30,9 +30,9 @@ namespace NESTCOOKING_API.Business.ServiceManager
 					   .SetBasePath(Directory.GetCurrentDirectory())
 					   .AddJsonFile("appsettings.json");
 			var configurationRoot = configBuilder.Build();
-            
-            // Add repositories to the container.
-            service.AddScoped<IUserRepository, UserRepository>();
+
+			// Add repositories to the container.
+			service.AddScoped<IUserRepository, UserRepository>();
 			service.AddScoped<IRoleRepository, RoleRepository>();
 
 			// Add services to the container.
@@ -49,8 +49,8 @@ namespace NESTCOOKING_API.Business.ServiceManager
 				});
 			});
 
-            // Configure for email
-            service.Configure<IdentityOptions>(options => options.SignIn.RequireConfirmedEmail = true);
+			// Configure for email
+			service.Configure<IdentityOptions>(options => options.SignIn.RequireConfirmedEmail = true);
 			// Set time Token for Email Confirm
 			service.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromMinutes(20));
 
@@ -105,8 +105,8 @@ namespace NESTCOOKING_API.Business.ServiceManager
 				options.AppId = configurationRoot["Authentication:Facebook:AppId"];
 				options.AppSecret = configurationRoot["Authentication:Facebook:AppSecret"];
 			});
-        
 
-        }
+
+		}
 	}
 }

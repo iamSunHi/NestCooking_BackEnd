@@ -7,7 +7,7 @@ namespace NESTCOOKING_API.DataAccess.Models
 		[Key]
 		public string Id { get; set; } = null!;
 		public User User { get; set; }
-		public User Target {  get; set; }
+		public User Target { get; set; }
 		public string Title { get; set; } = null!;
 		public string Content { get; set; } = null!;
 		public string? ImageUrl { get; set; }

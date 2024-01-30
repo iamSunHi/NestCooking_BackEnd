@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
-    [Route("api/user")]
+	[Route("api/user")]
 	[ApiController]
 	[Authorize]
 	public class UserController : ControllerBase

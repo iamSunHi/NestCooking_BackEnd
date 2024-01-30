@@ -88,19 +88,19 @@ namespace NESTCOOKING_API.Business.Services
 
                 if (user == null)
                 {
-					// Create a new user if not exists
-					if (!await _roleManager.RoleExistsAsync(StaticDetails.Role_User))
-					{
-						await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_User));
-					}
-					var newUser = new User
+                    // Create a new user if not exists
+                    if (!await _roleManager.RoleExistsAsync(StaticDetails.Role_User))
+                    {
+                        await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_User));
+                    }
+                    var newUser = new User
                     {
                         UserName = info.Email,
                         FirstName = info.FirstName,
                         LastName = info.LastName,
                         Email = info.Email,
                         CreatedAt = DateTime.UtcNow,
-                        RoleId = await _roleRepository.GetRoleIdAsync(StaticDetails.Role_User)
+                        RoleId = await _roleRepository.GetRoleIdByNameAsync(StaticDetails.Role_User)
                     };
 
                     var result = await _userManager.CreateAsync(newUser);

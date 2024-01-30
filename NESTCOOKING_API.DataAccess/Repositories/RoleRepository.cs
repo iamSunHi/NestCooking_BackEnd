@@ -15,7 +15,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 			_context = context;
 		}
 
-		public async Task<string> GetRoleNameAsync(string roleId)
+		public async Task<string> GetRoleNameByIdAsync(string roleId)
 		{
 			var role = await _context.Roles.FirstOrDefaultAsync(r => r.Id == roleId);
 			if (role == null)
@@ -25,7 +25,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 			return role.Name;
 		}
 
-		public async Task<string> GetRoleIdAsync(string roleName)
+		public async Task<string> GetRoleIdByNameAsync(string roleName)
 		{
 			var role = await _context.Roles.FirstOrDefaultAsync(r => r.Name == roleName);
 			if (role == null)
@@ -43,7 +43,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 				return false;
 			}
 
-			var roleId = await GetRoleIdAsync(roleName);
+			var roleId = await GetRoleIdByNameAsync(roleName);
 			if (roleId == null)
 			{
 				return false;

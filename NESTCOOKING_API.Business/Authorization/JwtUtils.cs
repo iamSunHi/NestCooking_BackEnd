@@ -28,7 +28,7 @@ namespace NESTCOOKING_API.Business.Authorization
 
 		public async Task<string> GenerateJwtToken(User user)
 		{
-			var role = await _roleRepository.GetRoleNameAsync(user.RoleId);
+			var role = await _roleRepository.GetRoleNameByIdAsync(user.RoleId);
 
 			var key = Encoding.ASCII.GetBytes(secretKey);
 			var tokenHandler = new JwtSecurityTokenHandler();
