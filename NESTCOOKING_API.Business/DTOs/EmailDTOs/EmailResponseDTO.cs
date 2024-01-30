@@ -1,8 +1,8 @@
 ﻿using MimeKit;
 using NESTCOOKING_API.Utility;
-namespace NESTCOOKING_API.Business.DTOs.EmailDTO
+namespace NESTCOOKING_API.Business.DTOs.EmailDTOs
 {
-	public class EmailResponseDTO
+    public class EmailResponseDTO
     {
         public List<MailboxAddress> To { get; set; }
         public string Subject { get; set; }

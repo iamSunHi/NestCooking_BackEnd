@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using NESTCOOKING_API.Business.Authorization;
-using NESTCOOKING_API.Business.DTOs.EmailDTO;
+using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.Mapping;
 using NESTCOOKING_API.Business.Services;
 using NESTCOOKING_API.Business.Services.IServices;
@@ -22,7 +22,7 @@ using System.Text;
 
 namespace NESTCOOKING_API.Business.ServiceManager
 {
-	public class DependencyInjection
+    public class DependencyInjection
 	{
 		public void ConfigureServices(IServiceCollection service)
 		{

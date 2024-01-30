@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
-using NESTCOOKING_API.Business.DTOs;
+using NESTCOOKING_API.Business.DTOs.UserDTOs;
 using NESTCOOKING_API.DataAccess.Models;
 
 namespace NESTCOOKING_API.Business.Services.IServices
 {
-	public interface IUserService
+    public interface IUserService
 	{
 		Task<UserInfoDTO> GetUserById(string id);
 		Task<bool> ChangePassword(string userId, string currentPassword, string newPassword, string confirPassword);

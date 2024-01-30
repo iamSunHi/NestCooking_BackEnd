@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
+using NESTCOOKING_API.Business.DTOs.UserDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.Utility;
 using System.Security.Claims;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
-	[Route("api/user")]
+    [Route("api/user")]
 	[ApiController]
 	[Authorize]
 	public class UserController : ControllerBase
