@@ -10,17 +10,18 @@ namespace NESTCOOKING_API.DataAccess.Repositories
     public class UserRepository : Repository<User>, IUserRepository
     {
         private readonly ApplicationDbContext _context;
-        private readonly UserManager<User> _userManager;
+		private readonly IRoleRepository _roleRepository;
+		private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public UserRepository(ApplicationDbContext context,
+        public UserRepository(ApplicationDbContext context, IRoleRepository roleRepository,
             UserManager<User> userManager, RoleManager<IdentityRole> roleManager) : base(context)
         {
             _context = context;
+            _roleRepository = roleRepository;
             _userManager = userManager;
             _roleManager = roleManager;
         }
-
 
         public bool IsUniqueEmail(string email)
         {
@@ -40,9 +41,9 @@ namespace NESTCOOKING_API.DataAccess.Repositories
                 return true;
             }
             return false;
-        }
+		}
 
-        public async Task<User> Login(string username, string password)
+		public async Task<User> Login(string username, string password)
         {
             var user = _context.Users.FirstOrDefault(u => u.UserName == username || u.Email == username);
             if (user != null)
@@ -69,10 +70,16 @@ namespace NESTCOOKING_API.DataAccess.Repositories
         {
             if (!_roleManager.RoleExistsAsync(StaticDetails.Role_Admin).GetAwaiter().GetResult())
             {
-                await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_Admin)).ConfigureAwait(false);
-                await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_User)).ConfigureAwait(false);
-                await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_Chef)).ConfigureAwait(false);
-            }
+                await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_Admin));
+				await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_Chef));
+			}
+            if (!_roleManager.RoleExistsAsync(StaticDetails.Role_User).GetAwaiter().GetResult())
+            {
+				await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_User));
+			}
+
+            var roleId = await _roleRepository.GetRoleIdAsync(StaticDetails.Role_User);
+            newUser.RoleId = roleId;
             var result = await _userManager.CreateAsync(newUser, password).ConfigureAwait(false);
 
             if (!result.Succeeded)
@@ -80,10 +87,8 @@ namespace NESTCOOKING_API.DataAccess.Repositories
                 throw new Exception(result.Errors.FirstOrDefault()?.Description);
             }
 
-            await _userManager.AddToRoleAsync(newUser, StaticDetails.Role_User).ConfigureAwait(false);
-
-            var userExists = await _context.Users.AnyAsync(u => u.UserName == newUser.UserName).ConfigureAwait(false);
-            if (!userExists)
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == newUser.UserName);
+            if (user == null)
             {
                 throw new Exception(AppString.SomethingWrongMessage);
             }

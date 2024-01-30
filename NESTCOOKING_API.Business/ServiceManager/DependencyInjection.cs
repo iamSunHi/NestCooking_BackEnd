@@ -33,6 +33,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
             
             // Add repositories to the container.
             service.AddScoped<IUserRepository, UserRepository>();
+			service.AddScoped<IRoleRepository, RoleRepository>();
 
 			// Add services to the container.
 			service.AddScoped<IJwtUtils, JwtUtils>();
@@ -49,8 +50,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			});
 
             // Configure for email
-            service.Configure<IdentityOptions>(
-				options => options.SignIn.RequireConfirmedEmail = true);
+            service.Configure<IdentityOptions>(options => options.SignIn.RequireConfirmedEmail = true);
 			// Set time Token for Email Confirm
 			service.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromMinutes(20));
 

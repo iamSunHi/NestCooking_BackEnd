@@ -15,14 +15,16 @@ namespace NESTCOOKING_API.Business.Services
     public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IRoleRepository _roleRepository;
         private readonly IJwtUtils _jwtUtils;
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IMapper _mapper;
-        public AuthService(IUserRepository userRepository, IJwtUtils jwtUtils,
+        public AuthService(IUserRepository userRepository, IRoleRepository roleRepository, IJwtUtils jwtUtils,
             UserManager<User> userManager, IMapper mapper, RoleManager<IdentityRole> roleManager)
         {
             _userRepository = userRepository;
+            _roleRepository = roleRepository;
             _jwtUtils = jwtUtils;
             _userManager = userManager;
             _roleManager = roleManager;
@@ -86,24 +88,24 @@ namespace NESTCOOKING_API.Business.Services
 
                 if (user == null)
                 {
-                    // Create a new user if not exists
-                    var newUser = new User
+					// Create a new user if not exists
+					if (!await _roleManager.RoleExistsAsync(StaticDetails.Role_User))
+					{
+						await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_User));
+					}
+					var newUser = new User
                     {
                         UserName = info.Email,
                         FirstName = info.FirstName,
                         LastName = info.LastName,
                         Email = info.Email,
                         CreatedAt = DateTime.UtcNow,
+                        RoleId = await _roleRepository.GetRoleIdAsync(StaticDetails.Role_User)
                     };
 
                     var result = await _userManager.CreateAsync(newUser);
                     if (result.Succeeded)
                     {
-                        if (!await _roleManager.RoleExistsAsync(StaticDetails.Role_User))
-                        {
-                            await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Role_User));
-                        }
-                        await _userManager.AddToRoleAsync(newUser, StaticDetails.Role_User);
                         user = await _userManager.FindByEmailAsync(info.Email);
                     }
                 }
