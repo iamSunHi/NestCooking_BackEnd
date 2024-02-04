@@ -6,7 +6,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
 {
 	public class Repository<T> : IRepository<T> where T : class
 	{
-		private readonly ApplicationDbContext _context;
+		protected readonly ApplicationDbContext _context;
 		internal DbSet<T> _dbSet;
 
 		public Repository(ApplicationDbContext context)
