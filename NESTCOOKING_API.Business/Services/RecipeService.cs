@@ -28,10 +28,10 @@ namespace NESTCOOKING_API.Business.Services
 			return null;
 		}
 
-		public async Task CreateRecipeAsync(RecipeCreationDTO recipeDTO)
+		public async Task CreateRecipeAsync(RecipeDetailDTO recipeDTO)
 		{
 			var recipe = _mapper.Map<Recipe>(recipeDTO);
-			var user = await _userRepository.GetAsync(u => u.Id == recipeDTO.UserId);
+			var user = await _userRepository.GetAsync(u => u.Id == recipeDTO.Owner.Id);
 			recipe.User = user;
 			recipe.CreatedAt = DateTime.Now;
 			recipe.Id = Guid.NewGuid().ToString();

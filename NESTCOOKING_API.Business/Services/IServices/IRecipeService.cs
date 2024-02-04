@@ -6,6 +6,6 @@ namespace NESTCOOKING_API.Business.Services.IServices
 	public interface IRecipeService
 	{
 		Task<IEnumerable<RecipeDTO>> GetRecipesAsync(PaginationInfoDTO paginationInfo);
-		Task CreateRecipeAsync(RecipeCreationDTO recipeDTO);
+		Task CreateRecipeAsync(RecipeDetailDTO recipeDTO);
 	}
 }

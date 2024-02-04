@@ -36,7 +36,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 		[HttpPost]
 		[Authorize]
-		public async Task<IActionResult> CreateRecipe(RecipeCreationDTO recipeCreationDTO)
+		public async Task<IActionResult> CreateRecipe(RecipeDetailDTO recipeDetailDTO)
 		{
 			throw new NotImplementedException();
 		}

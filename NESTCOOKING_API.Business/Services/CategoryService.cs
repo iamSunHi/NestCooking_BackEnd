@@ -18,6 +18,12 @@ namespace NESTCOOKING_API.Business.Services
 			_categoryRepository = categoryRepository;
 		}
 
+		public async Task<IEnumerable<CategoryDTO>> GetAllCategoriesAsync()
+		{
+			var categories = await _categoryRepository.GetAllAsync();
+			return _mapper.Map<IEnumerable<CategoryDTO>>(categories);
+		}
+
 		public async Task<IEnumerable<CategoryDTO>> GetCategoriesAsync(PaginationInfoDTO paginationInfo)
 		{
 			var categories = await _categoryRepository.GetCategoriesWithPaginationAsync(paginationInfo.PageNumber, paginationInfo.PageSize);
@@ -30,7 +36,7 @@ namespace NESTCOOKING_API.Business.Services
 			return _mapper.Map<CategoryDTO>(category);
 		}
 
-		public async Task<CategoryDTO> CreateCategoryAsync(CategoryCreationDTO categoryDTO)
+		public async Task<CategoryDTO> CreateCategoryAsync(CategoryDTO categoryDTO)
 		{
 			if (await IsUnique(categoryDTO.Name))
 			{

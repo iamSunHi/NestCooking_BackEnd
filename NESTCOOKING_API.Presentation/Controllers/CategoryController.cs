@@ -7,9 +7,8 @@ using NESTCOOKING_API.Utility;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
-	[Route("api/admin/category")]
+	[Route("api/category")]
 	[ApiController]
-	[Authorize(Roles = StaticDetails.Role_Admin)]
 	public class CategoryController : ControllerBase
 	{
 		private PaginationInfoDTO _paginationInfo = new PaginationInfoDTO();
@@ -18,6 +17,18 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		public CategoryController(ICategoryService categoryService)
 		{
 			_categoryService = categoryService;
+		}
+
+		[HttpGet]
+		public async Task<IActionResult> GetCategoriesAsync()
+		{
+			var categoryList = await _categoryService.GetAllCategoriesAsync();
+
+			if (categoryList == null)
+			{
+				return BadRequest(ResponseDTO.BadRequest());
+			}
+			return Ok(ResponseDTO.Accept(result: categoryList));
 		}
 
 		[HttpGet("page/{pageNumber}")]
@@ -49,11 +60,12 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CreateCategoryAsync([FromBody] CategoryCreationDTO categoryCreationDTO)
+		[Authorize(Roles = StaticDetails.Role_Admin)]
+		public async Task<IActionResult> CreateCategoryAsync([FromBody] CategoryDTO categoryDTO)
 		{
 			try
 			{
-				var createdCategory = await _categoryService.CreateCategoryAsync(categoryCreationDTO);
+				var createdCategory = await _categoryService.CreateCategoryAsync(categoryDTO);
 				if (createdCategory == null)
 				{
 					return BadRequest(ResponseDTO.BadRequest(message: "This category already exists!"));
@@ -67,6 +79,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpPatch]
+		[Authorize(Roles = StaticDetails.Role_Admin)]
 		public async Task<IActionResult> UpdateCategoryAsync([FromBody] CategoryDTO categoryDTO)
 		{
 			try
@@ -81,6 +94,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpDelete("delete/{categoryId}")]
+		[Authorize(Roles = StaticDetails.Role_Admin)]
 		public async Task<IActionResult> DeleteCategoryAsync([FromRoute] int categoryId)
 		{
 			try
