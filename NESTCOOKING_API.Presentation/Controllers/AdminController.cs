@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.ResponseDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
@@ -6,14 +7,18 @@ using static NESTCOOKING_API.Utility.StaticDetails;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
-    [ApiController]
+ 
+
     [Route("api/responses/")]
-    public class ResponseController : ControllerBase
+    [ApiController]
+    [Authorize(Role_Admin)]
+    [AllowAnonymous]
+    public class AdminController : ControllerBase
 
     {
         private readonly IResponseService _responseService;
 
-        public ResponseController(IResponseService reponseService)
+        public AdminController(IResponseService reponseService)
         {
             _responseService = reponseService;
         }

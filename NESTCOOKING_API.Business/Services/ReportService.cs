@@ -25,12 +25,10 @@ namespace NESTCOOKING_API.Business.Services
             _reportRepository = reportRepository;
         }
 
-      
-
-        public async Task<string> CreateReportAsync(ReportDTO reportDto)
+        public async Task<string> CreateReportAsync(ReportDTO reportDto,string userId)
         {
                
-            return  await _reportRepository.AddReportAsync(reportDto.UserId, reportDto.TargetId, reportDto.Title,reportDto.Content, reportDto.ImagesURL);
+            return  await _reportRepository.AddReportAsync(userId, reportDto.TargetId, reportDto.Title,reportDto.Content, reportDto.ImagesURL);
         }
 
         public async Task<bool> DeleteReportAsync(string reportId)
@@ -44,13 +42,11 @@ namespace NESTCOOKING_API.Business.Services
         }
         public async Task<List<Report>> GetAllReportsAsync()
         {
-            // Additional business logic can be added here
    
             return await _reportRepository.GetAllReportsAsync();
         }
         public async Task<List<Report>> GetAllReportsByUserIdAsync(string userId)
         {
-            // Additional business logic can be added here
 
             return await _reportRepository.GetAllReportsByUserIdAsync(userId);
         }
