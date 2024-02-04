@@ -21,6 +21,6 @@ namespace NESTCOOKING_API.DataAccess.Models
 		public DateTime CreatedAt { get; set; }
 		public DateTime UpdatedAt { get; set; }
 
-		public IEnumerable<Reaction> Reactions { get; set; }
+		// public IEnumerable<Reaction> Reactions { get; set; }
 	}
 }

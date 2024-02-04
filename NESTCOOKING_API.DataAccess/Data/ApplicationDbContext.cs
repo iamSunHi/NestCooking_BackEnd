@@ -13,6 +13,13 @@ namespace NESTCOOKING_API.DataAccess.Data
 		}
 
 		public DbSet<User> Users { get; set; }
+		// Entities for Recipe
+		public DbSet<Category> Categories { get; set; }
+		public DbSet<IngredientTipContent> IngredientTipContents { get; set; }
+		public DbSet<IngredientTip> IngredientTips { get; set; }
+		public DbSet<Ingredient> Ingredients { get; set; }
+		public DbSet<Instructor> Instructors { get; set; }
+		public DbSet<Recipe> Recipes { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
