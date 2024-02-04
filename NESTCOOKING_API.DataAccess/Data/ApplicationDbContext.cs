@@ -14,6 +14,9 @@ namespace NESTCOOKING_API.DataAccess.Data
 		}
 
 		public DbSet<User> Users { get; set; }
+        public DbSet<Report> Reports { get; set; }
+        public DbSet<Response> Responses { get; set; }
+
 		public DbSet<RequestToBecomeChef> RequestToBecomeChefs { get; set; }
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -60,6 +63,8 @@ namespace NESTCOOKING_API.DataAccess.Data
 				request.Property(r => r.Status).IsRequired();
 				request.Property(r => r.CreatedAt).IsRequired();
 			});
+			modelBuilder.Entity<Response>();
+
 		}
 	}
 }

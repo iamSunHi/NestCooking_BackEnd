@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NESTCOOKING_API.DataAccess.Data;
 
@@ -11,9 +12,11 @@ using NESTCOOKING_API.DataAccess.Data;
 namespace NESTCOOKING_API.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240203041410_Reports")]
+    partial class Reports
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -153,56 +156,6 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("UserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.RequestToBecomeChef", b =>
-                {
-                    b.Property<string>("RequestChefId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("AchievementDescriptions")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AchievementImageUrls")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("IdentityImage")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Reasons")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ResponseId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Skills")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("RequestChefId");
-
-                    b.HasIndex("UserID");
-
-                    b.ToTable("RequestToBecomeChefs", (string)null);
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Report", b =>
@@ -421,17 +374,6 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.RequestToBecomeChef", b =>
-                {
-                    b.HasOne("NESTCOOKING_API.DataAccess.Models.User", "User")
-                        .WithMany("RequestsToBecomeChefs")
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Report", b =>
                 {
                     b.HasOne("NESTCOOKING_API.DataAccess.Models.Response", "Response")
@@ -469,11 +411,6 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.User", b =>
-                {
-                    b.Navigation("RequestsToBecomeChefs");
                 });
 #pragma warning restore 612, 618
         }
