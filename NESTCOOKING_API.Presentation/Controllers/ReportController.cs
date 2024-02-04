@@ -1,16 +1,22 @@
 ﻿using Azure;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.ReportDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
+using NESTCOOKING_API.Utility;
+using System.Security.Claims;
 using static NESTCOOKING_API.Utility.StaticDetails;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
-    [ApiController]
+
     [Route("api/reports/")]
+    [ApiController]
+    [AllowAnonymous]
+    
     public class ReportController : ControllerBase
     {
         private readonly IReportService _reportService;
@@ -19,16 +25,17 @@ namespace NESTCOOKING_API.Presentation.Controllers
         {
             _reportService = reportService;
         }
-
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateReport([FromBody] ReportDTO reportDto)
         {
+            var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
             if (reportDto == null)
             {
                 return BadRequest(ResponseDTO.BadRequest());
             }
 
-            var result = await _reportService.CreateReportAsync(reportDto);
+            var result = await _reportService.CreateReportAsync(reportDto,userId);
 
             if (result ==null)
             {
@@ -37,6 +44,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
             return Ok(ResponseDTO.Accept(result:result));
         }
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteReport(string id)
         {
@@ -51,6 +59,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 return Ok(ResponseDTO.Accept());
             }
         }
+        [Authorize]
         [HttpPatch("{id}")] 
         public async Task<IActionResult> UpdateReport(string id, [FromBody] UpdateReportDTO updatedReportDto)
         {
@@ -62,16 +71,18 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
             return Ok(ResponseDTO.Accept(result:result));
         }
-        [HttpGet]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Role_Admin)]
+        [HttpGet("getall")]
         public async Task<IActionResult> GetAllReports()
         {
             var reports = await _reportService.GetAllReportsAsync();
             return Ok(reports);
         }
-        [HttpGet("{userId}")]
-        public async Task<IActionResult> GetAllReportsByUserId(string userId)
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> GetAllReportsByUserId()
         {
+            var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
             var reports = await _reportService.GetAllReportsByUserIdAsync(userId);
             return Ok(reports);
         }

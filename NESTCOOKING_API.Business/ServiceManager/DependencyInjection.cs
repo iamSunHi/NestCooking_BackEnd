@@ -51,9 +51,13 @@ namespace NESTCOOKING_API.Business.ServiceManager
 					builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
 				});
 			});
+            service.AddAuthorization(options =>
+            {
+                options.AddPolicy("admin", policy => policy.RequireRole("admin"));
+            });
 
-			// Configure for email
-			service.Configure<IdentityOptions>(options => options.SignIn.RequireConfirmedEmail = true);
+            // Configure for email
+            service.Configure<IdentityOptions>(options => options.SignIn.RequireConfirmedEmail = true);
 			// Set time Token for Email Confirm
 			service.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromMinutes(20));
 
