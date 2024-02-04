@@ -11,8 +11,19 @@
 		{
 			GET, POST, PUT, DELETE
 		}
+		public enum ActionStatus
+		{
+            PENDING, ACCEPTED, REJECTED
+        }
+        public enum AdminAction
+        {
+            Accept,
+            Reject
+        }
 
-		public const string Role_Admin = "admin";
+
+
+        public const string Role_Admin = "admin";
 		public const string Role_User = "user";
 		public const string Role_Chef = "chef";
 
