@@ -15,7 +15,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
 			this._dbSet = _context.Set<T>();
 		}
 
-		public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null)
+		public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
 		{
 			IQueryable<T> query = _dbSet;
 
@@ -23,14 +23,29 @@ namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
 			{
 				query = query.Where(filter);
 			}
+			if (!string.IsNullOrEmpty(includeProperties))
+			{
+				foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+				{
+					query = query.Include(includeProp.Trim());
+				}
+			}
 			return await query.ToListAsync();
 		}
 
-		public async Task<T> GetAsync(Expression<Func<T, bool>> filter)
+		public async Task<T> GetAsync(Expression<Func<T, bool>> filter, string? includeProperties = null)
 		{
 			IQueryable<T> query = _dbSet;
+			query = query.Where(filter);
 
-			return await query.FirstOrDefaultAsync(filter);
+			if (!string.IsNullOrEmpty(includeProperties))
+			{
+				foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+				{
+					query = query.Include(includeProp.Trim());
+				}
+			}
+			return await query.FirstOrDefaultAsync();
 		}
 
 		public async Task CreateAsync(T entity)

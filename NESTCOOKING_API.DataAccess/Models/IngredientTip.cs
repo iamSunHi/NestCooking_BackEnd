@@ -10,5 +10,7 @@ namespace NESTCOOKING_API.DataAccess.Models
 		public IEnumerable<IngredientTipContent> Contents { get; set; }
 		public DateTime CreatedAt { get; set; }
 		public DateTime UpdatedAt { get; set; }
+
+		public IEnumerable<Ingredient>? Ingredients { get; set; }
 	}
 }

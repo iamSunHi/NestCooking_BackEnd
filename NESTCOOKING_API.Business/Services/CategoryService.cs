@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using NESTCOOKING_API.Business.DTOs;
-using NESTCOOKING_API.Business.DTOs.CategoryDTOs;
+using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
@@ -59,7 +59,10 @@ namespace NESTCOOKING_API.Business.Services
 		public async Task DeleteCategoryAsync(int id)
 		{
 			var categoryFromDb = await _categoryRepository.GetAsync(c => c.Id == id);
-			await _categoryRepository.RemoveAsync(categoryFromDb);
+			if (categoryFromDb != null)
+			{
+				await _categoryRepository.RemoveAsync(categoryFromDb);
+			}
 		}
 
 		private async Task<bool> IsUnique(string categoryName)

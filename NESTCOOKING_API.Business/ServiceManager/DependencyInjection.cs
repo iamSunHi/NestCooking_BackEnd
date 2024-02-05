@@ -35,6 +35,9 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			service.AddScoped<IUserRepository, UserRepository>();
 			service.AddScoped<IRoleRepository, RoleRepository>();
 			service.AddScoped<ICategoryRepository, CategoryRepository>();
+			service.AddScoped<IIngredientTipContentRepository, IngredientTipContentRepository>();
+			service.AddScoped<IIngredientTipRepository, IngredientTipRepository>();
+			service.AddScoped<IIngredientRepository, IngredientRepository>();
 			service.AddScoped<IRecipeRepository, RecipeRepository>();
 
 			// Add services to the container.
@@ -43,6 +46,8 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			service.AddScoped<IUserService, UserService>();
 			service.AddScoped<IEmailService, EmailService>();
 			service.AddScoped<ICategoryService, CategoryService>();
+			service.AddScoped<IIngredientTipService, IngredientTipService>();
+			service.AddScoped<IIngredientService, IngredientService>();
 			service.AddScoped<IRecipeService, RecipeService>();
 
 			service.AddCors(options =>

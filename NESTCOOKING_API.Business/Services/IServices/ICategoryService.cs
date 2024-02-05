@@ -1,9 +1,9 @@
 ﻿using NESTCOOKING_API.Business.DTOs;
-using NESTCOOKING_API.Business.DTOs.CategoryDTOs;
+using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
 
 namespace NESTCOOKING_API.Business.Services.IServices
 {
-	public interface ICategoryService
+    public interface ICategoryService
 	{
 		Task<IEnumerable<CategoryDTO>> GetAllCategoriesAsync();
 		Task<IEnumerable<CategoryDTO>> GetCategoriesAsync(PaginationInfoDTO paginationInfo);

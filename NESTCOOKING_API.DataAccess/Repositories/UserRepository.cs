@@ -23,7 +23,18 @@ namespace NESTCOOKING_API.DataAccess.Repositories
             _roleManager = roleManager;
         }
 
-        public bool IsUniqueEmail(string email)
+		public async Task<string> GetRoleAsync(string userId)
+		{
+            var user = await this.GetAsync(u => u.Id ==  userId);
+            if (user == null)
+            {
+                return string.Empty;
+            }
+            var role = await _roleRepository.GetRoleNameByIdAsync(user.RoleId);
+            return role;
+		}
+
+		public bool IsUniqueEmail(string email)
         {
             var existedUser = _context.Users.FirstOrDefault(x => x.Email == email);
             if (existedUser == null)

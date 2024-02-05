@@ -1,14 +1,13 @@
 ﻿using AutoMapper;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.AuthDTOs;
-using NESTCOOKING_API.Business.DTOs.CategoryDTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
 using NESTCOOKING_API.Business.DTOs.UserDTOs;
 using NESTCOOKING_API.DataAccess.Models;
 
 namespace NESTCOOKING_API.Business.Mapping
 {
-	public class AutoMapperProfile : Profile
+    public class AutoMapperProfile : Profile
 	{
 		public AutoMapperProfile()
 		{
@@ -16,10 +15,13 @@ namespace NESTCOOKING_API.Business.Mapping
 			CreateMap<User, RegistrationRequestDTO>().ReverseMap();
 			CreateMap<User, LoginWithThirdPartyRequestDTO>().ReverseMap();
 			CreateMap<User, UserInfoDTO>().ReverseMap();
+			CreateMap<User, UserShortInfoDTO>().ReverseMap();
 
-			// Category
-			CreateMap<Category, CategoryDTO>().ReverseMap();
 			// Recipe
+			CreateMap<Category, CategoryDTO>().ReverseMap();
+			CreateMap<IngredientTipContent, IngredientTipContentDTO>().ReverseMap();
+			CreateMap<IngredientTip, IngredientTipDTO>().ReverseMap();
+			CreateMap<Ingredient, IngredientDTO>().ReverseMap();
 			CreateMap<Recipe, RecipeDTO>().ReverseMap();
 			CreateMap<Recipe, RecipeDetailDTO>().ReverseMap();
 		}

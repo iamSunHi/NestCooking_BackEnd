@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
-using NESTCOOKING_API.Business.DTOs.CategoryDTOs;
+using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.Utility;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
-	[Route("api/category")]
+    [Route("api/category")]
 	[ApiController]
 	public class CategoryController : ControllerBase
 	{
