@@ -4,8 +4,6 @@ using static NESTCOOKING_API.Utility.StaticDetails;
 
 namespace NESTCOOKING_API.DataAccess.Models
 {
-
-	
 	public class RequestToBecomeChef
 	{
 		[Key]
@@ -17,10 +15,10 @@ namespace NESTCOOKING_API.DataAccess.Models
 		public List<string> Reasons { get; set; }
 		public List<string> AchievementImageUrls { get; set; }
 		public List<string> AchievementDescriptions { get; set; }
-		public RequestStatus Status { get; set; }
+		public string Status { get; set; }
 		public string? ResponseId { get; set; }
-        public DateTime createAt { get; set; }
-        [JsonIgnore]
+		public DateTime CreatedAt { get; set; }
+		[JsonIgnore]
 		public User User { get; set; }
 
 	}

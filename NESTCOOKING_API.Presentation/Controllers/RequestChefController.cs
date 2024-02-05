@@ -12,7 +12,7 @@ using System.Security.Claims;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
-	[Route("api/requestbecomechef")]
+	[Route("api/requests")]
 	[ApiController]
 	[Authorize]
 	public class RequestChefController : ControllerBase
@@ -25,22 +25,23 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CreateRequestBecomeChef([FromBody] RequestToBecomeChefDTO requestToBecomeChefDTO)
+		public async Task<IActionResult> CreateRequestBecomeChef([FromBody] CreatedRequestToBecomeChefDTO requestToBecomeChefDTO)
 		{
 			try
 			{
 				var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
-				if (userId != null) {
-				
-				var result = await _userRequestService.CreateRequestToBecomeChef(userId, requestToBecomeChefDTO);
+				if (userId != null)
+				{
 
-					if(result != null)
+					var result = await _userRequestService.CreateRequestToBecomeChef(userId, requestToBecomeChefDTO);
+
+					if (result != null)
 					{
 						return Ok(ResponseDTO.Accept(result: result));
 					}
 					else
 					{
-						return StatusCode(500, "Failed to create request to become chef.");
+						return StatusCode(500, AppString.BecomeChefRequestInternalServerErrorMessage);
 					}
 				}
 				return Unauthorized();
@@ -56,8 +57,8 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		{
 			try
 			{
-				var requests = await _userRequestService.GetAllRequestsToBecomChef();
-				return Ok(ResponseDTO.Accept(result: requests));
+				var result = await _userRequestService.GetAllRequestsToBecomeChef();
+				return Ok(ResponseDTO.Accept(result: result));
 			}
 			catch (Exception ex)
 			{
@@ -95,7 +96,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 				if (success)
 				{
-					//return Ok(AppString.DeleteRequestSuccessMessage);
 					return Ok(ResponseDTO.Accept(result: AppString.DeleteRequestSuccessMessage));
 				}
 				else
@@ -109,7 +109,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			}
 		}
 		[HttpPut("{requestId}")]
-		public async Task<IActionResult> UpdateRequest(string requestId, [FromBody] RequestToBecomeChefDTO updatedRequestDTO)
+		public async Task<IActionResult> UpdateRequest(string requestId, [FromBody] CreatedRequestToBecomeChefDTO updatedRequestDTO)
 		{
 			try
 			{

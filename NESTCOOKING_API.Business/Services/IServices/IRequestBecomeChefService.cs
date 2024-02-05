@@ -11,10 +11,10 @@ namespace NESTCOOKING_API.Business.Services.IServices
 {
 	public interface IRequestBecomeChefService
 	{
-		Task<IEnumerable<RequestToBecomeChef>> GetAllRequestsToBecomChef();
-		Task<RequestToBecomeChef> GetRequestToBecomeChefById(string requestId);
-		Task<RequestToBecomeChef> CreateRequestToBecomeChef(string userId, RequestToBecomeChefDTO requestToBecomeChefDTO);
-		Task<RequestToBecomeChefDTO> UpdateRequestToBecomeChef(string requestId, RequestToBecomeChefDTO requestToBecomeChefDTO);
+		Task<IEnumerable<RequestToBecomeChefDTO>> GetAllRequestsToBecomeChef();
+		Task<RequestToBecomeChefDTO> GetRequestToBecomeChefById(string requestId);
+		Task<RequestToBecomeChefDTO> CreateRequestToBecomeChef(string userId, CreatedRequestToBecomeChefDTO requestToBecomeChefDTO);
+		Task<RequestToBecomeChefDTO> UpdateRequestToBecomeChef(string requestId, CreatedRequestToBecomeChefDTO requestToBecomeChefDTO);
 		Task<bool> DeleteRequestToBecomeChef(string requestId);
 	}
 }

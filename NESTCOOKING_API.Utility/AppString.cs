@@ -57,5 +57,6 @@
 		public static string DeleteRequestSuccessMessage = "Delete request become a chef successfully.";
 		public static string CreateRequestSuccessMessage = "Create request become a chef successfully.";
 		public static string RequestNotFoundMessage = "Request Become Chef not found";
+		public static string BecomeChefRequestInternalServerErrorMessage = "Failed to create request to become chef.";
 	}
 }

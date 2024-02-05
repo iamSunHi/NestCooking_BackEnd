@@ -34,7 +34,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			// Add repositories to the container.
 			service.AddScoped<IUserRepository, UserRepository>();
 			service.AddScoped<IRoleRepository, RoleRepository>();
-			service.AddScoped<IUserRequestChef, UserRequestChef>();
+			service.AddScoped<IChefRequestRepository, ChefRequestRepository>();
 			// Add services to the container.
 			service.AddScoped<IJwtUtils, JwtUtils>();
 			service.AddScoped<IAuthService, AuthService>();

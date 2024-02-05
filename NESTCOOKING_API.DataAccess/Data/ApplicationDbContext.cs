@@ -58,7 +58,7 @@ namespace NESTCOOKING_API.DataAccess.Data
 				request.Property(r => r.FullName).IsRequired();
 				request.Property(r => r.ResponseId).IsRequired(false);
 				request.Property(r => r.Status).IsRequired();
-				request.Property(r => r.createAt).IsRequired();
+				request.Property(r => r.CreatedAt).IsRequired();
 			});
 		}
 	}

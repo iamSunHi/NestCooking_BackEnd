@@ -15,7 +15,10 @@ namespace NESTCOOKING_API.Business.Mapping
 			CreateMap<User, RegistrationRequestDTO>().ReverseMap();
 			CreateMap<User, LoginWithThirdPartyRequestDTO>().ReverseMap();
 			CreateMap<User, UserInfoDTO>().ReverseMap();
+			CreateMap<RequestToBecomeChef, CreatedRequestToBecomeChefDTO>().ReverseMap();
 			CreateMap<RequestToBecomeChef, RequestToBecomeChefDTO>().ReverseMap();
+
+
 		}
 	}
 }
