@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using NESTCOOKING_API.Business.DTOs.ChefRequestDTOs;
 using NESTCOOKING_API.Business.DTOs.UserDTOs;
 using NESTCOOKING_API.DataAccess.Models;
 

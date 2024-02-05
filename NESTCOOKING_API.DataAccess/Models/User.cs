@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace NESTCOOKING_API.DataAccess.Models
 {
@@ -15,5 +16,7 @@ namespace NESTCOOKING_API.DataAccess.Models
 		public DateTime UpdatedAt { get; set; }
 
 		public string RoleId { get; set; } = null!;
+		[JsonIgnore]
+		public List<RequestToBecomeChef> RequestsToBecomeChefs { get; set; }
 	}
 }

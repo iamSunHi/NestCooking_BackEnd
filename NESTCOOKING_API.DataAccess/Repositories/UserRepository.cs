@@ -23,7 +23,14 @@ namespace NESTCOOKING_API.DataAccess.Repositories
             _roleManager = roleManager;
         }
 
-        public bool IsUniqueEmail(string email)
+		//public async Task<RequestToBecomeChef> CreateRequestToBecomeChef(RequestToBecomeChef requestToBecomeChef)
+		//{
+		//	_context.RequestToBecomeChefs.Add(requestToBecomeChef);
+		//	await _context.SaveChangesAsync();
+		//	return requestToBecomeChef;
+		//}
+
+		public bool IsUniqueEmail(string email)
         {
             var existedUser = _context.Users.FirstOrDefault(x => x.Email == email);
             if (existedUser == null)

@@ -3,11 +3,16 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NESTCOOKING_API.Business.DTOs.ChefRequestDTOs;
 using NESTCOOKING_API.Business.DTOs.UserDTOs;
+using NESTCOOKING_API.Business.Exceptions;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using NESTCOOKING_API.Utility;
+using System.Net.Http;
+using System.Security.Claims;
+using static NESTCOOKING_API.Utility.StaticDetails;
 
 namespace NESTCOOKING_API.Business.Services
 {
@@ -24,7 +29,8 @@ namespace NESTCOOKING_API.Business.Services
 			_roleRepository = roleRepository;
 			_userManager = userManager;
 			_mapper = mapper;
-		}
+	
+		}	
 
 		public Task<User> GetUserByEmail(string email)
 		{
@@ -96,7 +102,6 @@ namespace NESTCOOKING_API.Business.Services
 			}
 			return true;
 		}
-
 		public async Task<bool> ChangeAvatar(string userId, IFormFile file)
 		{
 			var currentDirectory = Path.Combine(Directory.GetCurrentDirectory());
@@ -137,8 +142,4 @@ namespace NESTCOOKING_API.Business.Services
 			return true;
 		}
 	}
-
-
-
-
 }
