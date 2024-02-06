@@ -12,8 +12,8 @@ using NESTCOOKING_API.DataAccess.Data;
 namespace NESTCOOKING_API.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240203041410_Reports")]
-    partial class Reports
+    [Migration("20240206071554_Addreports_Response")]
+    partial class Addreports_Response
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -179,10 +179,15 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("TargetId")
+                    b.Property<string>("Target")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -193,7 +198,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasIndex("ResponseId");
 
-                    b.HasIndex("TargetId");
+                    b.HasIndex("Target");
 
                     b.HasIndex("UserId");
 
@@ -380,17 +385,19 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         .WithMany()
                         .HasForeignKey("ResponseId");
 
-                    b.HasOne("NESTCOOKING_API.DataAccess.Models.User", "Target")
+                    b.HasOne("NESTCOOKING_API.DataAccess.Models.User", "ReportedUser")
                         .WithMany()
-                        .HasForeignKey("TargetId");
+                        .HasForeignKey("Target")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("NESTCOOKING_API.DataAccess.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
 
-                    b.Navigation("Response");
+                    b.Navigation("ReportedUser");
 
-                    b.Navigation("Target");
+                    b.Navigation("Response");
 
                     b.Navigation("User");
                 });

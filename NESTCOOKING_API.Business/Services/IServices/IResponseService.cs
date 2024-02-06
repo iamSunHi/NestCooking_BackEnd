@@ -12,6 +12,6 @@ namespace NESTCOOKING_API.Business.Services.IServices
 {
     public interface IResponseService
     {
-        public Task<AdminResponseDTO> AdminHandleReportAsync(string reportId,StaticDetails.AdminAction adminAction, AdminResponseDTO responseDTO);
+        public Task<AdminResponseDTO> AdminHandleReportAsync(string reportId,StaticDetails.AdminAction adminAction, string title, string content);
     }
 }

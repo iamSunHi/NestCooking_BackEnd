@@ -12,6 +12,6 @@ namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
 {
     public interface IResponseRepository
     {
-        public Task<Response> AdminHandleReportAsync(string reportId, StaticDetails.AdminAction adminAction, string userId, string title, string content);
+        public Task<Response> AdminHandleReportAsync(string reportId, StaticDetails.AdminAction adminAction, string title, string content);
     }
 }

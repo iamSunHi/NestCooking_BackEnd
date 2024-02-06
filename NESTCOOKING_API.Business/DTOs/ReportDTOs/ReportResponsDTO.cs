@@ -1,4 +1,5 @@
 ﻿using NESTCOOKING_API.Business.DTOs.UserDTOs;
+using NESTCOOKING_API.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace NESTCOOKING_API.Business.DTOs.ReportDTOs
         public UserDTO User { get; set; }
         public string Target { get; set; }
         public string Title { get; set; }
+        public string Type { get; set; }
         public string Content { get; set; }
         public string? ImageUrl { get; set; }
         public string? Status { get; set; }

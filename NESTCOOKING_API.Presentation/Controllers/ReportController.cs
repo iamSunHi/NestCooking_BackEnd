@@ -14,9 +14,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 {
 
     [Route("api/reports/")]
-    [ApiController]
-    [AllowAnonymous]
-    
+    [ApiController] 
     public class ReportController : ControllerBase
     {
         private readonly IReportService _reportService;
@@ -30,6 +28,10 @@ namespace NESTCOOKING_API.Presentation.Controllers
         public async Task<IActionResult> CreateReport([FromBody] ReportDTO reportDto)
         {
             var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return BadRequest(ResponseDTO.BadRequest());
+            }
             if (reportDto == null)
             {
                 return BadRequest(ResponseDTO.BadRequest());
@@ -83,8 +85,12 @@ namespace NESTCOOKING_API.Presentation.Controllers
         public async Task<IActionResult> GetAllReportsByUserId()
         {
             var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
-            var reports = await _reportService.GetAllReportsByUserIdAsync(userId);
-            return Ok(reports);
+            if (userId == null)
+            {
+                return BadRequest(ResponseDTO.BadRequest());
+            }
+            var results = await _reportService.GetAllReportsByUserIdAsync(userId);
+            return Ok(ResponseDTO.Accept(result: results));
         }
        
     }
