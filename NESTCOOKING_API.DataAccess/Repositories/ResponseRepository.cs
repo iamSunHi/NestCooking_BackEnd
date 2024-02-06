@@ -20,17 +20,18 @@ namespace NESTCOOKING_API.DataAccess.Repositories
         {
             _dbContext = dbContext;
         }
-        public async Task<Response> AdminHandleReportAsync(string reportId, StaticDetails.AdminAction adminAction, string userId, string title, string content)
+        public async Task<Response> AdminHandleReportAsync(string reportId, StaticDetails.AdminAction adminAction,  string title, string content)
         {
             try
             {
-                var report = await _dbContext.Reports.FindAsync(reportId);
-                var user = await _dbContext.Users.FindAsync(userId);
+                var report = await _dbContext.Reports
+                    .Include(r => r.User)
+                    .FirstAsync(r => r.Id == reportId);
                 var reponseId = Guid.NewGuid().ToString();
                 Response newResponse = new Response
                 {
                     Id = reponseId,
-                    User = user,
+                    User = report.User,
                     Title = title,
                     Content = content,
                     CreatedAt = DateTime.Now,

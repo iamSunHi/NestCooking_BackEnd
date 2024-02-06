@@ -24,17 +24,31 @@ namespace NESTCOOKING_API.DataAccess.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<string> AddReportAsync(string userId, string targetId, string title, string content,string imagesURL)
+        public async Task<Report> AddReportAsync(string userId, string targetId, string title, string content,string imagesURL)
         {
             var user = await _dbContext.Users.FindAsync(userId);
-            var target = await _dbContext.Users.FindAsync(targetId);
 
+            //if (await _dbContext.Users.AnyAsync(u => u.Id == targetId))
+            //{
+            //     reportType = StaticDetails.ReportType.user.ToString();
+            //}
+            //else if (await _dbContext.Comments.AnyAsync(c => c.Id == targetId))
+            //{
+            //    reportType = StaticDetails.ReportType.comment.ToString();
+            //}
+            //else if (await _dbContext.Recipes.AnyAsync(r => r.Id == targetId))
+            //{
+
+            //    reportType = StaticDetails.ReportType.recipe.ToString();
+            //}
+            var reportType = StaticDetails.ReportType.user.ToString();
             var reportEntity = new Report
             {
                 Id = Guid.NewGuid().ToString(),
                 User = user,
-                Target = target,
+                Target = targetId,
                 Title = title,
+                Type = reportType,
                 Content = content,
                 ImageUrl = imagesURL,
                 Status = StaticDetails.ActionStatus.PENDING.ToString(),
@@ -45,7 +59,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
                 {
                     await _dbContext.AddAsync(reportEntity);
                     await _dbContext.SaveChangesAsync();
-                    return reportEntity.Id;
+                    return reportEntity;
                 }
                 catch (Exception ex)
                 {
@@ -80,7 +94,6 @@ namespace NESTCOOKING_API.DataAccess.Repositories
             {
                 var reportEntity = await _dbContext.Reports
                 .Include(r => r.User)
-                .Include(r => r.Target)
                 .FirstOrDefaultAsync(r => r.Id == reportId);
 
                 if (reportEntity == null)
@@ -113,7 +126,6 @@ namespace NESTCOOKING_API.DataAccess.Repositories
             // Assuming you have a suitable mapping method to convert Report entities to ReportDTO
             var reports = await _dbContext.Reports
           .Include(r => r.User)
-          .Include(r => r.Target)
           .ToListAsync();
 
             return reports;
@@ -123,7 +135,6 @@ namespace NESTCOOKING_API.DataAccess.Repositories
             // Assuming you have a suitable mapping method to convert Report entities to ReportDTO
             var reports = await _dbContext.Reports
                 .Include(r => r.User)
-                .Include(r => r.Target)
                 .Where(report => report.User.Id == userId)
                 .ToListAsync();
 

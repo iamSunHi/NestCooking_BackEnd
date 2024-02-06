@@ -9,10 +9,9 @@ namespace NESTCOOKING_API.Presentation.Controllers
 {
  
 
-    [Route("api/responses/")]
+    [Route("api/admin/")]
     [ApiController]
     [Authorize(Role_Admin)]
-    [AllowAnonymous]
     public class AdminController : ControllerBase
 
     {
@@ -23,12 +22,12 @@ namespace NESTCOOKING_API.Presentation.Controllers
             _responseService = reponseService;
         }
         [HttpPost("{reportId}")]
-        public async Task<IActionResult> HandleReport(string reportId, AdminAction adminAction, [FromBody] AdminResponseDTO responseDTO)
+        public async Task<IActionResult> HandleReport(string reportId, AdminAction adminAction,string title,string content )
         {
 
             try
             {
-                var result = await _responseService.AdminHandleReportAsync(reportId, adminAction, responseDTO);
+                var result = await _responseService.AdminHandleReportAsync(reportId, adminAction, title, content);
                if (result != null)
                 {
                     return Ok(ResponseDTO.Accept(result:result));

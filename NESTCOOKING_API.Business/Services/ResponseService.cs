@@ -16,21 +16,19 @@ namespace NESTCOOKING_API.Business.Services
     public class ResponseService : IResponseService
     {
         private readonly IResponseRepository _responseRepository;
-        public ResponseService(IResponseRepository responseRepository)
+        private readonly IMapper _mapper;
+
+        public ResponseService(IResponseRepository responseRepository,IMapper mapper)
         {
             _responseRepository = responseRepository;
+            _mapper = mapper;
         }
-        public async Task<AdminResponseDTO> AdminHandleReportAsync(string reportId, StaticDetails.AdminAction adminAction, AdminResponseDTO responseDTO)
+        public async Task<AdminResponseDTO> AdminHandleReportAsync(string reportId, StaticDetails.AdminAction adminAction, string title , string content)
         {
-            var userId = responseDTO.UserId;
-            var title = responseDTO.Title;
-            var content = responseDTO.Content;
 
-            var response = await _responseRepository.AdminHandleReportAsync(reportId, adminAction,userId,title,content);
+            var response = await _responseRepository.AdminHandleReportAsync(reportId, adminAction,title,content);
             AdminResponseDTO adminResponseDTO = new AdminResponseDTO();
-            adminResponseDTO.UserId = response.User.Id;
-            adminResponseDTO.Title= title;
-            adminResponseDTO.Content = content;
+            adminResponseDTO = _mapper.Map<AdminResponseDTO>(response);
             return adminResponseDTO;
         }
     }

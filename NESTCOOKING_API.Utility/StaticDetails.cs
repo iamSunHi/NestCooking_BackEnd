@@ -17,10 +17,13 @@
         }
         public enum AdminAction
         {
-            Accept,
-            Reject
+            Accept, Reject
         }
+		public enum ReportType
+		{
+			user, comment,recipe
 
+        }
 
 
         public const string Role_Admin = "admin";

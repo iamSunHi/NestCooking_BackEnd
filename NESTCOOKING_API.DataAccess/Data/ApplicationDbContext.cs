@@ -18,6 +18,8 @@ namespace NESTCOOKING_API.DataAccess.Data
         public DbSet<Response> Responses { get; set; }
 
 		public DbSet<RequestToBecomeChef> RequestToBecomeChefs { get; set; }
+		public DbSet<Report> Reports { get; set; }
+		public DbSet<Response> Responses { get; set; }
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			base.OnModelCreating(modelBuilder);
