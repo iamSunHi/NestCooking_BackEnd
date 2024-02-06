@@ -13,20 +13,23 @@
 		}
 		public enum ActionStatus
 		{
-            PENDING, ACCEPTED, REJECTED
-        }
-        public enum AdminAction
-        {
-            Accept, Reject
-        }
+			PENDING, ACCEPTED, REJECTED
+		}
+		public enum AdminAction
+		{
+			Accept, Reject
+		}
 		public enum ReportType
 		{
-			user, comment,recipe
+			user, comment, recipe
 
-        }
+		}
 
+		public const string ReportType_USER = "user";
+		public const string ReportType_COMMENT = "comment";
+		public const string ReportType_RECIPE = "recipe";
 
-        public const string Role_Admin = "admin";
+		public const string Role_Admin = "admin";
 		public const string Role_User = "user";
 		public const string Role_Chef = "chef";
 

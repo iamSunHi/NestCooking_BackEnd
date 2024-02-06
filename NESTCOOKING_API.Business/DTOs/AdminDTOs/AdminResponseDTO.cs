@@ -9,7 +9,7 @@ namespace NESTCOOKING_API.Business.DTOs.ResponseDTOs
 {
     public class AdminResponseDTO
     {
-        public UserDTO User { get; set; }
+        public UserInfoDTO User { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
     }

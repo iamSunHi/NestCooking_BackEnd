@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace NESTCOOKING_API.Business.DTOs.ReportDTOs
 {
-    public class ReportResponsDTO
+    public class ReportResponseDTO
     {
         public string Id { get; set; }
         public UserDTO User { get; set; }
-        public string Target { get; set; }
+        public string TargetId { get; set; }
         public string Title { get; set; }
         public string Type { get; set; }
         public string Content { get; set; }

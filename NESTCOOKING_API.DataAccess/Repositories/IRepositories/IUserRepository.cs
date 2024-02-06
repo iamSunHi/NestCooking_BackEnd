@@ -9,8 +9,5 @@ namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
         Task UpdateAsync(User entity);
         Task<User> Login(string username, string password);
         Task<bool> Register(User newUser, string password);
-
-	
-
-	}
+    }
 }

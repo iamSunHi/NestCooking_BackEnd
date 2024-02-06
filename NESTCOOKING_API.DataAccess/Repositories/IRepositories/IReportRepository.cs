@@ -8,13 +8,14 @@ using System.Threading.Tasks;
 
 namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
 {
-    public interface IReportRepository
+    public interface IReportRepository : IRepository<Report>
     {
-       Task<Report> AddReportAsync(string userId, string targetId, string Title,string content, string imagesURL);
-       Task<bool> DeleteReportAsync(string reportId);
-       Task<Report> UpdateReportAsync(string reportId, string Title, string content, string imagesURL);
+        Task<Report> AddReportAsync(User user, Report report);
+        Task<bool> DeleteReportAsync(string reportId);
+        Task<Report> UpdateReportAsync(string reportId, string Title, string content, string imagesURL);
         Task<List<Report>> GetAllReportsAsync();
         Task<List<Report>> GetAllReportsByUserIdAsync(string userId);
 
+        Task<Report> GetReportById(string reportId);
     }
 }

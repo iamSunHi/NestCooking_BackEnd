@@ -14,20 +14,18 @@ using static NESTCOOKING_API.Utility.StaticDetails;
 
 namespace NESTCOOKING_API.DataAccess.Repositories
 {
-    public class ReportRepository : IReportRepository
+    public class ReportRepository : Repository<Report>, IReportRepository
     {
         private readonly ApplicationDbContext _dbContext;
- 
 
-        public ReportRepository(ApplicationDbContext dbContext)
+
+        public ReportRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
             _dbContext = dbContext;
         }
 
-        public async Task<Report> AddReportAsync(string userId, string targetId, string title, string content,string imagesURL)
+        public async Task<Report> AddReportAsync(User user, Report report)
         {
-            var user = await _dbContext.Users.FindAsync(userId);
-
             //if (await _dbContext.Users.AnyAsync(u => u.Id == targetId))
             //{
             //     reportType = StaticDetails.ReportType.user.ToString();
@@ -41,30 +39,29 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 
             //    reportType = StaticDetails.ReportType.recipe.ToString();
             //}
-            var reportType = StaticDetails.ReportType.user.ToString();
             var reportEntity = new Report
             {
                 Id = Guid.NewGuid().ToString(),
                 User = user,
-                Target = targetId,
-                Title = title,
-                Type = reportType,
-                Content = content,
-                ImageUrl = imagesURL,
-                Status = StaticDetails.ActionStatus.PENDING.ToString(),
+                TargetId = report.TargetId,
+                Title = report.Title,
+                Type = report.Type,
+                Content = report.Content,
+                ImageUrl = report.ImageUrl,
+                Status = StaticDetails.ActionStatus_PENDING,
                 CreatedAt = DateTime.Now,
                 Response = null
             };
             try
-                {
-                    await _dbContext.AddAsync(reportEntity);
-                    await _dbContext.SaveChangesAsync();
-                    return reportEntity;
-                }
-                catch (Exception ex)
-                {
-                    return null;
-                }
+            {
+                await _dbContext.AddAsync(reportEntity);
+                await _dbContext.SaveChangesAsync();
+                return reportEntity;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
         public async Task<bool> DeleteReportAsync(string reportId)
         {
@@ -101,11 +98,11 @@ namespace NESTCOOKING_API.DataAccess.Repositories
                     return null;
                 }
 
-             
+
                 reportEntity.Title = title;
                 reportEntity.Content = content;
                 reportEntity.ImageUrl = imagesURL;
-                reportEntity.CreatedAt= DateTime.Now;
+                reportEntity.CreatedAt = DateTime.Now;
 
 
                 // Optionally, update other properties as needed
@@ -141,5 +138,11 @@ namespace NESTCOOKING_API.DataAccess.Repositories
             return reports.ToList();
         }
 
+        public Task<Report> GetReportById(string reportId)
+        {
+            return _dbContext.Reports.Where(r => r.Id == reportId)
+            .Include(r => r.User)
+            .FirstOrDefaultAsync();
+        }
     }
 }

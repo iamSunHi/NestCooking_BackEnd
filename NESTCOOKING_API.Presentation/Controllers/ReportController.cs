@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.ReportDTOs;
+using NESTCOOKING_API.Business.Exceptions;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.Utility;
@@ -13,8 +14,9 @@ using static NESTCOOKING_API.Utility.StaticDetails;
 namespace NESTCOOKING_API.Presentation.Controllers
 {
 
-    [Route("api/reports/")]
-    [ApiController] 
+    [Route("api/reports")]
+    [Authorize]
+    [ApiController]
     public class ReportController : ControllerBase
     {
         private readonly IReportService _reportService;
@@ -23,30 +25,45 @@ namespace NESTCOOKING_API.Presentation.Controllers
         {
             _reportService = reportService;
         }
-        [Authorize]
         [HttpPost]
-        public async Task<IActionResult> CreateReport([FromBody] ReportDTO reportDto)
+        public async Task<IActionResult> CreateReport([FromBody] CreateReportDTO createReportDTO)
         {
-            var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null)
+            try
             {
-                return BadRequest(ResponseDTO.BadRequest());
+                var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (userId == null)
+                {
+                    throw new UnauthorizedAccessException();
+                }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ResponseDTO.BadRequest(message: AppString.InvalidFormatErrorMessage));
+                }
+
+                if (createReportDTO.Type != ReportType_COMMENT && createReportDTO.Type != ReportType_RECIPE && createReportDTO.Type != ReportType_USER)
+                {
+                    return BadRequest(ResponseDTO.BadRequest(message: AppString.InvalidReportTypeErrorMessage));
+                }
+                var result = await _reportService.CreateReportAsync(createReportDTO, userId);
+
+                if (result == null)
+                {
+                    return StatusCode(500, AppString.InternalServerErrorMessage);
+                }
+
+                return Ok(ResponseDTO.Accept(result: result));
             }
-            if (reportDto == null)
+            catch (UnauthorizedAccessException ex)
             {
-                return BadRequest(ResponseDTO.BadRequest());
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ResponseDTO.BadRequest(ex.Message));
             }
 
-            var result = await _reportService.CreateReportAsync(reportDto,userId);
 
-            if (result ==null)
-            {
-                return BadRequest(ResponseDTO.BadRequest());
-            }
-
-            return Ok(ResponseDTO.Accept(result:result));
         }
-        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteReport(string id)
         {
@@ -61,8 +78,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 return Ok(ResponseDTO.Accept());
             }
         }
-        [Authorize]
-        [HttpPatch("{id}")] 
+        [HttpPatch("{id}")]
         public async Task<IActionResult> UpdateReport(string id, [FromBody] UpdateReportDTO updatedReportDto)
         {
             var result = await _reportService.UpdateReportAsync(id, updatedReportDto);
@@ -71,18 +87,11 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 return BadRequest(ResponseDTO.BadRequest());
             }
 
-            return Ok(ResponseDTO.Accept(result:result));
+            return Ok(ResponseDTO.Accept(result: result));
         }
-        [Authorize(Role_Admin)]
-        [HttpGet("getall")]
-        public async Task<IActionResult> GetAllReports()
-        {
-            var reports = await _reportService.GetAllReportsAsync();
-            return Ok(reports);
-        }
-        [Authorize]
+
         [HttpGet]
-        public async Task<IActionResult> GetAllReportsByUserId()
+        public async Task<IActionResult> GetAllUserReports()
         {
             var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
@@ -92,7 +101,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
             var results = await _reportService.GetAllReportsByUserIdAsync(userId);
             return Ok(ResponseDTO.Accept(result: results));
         }
-       
     }
 
 }

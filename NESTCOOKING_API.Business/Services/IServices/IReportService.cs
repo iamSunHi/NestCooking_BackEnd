@@ -12,11 +12,11 @@ namespace NESTCOOKING_API.Business.Services.IServices
 {
     public interface IReportService
     {
-        Task<ReportResponsDTO> CreateReportAsync(ReportDTO reportDto,string userId);
+        Task<ReportResponseDTO> CreateReportAsync(CreateReportDTO reportDto,string userId);
         Task<bool> DeleteReportAsync(string reportId);
-        Task<ReportResponsDTO> UpdateReportAsync(string reportId, UpdateReportDTO updatedReportDto);
-        Task<List<ReportResponsDTO>> GetAllReportsAsync();
-        Task<List<ReportResponsDTO>> GetAllReportsByUserIdAsync(string userId);
+        Task<ReportResponseDTO> UpdateReportAsync(string reportId, UpdateReportDTO updatedReportDto);
+        Task<List<ReportResponseDTO>> GetAllReportsAsync();
+        Task<List<ReportResponseDTO>> GetAllReportsByUserIdAsync(string userId);
      
     }
 }

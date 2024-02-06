@@ -17,11 +17,13 @@ namespace NESTCOOKING_API.Business.Mapping
 			CreateMap<User, RegistrationRequestDTO>().ReverseMap();
 			CreateMap<User, LoginWithThirdPartyRequestDTO>().ReverseMap();
 			CreateMap<User, UserInfoDTO>().ReverseMap();
-			CreateMap<Report, ReportResponsDTO>().ReverseMap()
-			.ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User));	
+			CreateMap<Report, ReportResponseDTO>().ReverseMap()
+			.ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User));
+			CreateMap<Report, CreateReportDTO>().ReverseMap();
 			CreateMap<RequestToBecomeChef, CreatedRequestToBecomeChefDTO>().ReverseMap();
 			CreateMap<RequestToBecomeChef, RequestToBecomeChefDTO>().ReverseMap();
-
+			CreateMap<Response, AdminResponseDTO>().ReverseMap()
+			.ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User));
 
 		}
 	}

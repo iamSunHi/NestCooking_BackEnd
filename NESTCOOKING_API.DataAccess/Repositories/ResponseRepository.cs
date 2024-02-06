@@ -20,18 +20,15 @@ namespace NESTCOOKING_API.DataAccess.Repositories
         {
             _dbContext = dbContext;
         }
-        public async Task<Response> AdminHandleReportAsync(string reportId, StaticDetails.AdminAction adminAction,  string title, string content)
+        public async Task<Response> AdminHandleReportAsync(Report report, StaticDetails.AdminAction adminAction, string title, string content)
         {
             try
             {
-                var report = await _dbContext.Reports
-                    .Include(r => r.User)
-                    .FirstAsync(r => r.Id == reportId);
                 var reponseId = Guid.NewGuid().ToString();
-                Response newResponse = new Response
+                Response newResponse = new Response 
                 {
                     Id = reponseId,
-                    User = report.User,
+                    UserId = report.UserId,
                     Title = title,
                     Content = content,
                     CreatedAt = DateTime.Now,
@@ -43,7 +40,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
                 await _dbContext.SaveChangesAsync();
                 return newResponse;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return null;
             }

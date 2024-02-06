@@ -16,19 +16,29 @@ namespace NESTCOOKING_API.Business.Services
     public class ResponseService : IResponseService
     {
         private readonly IResponseRepository _responseRepository;
+        private readonly IReportRepository _reportRepository;
         private readonly IMapper _mapper;
 
-        public ResponseService(IResponseRepository responseRepository,IMapper mapper)
+        public ResponseService(IResponseRepository responseRepository, IMapper mapper, IReportRepository reportRepository)
         {
             _responseRepository = responseRepository;
             _mapper = mapper;
+            _reportRepository = reportRepository;
         }
-        public async Task<AdminResponseDTO> AdminHandleReportAsync(string reportId, StaticDetails.AdminAction adminAction, string title , string content)
+        public async Task<AdminResponseDTO> AdminHandleReportAsync(string reportId, StaticDetails.AdminAction adminAction, string title, string content)
         {
+            var report = await _reportRepository.GetReportById(reportId);
+            if (report == null)
+            {
+                throw new Exception(AppString.ReportNotFoundErrorMessage);
+            };
 
-            var response = await _responseRepository.AdminHandleReportAsync(reportId, adminAction,title,content);
-            AdminResponseDTO adminResponseDTO = new AdminResponseDTO();
-            adminResponseDTO = _mapper.Map<AdminResponseDTO>(response);
+            if (report.Status == StaticDetails.ActionStatus_ACCEPTED || report.Status == StaticDetails.ActionStatus_REJECTED)
+            {
+                throw new Exception(AppString.ReportAlreadyHandledErrorMessage);
+            }
+            var response = await _responseRepository.AdminHandleReportAsync(report, adminAction, title, content);
+            AdminResponseDTO adminResponseDTO = _mapper.Map<AdminResponseDTO>(response);
             return adminResponseDTO;
         }
     }

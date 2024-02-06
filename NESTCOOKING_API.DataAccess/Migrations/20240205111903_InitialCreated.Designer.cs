@@ -215,7 +215,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Id");
+                    b.HasKey("RequestChefId");
 
                     b.HasIndex("ResponseId");
 
@@ -226,21 +226,6 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.ToTable("Reports");
                 });
 
-            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Response", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("RequestChefId");
-
-                    b.HasIndex("UserID");
-
-                    b.ToTable("RequestToBecomeChefs", (string)null);
-                });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.User", b =>
                 {

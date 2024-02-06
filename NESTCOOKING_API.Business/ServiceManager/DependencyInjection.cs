@@ -34,8 +34,8 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			// Add repositories to the container.
 			service.AddScoped<IUserRepository, UserRepository>();
 			service.AddScoped<IRoleRepository, RoleRepository>();
-            service.AddScoped<IReportRepository, ReportRepository>();       
-            service.AddScoped<IResponseRepository, ResponseRepository>();
+			service.AddScoped<IReportRepository, ReportRepository>();
+			service.AddScoped<IResponseRepository, ResponseRepository>();
 			service.AddScoped<IChefRequestRepository, ChefRequestRepository>();
 
 			// Add services to the container.
@@ -43,6 +43,9 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			service.AddScoped<IAuthService, AuthService>();
 			service.AddScoped<IUserService, UserService>();
 			service.AddScoped<IEmailService, EmailService>();
+			service.AddScoped<IReportService, ReportService>();
+			service.AddScoped<IResponseService, ResponseService>();
+			service.AddScoped<IRequestBecomeChefService, RequestBecomeChefService>();
 
 			service.AddCors(options =>
 			{
@@ -51,13 +54,13 @@ namespace NESTCOOKING_API.Business.ServiceManager
 					builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
 				});
 			});
-            service.AddAuthorization(options =>
-            {
-                options.AddPolicy("admin", policy => policy.RequireRole("admin"));
-            });
+			service.AddAuthorization(options =>
+			{
+				options.AddPolicy("admin", policy => policy.RequireRole("admin"));
+			});
 
-            // Configure for email
-            service.Configure<IdentityOptions>(options => options.SignIn.RequireConfirmedEmail = true);
+			// Configure for email
+			service.Configure<IdentityOptions>(options => options.SignIn.RequireConfirmedEmail = true);
 			// Set time Token for Email Confirm
 			service.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromMinutes(20));
 
@@ -80,7 +83,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
 				.AddRoles<IdentityRole>()
 				.AddSignInManager<SignInManager<User>>()
 				.AddEntityFrameworkStores<ApplicationDbContext>()
-				.AddDefaultTokenProviders();	
+				.AddDefaultTokenProviders();
 			service.AddAutoMapper(typeof(AutoMapperProfile));
 
 			service.AddAuthentication(options =>
