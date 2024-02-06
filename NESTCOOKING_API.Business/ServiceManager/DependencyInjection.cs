@@ -34,13 +34,13 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			// Add repositories to the container.
 			service.AddScoped<IUserRepository, UserRepository>();
 			service.AddScoped<IRoleRepository, RoleRepository>();
-
+			service.AddScoped<IChefRequestRepository, ChefRequestRepository>();
 			// Add services to the container.
 			service.AddScoped<IJwtUtils, JwtUtils>();
 			service.AddScoped<IAuthService, AuthService>();
 			service.AddScoped<IUserService, UserService>();
 			service.AddScoped<IEmailService, EmailService>();
-
+			service.AddScoped<IRequestBecomeChefService, RequestBecomeChefService>();
 			service.AddCors(options =>
 			{
 				options.AddPolicy("AllowAnyOrigin", builder =>
@@ -61,6 +61,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			service.AddDbContext<ApplicationDbContext>(options =>
 			{
 				options.UseSqlServer(configurationRoot.GetConnectionString("Default"));
+
 			});
 			service
 				.AddIdentityCore<User>(options =>
@@ -72,7 +73,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
 				.AddRoles<IdentityRole>()
 				.AddSignInManager<SignInManager<User>>()
 				.AddEntityFrameworkStores<ApplicationDbContext>()
-				.AddDefaultTokenProviders();
+				.AddDefaultTokenProviders();	
 			service.AddAutoMapper(typeof(AutoMapperProfile));
 
 			service.AddAuthentication(options =>
