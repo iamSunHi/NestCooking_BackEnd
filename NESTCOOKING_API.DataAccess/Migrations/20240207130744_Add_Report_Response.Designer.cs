@@ -12,8 +12,8 @@ using NESTCOOKING_API.DataAccess.Data;
 namespace NESTCOOKING_API.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240206165815_Refactor_Report")]
-    partial class Refactor_Report
+    [Migration("20240207130744_Add_Report_Response")]
+    partial class Add_Report_Response
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -181,7 +181,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.Property<string>("TargetId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -192,13 +192,12 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ResponseId");
-
-                    b.HasIndex("TargetId");
 
                     b.HasIndex("UserId");
 
@@ -436,17 +435,11 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         .WithMany()
                         .HasForeignKey("ResponseId");
 
-                    b.HasOne("NESTCOOKING_API.DataAccess.Models.User", "ReportedUser")
-                        .WithMany()
-                        .HasForeignKey("TargetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("NESTCOOKING_API.DataAccess.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("ReportedUser");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Response");
 

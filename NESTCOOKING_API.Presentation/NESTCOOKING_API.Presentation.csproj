@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="images\" />
+    <Folder Include="images\avatar\" />
   </ItemGroup>
 
 </Project>

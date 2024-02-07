@@ -178,7 +178,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.Property<string>("TargetId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -189,13 +189,12 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ResponseId");
-
-                    b.HasIndex("TargetId");
 
                     b.HasIndex("UserId");
 
@@ -433,17 +432,11 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         .WithMany()
                         .HasForeignKey("ResponseId");
 
-                    b.HasOne("NESTCOOKING_API.DataAccess.Models.User", "ReportedUser")
-                        .WithMany()
-                        .HasForeignKey("TargetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("NESTCOOKING_API.DataAccess.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("ReportedUser");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Response");
 

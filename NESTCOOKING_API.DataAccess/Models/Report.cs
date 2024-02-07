@@ -14,9 +14,6 @@ namespace NESTCOOKING_API.DataAccess.Models
         [JsonIgnore]
         public User User { get; set; }
         public string TargetId { get; set; }
-        [ForeignKey(nameof(TargetId))]
-        [ValidateNever]
-        public User? ReportedUser { get; set; }
         public string Title { get; set; } = null!;
         public string Type { get; set; } = null!;
         public string Content { get; set; } = null!;
