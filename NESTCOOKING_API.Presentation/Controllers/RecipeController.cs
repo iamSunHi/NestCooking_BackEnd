@@ -1,44 +1,90 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
-	[Route("api/recipe")]
+	[Route("api/recipes")]
 	[ApiController]
 	public class RecipeController : ControllerBase
 	{
 		private readonly IRecipeService _recipeService;
-		private PaginationInfoDTO _paginationInfo = new PaginationInfoDTO();
 
 		public RecipeController(IRecipeService recipeService)
 		{
 			_recipeService = recipeService;
 		}
 
-		[HttpGet("{pageNumber}")]
-		public async Task<IActionResult> GetRecipes([FromRoute] int pageNumber)
+		[HttpGet]
+		public async Task<IActionResult> GetAllRecipesAsync()
 		{
-			if (pageNumber != null)
+			var recipes = await _recipeService.GetAllRecipesAsync();
+			return Ok(ResponseDTO.Accept(result: recipes));
+		}
+
+		[HttpGet("{id}")]
+		public async Task<IActionResult> GetRecipeByIdAsync([FromRoute] string id)
+		{
+			var recipe = await _recipeService.GetRecipeByIdAsync(id);
+			if (recipe == null)
 			{
-				_paginationInfo.PageNumber = pageNumber;
+				return BadRequest(ResponseDTO.BadRequest(message: $"Recipe with id {id} not found"));
 			}
-			var recipeList = _recipeService.GetRecipesAsync(_paginationInfo);
-			if (recipeList == null)
+			return Ok(ResponseDTO.Accept(result: recipe));
+		}
+
+		[HttpGet("categories/{categoryId}")]
+		public async Task<IActionResult> GetRecipesByCategoryIdAsync([FromRoute] int categoryId)
+		{
+			var recipe = await _recipeService.GetRecipesByCategoryIdAsync(categoryId);
+			if (recipe == null)
 			{
-				return BadRequest(ResponseDTO.BadRequest());
+				return BadRequest(ResponseDTO.BadRequest(message: $"Recipe with categoryId {categoryId} not found"));
 			}
-			return Ok(ResponseDTO.Accept(result: recipeList));
+			return Ok(ResponseDTO.Accept(result: recipe));
 		}
 
 		[HttpPost]
-		[Authorize]
-		public async Task<IActionResult> CreateRecipe(RecipeDetailDTO recipeDetailDTO)
+		public async Task<IActionResult> CreateRecipeAsync([FromBody] RecipeDetailDTO recipeDetailDTO)
 		{
-			throw new NotImplementedException();
+			try
+			{
+				await _recipeService.CreateRecipeAsync(recipeDetailDTO);
+				return Created();
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+		}
+
+		[HttpPatch]
+		public async Task<IActionResult> UpdateRecipeAsync([FromBody] RecipeDetailDTO recipeDetailDTO)
+		{
+			try
+			{
+				await _recipeService.UpdateRecipeAsync(recipeDetailDTO);
+				return NoContent();
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+		}
+
+		[HttpDelete("delete/{id}")]
+		public async Task<IActionResult> DeleteRecipeAsync([FromRoute] string id)
+		{
+			try
+			{
+				await _recipeService.DeleteRecipeAsync(id);
+				return NoContent();
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
 		}
 	}
 }

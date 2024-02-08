@@ -1,6 +1,7 @@
 using Microsoft.OpenApi.Models;
 using NESTCOOKING_API.Business.Authorization;
 using NESTCOOKING_API.Business.ServiceManager;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 var dependencyInjection = new DependencyInjection();
 dependencyInjection.ConfigureServices(builder.Services);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+	options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>

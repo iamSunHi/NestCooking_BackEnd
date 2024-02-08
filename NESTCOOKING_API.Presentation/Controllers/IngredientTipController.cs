@@ -7,7 +7,7 @@ using NESTCOOKING_API.Utility;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
-	[Route("api/ingredient-tip")]
+	[Route("api/ingredient-tips")]
 	[ApiController]
 	public class IngredientTipController : ControllerBase
 	{
@@ -65,12 +65,8 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		{
 			try
 			{
-				var createdIngredientTip = await _ingredientTipService.CreateIngredientTipAsync(ingredientTipDTO);
-				if (createdIngredientTip == null)
-				{
-					return BadRequest(ResponseDTO.BadRequest(message: "Failed to create ingredient tip!"));
-				}
-				return Created($"api/ingredient-tip/{createdIngredientTip.Id}", createdIngredientTip);
+				await _ingredientTipService.CreateIngredientTipAsync(ingredientTipDTO);
+				return Created();
 			}
 			catch (Exception ex)
 			{

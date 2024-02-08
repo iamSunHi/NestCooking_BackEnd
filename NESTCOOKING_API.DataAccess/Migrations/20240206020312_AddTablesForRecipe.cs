@@ -25,17 +25,24 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Ingredients",
+                name: "IngredientTips",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Amount = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Ingredients", x => x.Id);
+                    table.PrimaryKey("PK_IngredientTips", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_IngredientTips_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -66,28 +73,42 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "IngredientTips",
+                name: "Ingredients",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IngredientId = table.Column<int>(type: "int", nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Amount = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IngredientTipId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IngredientTips", x => x.Id);
+                    table.PrimaryKey("PK_Ingredients", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IngredientTips_Ingredients_IngredientId",
-                        column: x => x.IngredientId,
-                        principalTable: "Ingredients",
+                        name: "FK_Ingredients_IngredientTips_IngredientTipId",
+                        column: x => x.IngredientTipId,
+                        principalTable: "IngredientTips",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "IngredientTipContents",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IngredientTipId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_IngredientTipContents", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IngredientTips_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
+                        name: "FK_IngredientTipContents_IngredientTips_IngredientTipId",
+                        column: x => x.IngredientTipId,
+                        principalTable: "IngredientTips",
                         principalColumn: "Id");
                 });
 
@@ -116,6 +137,26 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Instructors",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RecipeId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Instructors", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Instructors_Recipes_RecipeId",
+                        column: x => x.RecipeId,
+                        principalTable: "Recipes",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "IngredientRecipe",
                 columns: table => new
                 {
@@ -139,46 +180,6 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "Instructors",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RecipeId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Instructors", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Instructors_Recipes_RecipeId",
-                        column: x => x.RecipeId,
-                        principalTable: "Recipes",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "IngredientTipContents",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IngredientTipId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_IngredientTipContents", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_IngredientTipContents_IngredientTips_IngredientTipId",
-                        column: x => x.IngredientTipId,
-                        principalTable: "IngredientTips",
-                        principalColumn: "Id");
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_CategoryRecipe_RecipesId",
                 table: "CategoryRecipe",
@@ -190,14 +191,14 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                 column: "RecipesId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_IngredientTipContents_IngredientTipId",
-                table: "IngredientTipContents",
+                name: "IX_Ingredients_IngredientTipId",
+                table: "Ingredients",
                 column: "IngredientTipId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_IngredientTips_IngredientId",
-                table: "IngredientTips",
-                column: "IngredientId");
+                name: "IX_IngredientTipContents_IngredientTipId",
+                table: "IngredientTipContents",
+                column: "IngredientTipId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_IngredientTips_UserId",
@@ -234,13 +235,13 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                 name: "Categories");
 
             migrationBuilder.DropTable(
-                name: "IngredientTips");
+                name: "Ingredients");
 
             migrationBuilder.DropTable(
                 name: "Recipes");
 
             migrationBuilder.DropTable(
-                name: "Ingredients");
+                name: "IngredientTips");
         }
     }
 }

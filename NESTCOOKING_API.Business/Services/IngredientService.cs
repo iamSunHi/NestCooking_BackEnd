@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
+using NESTCOOKING_API.DataAccess.Repositories;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 
 namespace NESTCOOKING_API.Business.Services
@@ -26,7 +28,19 @@ namespace NESTCOOKING_API.Business.Services
 			foreach (var ingredient in ingredients)
 			{
 				if (ingredient.IngredientTip?.Id != null)
-					ingredient.IngredientTip = await _ingredientTipService.GetIngredientTipByIdAsync((int)ingredient.IngredientTip.Id);
+					ingredient.IngredientTip = await _ingredientTipService.GetIngredientTipShortInfoByIdAsync((int)ingredient.IngredientTip.Id);
+			}
+			return ingredients;
+		}
+
+		public async Task<IEnumerable<IngredientDTO>> GetIngredientsAsync(PaginationInfoDTO paginationInfo)
+		{
+			var ingredientsFromDb = await _ingredientRepository.GetIngredientsWithPaginationAsync(paginationInfo.PageNumber, paginationInfo.PageSize, includeProperties: "IngredientTip");
+			var ingredients = _mapper.Map<IEnumerable<IngredientDTO>>(ingredientsFromDb);
+			foreach (var ingredient in ingredients)
+			{
+				if (ingredient.IngredientTip?.Id != null)
+					ingredient.IngredientTip = await _ingredientTipService.GetIngredientTipShortInfoByIdAsync((int)ingredient.IngredientTip.Id);
 			}
 			return ingredients;
 		}
@@ -36,16 +50,14 @@ namespace NESTCOOKING_API.Business.Services
 			var ingredientsFromDb = await _ingredientRepository.GetAsync(i => i.Id == id, includeProperties: "IngredientTip");
 			var ingredient = _mapper.Map<IngredientDTO>(ingredientsFromDb);
 			if (ingredient.IngredientTip?.Id != null)
-				ingredient.IngredientTip = await _ingredientTipService.GetIngredientTipByIdAsync((int)ingredient.IngredientTip.Id);
+				ingredient.IngredientTip = await _ingredientTipService.GetIngredientTipShortInfoByIdAsync((int)ingredient.IngredientTip.Id);
 			return ingredient;
 		}
 
-		public async Task<IngredientDTO> CreateIngredientAsync(IngredientDTO ingredientDTO)
+		public async Task CreateIngredientAsync(IngredientDTO ingredientDTO)
 		{
 			var ingredient = _mapper.Map<Ingredient>(ingredientDTO);
 			await _ingredientRepository.CreateAsync(ingredient);
-			await _ingredientRepository.SaveAsync();
-			return _mapper.Map<IngredientDTO>(ingredient);
 		}
 
 		public async Task UpdateIngredientAsync(IngredientDTO ingredientDTO)

@@ -12,8 +12,8 @@ using NESTCOOKING_API.DataAccess.Data;
 namespace NESTCOOKING_API.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240205123226_ChangeRelationBetweenIngredientAndIngredientTip")]
-    partial class ChangeRelationBetweenIngredientAndIngredientTip
+    [Migration("20240206020312_AddTablesForRecipe")]
+    partial class AddTablesForRecipe
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -217,7 +217,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("IngredientTipsId")
+                    b.Property<int?>("IngredientTipId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -226,7 +226,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IngredientTipsId");
+                    b.HasIndex("IngredientTipId");
 
                     b.ToTable("Ingredients");
                 });
@@ -241,6 +241,10 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -532,11 +536,11 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Ingredient", b =>
                 {
-                    b.HasOne("NESTCOOKING_API.DataAccess.Models.IngredientTip", "IngredientTips")
+                    b.HasOne("NESTCOOKING_API.DataAccess.Models.IngredientTip", "IngredientTip")
                         .WithMany("Ingredients")
-                        .HasForeignKey("IngredientTipsId");
+                        .HasForeignKey("IngredientTipId");
 
-                    b.Navigation("IngredientTips");
+                    b.Navigation("IngredientTip");
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.IngredientTip", b =>

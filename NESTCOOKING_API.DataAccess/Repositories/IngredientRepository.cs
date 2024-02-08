@@ -2,6 +2,7 @@
 using NESTCOOKING_API.DataAccess.Data;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
+using System.Linq;
 
 namespace NESTCOOKING_API.DataAccess.Repositories
 {
@@ -9,6 +10,26 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 	{
 		public IngredientRepository(ApplicationDbContext context) : base(context)
 		{
+		}
+
+		public async Task<IEnumerable<Ingredient>> GetIngredientsWithPaginationAsync(int pageNumber, int pageSize, string? includeProperties = null)
+		{
+			var skipNumber = (pageNumber - 1) * pageSize;
+			var query = _dbSet.AsQueryable<Ingredient>();
+
+			var ingredients = query.Skip(skipNumber).Take(pageSize);
+			if (ingredients.Any())
+			{
+				if (!string.IsNullOrEmpty(includeProperties))
+				{
+					foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+					{
+						ingredients = ingredients.Include(includeProp.Trim());
+					}
+				}
+				return ingredients;
+			}
+			return null;
 		}
 
 		public async Task UpdateAsync(Ingredient ingredient)

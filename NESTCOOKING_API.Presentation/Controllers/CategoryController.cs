@@ -7,7 +7,7 @@ using NESTCOOKING_API.Utility;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
-    [Route("api/category")]
+    [Route("api/categories")]
 	[ApiController]
 	public class CategoryController : ControllerBase
 	{

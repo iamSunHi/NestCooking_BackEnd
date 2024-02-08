@@ -42,16 +42,20 @@ namespace NESTCOOKING_API.Business.Services
 			return _mapper.Map<IngredientTipDTO>(ingredientTip);
 		}
 
-		public async Task<IngredientTipDTO> CreateIngredientTipAsync(IngredientTipDTO ingredientTipDTO)
+		public async Task<IngredientTipShortInfoDTO> GetIngredientTipShortInfoByIdAsync(int id)
+		{
+			var ingredientTip = await _ingredientTipRepository.GetAsync(i => i.Id == id, includeProperties: "User");
+			return _mapper.Map<IngredientTipShortInfoDTO>(ingredientTip);
+		}
+
+		public async Task CreateIngredientTipAsync(IngredientTipDTO ingredientTipDTO)
 		{
 			ingredientTipDTO.CreatedAt = DateTime.Now;
 			var ingredientTip = _mapper.Map<IngredientTip>(ingredientTipDTO);
 			var userFromDb = await _userRepository.GetAsync(u => u.Id == ingredientTipDTO.User.Id);
 			ingredientTip.User = userFromDb;
-			await _ingredientTipRepository.CreateAsync(ingredientTip);
 
-			var createdIngredientTip = await _ingredientTipRepository.GetAsync(i => i.User.Id == ingredientTipDTO.User.Id && i.CreatedAt == ingredientTipDTO.CreatedAt);
-			return _mapper.Map<IngredientTipDTO>(createdIngredientTip);
+			await _ingredientTipRepository.CreateAsync(ingredientTip);
 		}
 
 		public async Task UpdateIngredientTipAsync(IngredientTipDTO ingredientTipDTO)

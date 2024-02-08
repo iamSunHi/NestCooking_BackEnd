@@ -1,14 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
+using NESTCOOKING_API.Business.Services;
 using NESTCOOKING_API.Business.Services.IServices;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
-	[Route("api/ingredient")]
+	[Route("api/ingredients")]
 	[ApiController]
 	public class IngredientController : ControllerBase
 	{
+		private PaginationInfoDTO _paginationInfo = new PaginationInfoDTO();
 		private readonly IIngredientService _ingredientService;
 
 		public IngredientController(IIngredientService ingredientService)
@@ -40,17 +42,29 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			return Ok(ResponseDTO.Accept(result: ingredient));
 		}
 
+		[HttpGet("page/{pageNumber}")]
+		public async Task<IActionResult> GetIngredientsAsync([FromRoute] int pageNumber)
+		{
+			if (pageNumber != null)
+			{
+				_paginationInfo.PageNumber = pageNumber;
+			}
+			var ingredientTips = await _ingredientService.GetIngredientsAsync(_paginationInfo);
+
+			if (ingredientTips == null)
+			{
+				return BadRequest(ResponseDTO.BadRequest());
+			}
+			return Ok(ResponseDTO.Accept(result: ingredientTips));
+		}
+
 		[HttpPost]
 		public async Task<IActionResult> CreateIngredientAsync([FromBody] IngredientDTO ingredientDTO)
 		{
 			try
 			{
-				var createdIngredient = await _ingredientService.CreateIngredientAsync(ingredientDTO);
-				if (createdIngredient == null)
-				{
-					return BadRequest(ResponseDTO.BadRequest(message: "This ingredient already exists!"));
-				}
-				return Created($"api/ingredient/{createdIngredient.Id}", createdIngredient);
+				await _ingredientService.CreateIngredientAsync(ingredientDTO);
+				return Created();
 			}
 			catch (Exception ex)
 			{
