@@ -60,13 +60,13 @@ namespace NESTCOOKING_API.Business.Services
             return reportResponse;
         }
 
-        public async Task<bool> DeleteReportAsync(string reportId)
+        public async Task<bool> DeleteReportAsync(string reportId,string userId)
         {
-            return await _reportRepository.DeleteReportAsync(reportId);
+            return await _reportRepository.DeleteReportAsync(reportId,userId);
         }
-        public async Task<ReportResponseDTO> UpdateReportAsync(string reportId, UpdateReportDTO updatedReportDto)
+        public async Task<ReportResponseDTO> UpdateReportAsync(string reportId, UpdateReportDTO updatedReportDto, string userId)
         {
-            var report = await _reportRepository.UpdateReportAsync(reportId, updatedReportDto.Title, updatedReportDto.Content, updatedReportDto.ImagesURL);
+            var report = await _reportRepository.UpdateReportAsync(reportId, updatedReportDto.Title, updatedReportDto.Content, updatedReportDto.ImagesURL,userId);
             ReportResponseDTO reportResponeDTO = new ReportResponseDTO();
             reportResponeDTO = _mapper.Map<ReportResponseDTO>(report);
             return reportResponeDTO;

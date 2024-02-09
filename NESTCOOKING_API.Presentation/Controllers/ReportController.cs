@@ -67,21 +67,35 @@ namespace NESTCOOKING_API.Presentation.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteReport(string id)
         {
-            var result = await _reportService.DeleteReportAsync(id);
-
-            if (result == false)
+            var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+            if(userId == null)
             {
-                return BadRequest(ResponseDTO.BadRequest());
+                throw new UnauthorizedAccessException();
             }
             else
             {
-                return Ok(ResponseDTO.Accept());
+                var result = await _reportService.DeleteReportAsync(id,userId);
+
+                if (result == false)
+                {
+                    return BadRequest(ResponseDTO.BadRequest());
+                }
+                else
+                {
+                    return Ok(ResponseDTO.Accept());
+                }
             }
+           
         }
         [HttpPatch("{id}")]
         public async Task<IActionResult> UpdateReport(string id, [FromBody] UpdateReportDTO updatedReportDto)
         {
-            var result = await _reportService.UpdateReportAsync(id, updatedReportDto);
+            var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException();
+            }
+            var result = await _reportService.UpdateReportAsync(id, updatedReportDto,userId);
             if (result == null)
             {
                 return BadRequest(ResponseDTO.BadRequest());

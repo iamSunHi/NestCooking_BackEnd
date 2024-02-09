@@ -1,4 +1,5 @@
 ﻿using NESTCOOKING_API.Business.DTOs;
+using NESTCOOKING_API.Business.DTOs.AdminDTOs;
 using NESTCOOKING_API.Business.DTOs.ResponseDTOs;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.Utility;
@@ -12,6 +13,6 @@ namespace NESTCOOKING_API.Business.Services.IServices
 {
     public interface IResponseService
     {
-        public Task<AdminResponseDTO> AdminHandleReportAsync(string reportId,StaticDetails.AdminAction adminAction, string title, string content);
+        public Task<AdminResponseDTO> AdminHandleReportAsync(AdminRequestDTO adminRequestDTO);
     }
 }

@@ -17,11 +17,12 @@ namespace NESTCOOKING_API.DataAccess.Repositories
     public class ReportRepository : Repository<Report>, IReportRepository
     {
         private readonly ApplicationDbContext _dbContext;
+        private readonly UserManager<User> _userManager;
 
-
-        public ReportRepository(ApplicationDbContext dbContext) : base(dbContext)
+        public ReportRepository(ApplicationDbContext dbContext, UserManager<User> userManager) : base(dbContext)
         {
             _dbContext = dbContext;
+            _userManager = userManager;
         }
 
         public async Task<Report> AddReportAsync(User user, Report report)
@@ -63,55 +64,64 @@ namespace NESTCOOKING_API.DataAccess.Repositories
                 return null;
             }
         }
-        public async Task<bool> DeleteReportAsync(string reportId)
+        public async Task<bool> DeleteReportAsync(string reportId, string userId)
         {
             try
             {
-                var reportEntity = await _dbContext.Reports.FindAsync(reportId);
-
+                var reportEntity = await _dbContext.Reports.Include(r => r.User).FirstOrDefaultAsync(r => r.Id == reportId);
                 if (reportEntity == null)
                 {
                     return false;
                 }
+                else
+                {
+                    if (reportEntity.User.Id == userId || await _dbContext.Roles.FirstOrDefaultAsync(r => r.Id == reportEntity.User.RoleId && r.Name == "admin")!= null)
+                    {
 
-                _dbContext.Reports.Remove(reportEntity);
-                await _dbContext.SaveChangesAsync();
 
-                return true;
+                        await RemoveAsync(reportEntity);
+                        await _dbContext.SaveChangesAsync();
+
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
             }
             catch (Exception ex)
             {
-                // Log the exception
                 return false;
             }
         }
-        public async Task<Report> UpdateReportAsync(string reportId, string title, string content, string imagesURL)
+        public async Task<Report> UpdateReportAsync(string reportId, string title, string content, string imagesURL, string userId)
         {
             try
             {
                 var reportEntity = await _dbContext.Reports
                 .Include(r => r.User)
                 .FirstOrDefaultAsync(r => r.Id == reportId);
-
                 if (reportEntity == null)
                 {
                     return null;
                 }
-
-
-                reportEntity.Title = title;
-                reportEntity.Content = content;
-                reportEntity.ImageUrl = imagesURL;
-                reportEntity.CreatedAt = DateTime.Now;
-
-
-                // Optionally, update other properties as needed
-
-                await _dbContext.SaveChangesAsync();
-
-                return reportEntity;
-
-
+                else
+                {
+                    if (reportEntity.User.Id == userId || await _dbContext.Roles.FirstOrDefaultAsync(r => r.Id == reportEntity.User.RoleId && r.Name == "admin") != null)
+                    {
+                        reportEntity.Title = title;
+                        reportEntity.Content = content;
+                        reportEntity.ImageUrl = imagesURL;
+                        reportEntity.CreatedAt = DateTime.Now;
+                        await _dbContext.SaveChangesAsync();
+                        return reportEntity;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -120,7 +130,6 @@ namespace NESTCOOKING_API.DataAccess.Repositories
         }
         public async Task<List<Report>> GetAllReportsAsync()
         {
-            // Assuming you have a suitable mapping method to convert Report entities to ReportDTO
             var reports = await _dbContext.Reports
           .Include(r => r.User)
           .ToListAsync();
@@ -129,7 +138,6 @@ namespace NESTCOOKING_API.DataAccess.Repositories
         }
         public async Task<List<Report>> GetAllReportsByUserIdAsync(string userId)
         {
-            // Assuming you have a suitable mapping method to convert Report entities to ReportDTO
             var reports = await _dbContext.Reports
                 .Include(r => r.User)
                 .Where(report => report.User.Id == userId)
@@ -137,10 +145,9 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 
             return reports.ToList();
         }
-
-        public Task<Report> GetReportById(string reportId)
+        public async Task<Report> GetReportById(string reportId)
         {
-            return _dbContext.Reports.Where(r => r.Id == reportId)
+            return await _dbContext.Reports.Where(r => r.Id == reportId)
             .Include(r => r.User)
             .FirstOrDefaultAsync();
         }

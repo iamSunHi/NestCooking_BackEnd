@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using NESTCOOKING_API.Business.DTOs;
+using NESTCOOKING_API.Business.DTOs.AdminDTOs;
 using NESTCOOKING_API.Business.DTOs.ResponseDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
@@ -25,9 +26,9 @@ namespace NESTCOOKING_API.Business.Services
             _mapper = mapper;
             _reportRepository = reportRepository;
         }
-        public async Task<AdminResponseDTO> AdminHandleReportAsync(string reportId, StaticDetails.AdminAction adminAction, string title, string content)
+        public async Task<AdminResponseDTO> AdminHandleReportAsync(AdminRequestDTO adminRequestDTO)
         {
-            var report = await _reportRepository.GetReportById(reportId);
+            var report = await _reportRepository.GetReportById(adminRequestDTO.ReportId);
             if (report == null)
             {
                 throw new Exception(AppString.ReportNotFoundErrorMessage);
@@ -37,7 +38,7 @@ namespace NESTCOOKING_API.Business.Services
             {
                 throw new Exception(AppString.ReportAlreadyHandledErrorMessage);
             }
-            var response = await _responseRepository.AdminHandleReportAsync(report, adminAction, title, content);
+            var response = await _responseRepository.AdminHandleReportAsync(report, adminRequestDTO.AdminAction, adminRequestDTO.Title, adminRequestDTO.Content);
             AdminResponseDTO adminResponseDTO = _mapper.Map<AdminResponseDTO>(response);
             return adminResponseDTO;
         }

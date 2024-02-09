@@ -46,8 +46,9 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			service.AddScoped<IReportService, ReportService>();
 			service.AddScoped<IResponseService, ResponseService>();
 			service.AddScoped<IRequestBecomeChefService, RequestBecomeChefService>();
+            service.AddScoped<IRepository<Report>, ReportRepository>();
 
-			service.AddCors(options =>
+            service.AddCors(options =>
 			{
 				options.AddPolicy("AllowAnyOrigin", builder =>
 				{
