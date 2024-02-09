@@ -85,7 +85,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			try
 			{
 				await _categoryService.UpdateCategoryAsync(categoryDTO);
-				return NoContent();
+				return Ok(ResponseDTO.Accept(result: categoryDTO));
 			}
 			catch (Exception ex)
 			{

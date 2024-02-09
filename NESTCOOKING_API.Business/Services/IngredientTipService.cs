@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
+using NESTCOOKING_API.Business.DTOs.UserDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
@@ -24,69 +26,146 @@ namespace NESTCOOKING_API.Business.Services
 			_ingredientTipRepository = ingredientTipRepository;
 		}
 
-		public async Task<IEnumerable<IngredientTipDTO>> GetAllIngredientTipsAsync()
+		public async Task<IEnumerable<IngredientTipShortInfoDTO>> GetAllIngredientTipsAsync()
 		{
-			var ingredientTips = await _ingredientTipRepository.GetAllAsync(includeProperties: "User, Contents");
-			return _mapper.Map<IEnumerable<IngredientTipDTO>>(ingredientTips);
+			var ingredientTips = await _ingredientTipRepository.GetAllAsync();
+			if (ingredientTips == null)
+			{
+				return null;
+			}
+			var tipList = _mapper.Map<IEnumerable<IngredientTipShortInfoDTO>>(ingredientTips);
+			for (int i = 0; i < ingredientTips.Count(); i++)
+			{
+				var userFromDb = await _userRepository.GetAsync(u => u.Id == ingredientTips.ToList()[i].UserId);
+				tipList.ToList()[i].User = _mapper.Map<UserShortInfoDTO>(userFromDb);
+			}
+			return tipList;
 		}
 
-		public async Task<IEnumerable<IngredientTipDTO>> GetIngredientTipsAsync(PaginationInfoDTO paginationInfo)
+		public async Task<IEnumerable<IngredientTipShortInfoDTO>> GetIngredientTipsAsync(PaginationInfoDTO paginationInfo)
 		{
-			var ingredientTips = await _ingredientTipRepository.GetIngredientTipsWithPaginationAsync(paginationInfo.PageNumber, paginationInfo.PageSize, includeProperties: "User, Contents");
-			return _mapper.Map<IEnumerable<IngredientTipDTO>>(ingredientTips);
+			var ingredientTips = await _ingredientTipRepository.GetIngredientTipsWithPaginationAsync(paginationInfo.PageNumber, paginationInfo.PageSize);
+			if (ingredientTips == null)
+			{
+				return null;
+			}
+			var tipList = _mapper.Map<IEnumerable<IngredientTipShortInfoDTO>>(ingredientTips);
+			for (int i = 0; i < ingredientTips.Count(); i++)
+			{
+				var userFromDb = await _userRepository.GetAsync(u => u.Id == ingredientTips.ToList()[i].UserId);
+				tipList.ToList()[i].User = _mapper.Map<UserShortInfoDTO>(userFromDb);
+			}
+			return tipList;
 		}
 
-		public async Task<IngredientTipDTO> GetIngredientTipByIdAsync(int id)
+		public async Task<IngredientTipDTO> GetIngredientTipByIdAsync(string id)
 		{
-			var ingredientTip = await _ingredientTipRepository.GetAsync(i => i.Id == id, includeProperties: "User, Contents");
-			return _mapper.Map<IngredientTipDTO>(ingredientTip);
+			var ingredientTip = await _ingredientTipRepository.GetAsync(i => i.Id == id);
+			if (ingredientTip == null)
+			{
+				return null;
+			}
+			var tip = _mapper.Map<IngredientTipDTO>(ingredientTip);
+			var userFromDb = await _userRepository.GetAsync(u => u.Id == ingredientTip.UserId);
+			tip.User = _mapper.Map<UserShortInfoDTO>(userFromDb);
+			var tipContentsFromDb = await _ingredientTipContentRepository.GetAllAsync(c => c.IngredientTipId == ingredientTip.Id);
+			tip.Contents = _mapper.Map<IEnumerable<IngredientTipContentDTO>>(tipContentsFromDb);
+			return tip;
 		}
 
-		public async Task<IngredientTipShortInfoDTO> GetIngredientTipShortInfoByIdAsync(int id)
+		public async Task<IngredientTipShortInfoDTO> GetIngredientTipShortInfoByIdAsync(string id)
 		{
-			var ingredientTip = await _ingredientTipRepository.GetAsync(i => i.Id == id, includeProperties: "User");
-			return _mapper.Map<IngredientTipShortInfoDTO>(ingredientTip);
+			var ingredientTip = await _ingredientTipRepository.GetAsync(i => i.Id == id);
+			if (ingredientTip == null)
+			{
+				return null;
+			}
+			var tip = _mapper.Map<IngredientTipShortInfoDTO>(ingredientTip);
+			var userFromDb = await _userRepository.GetAsync(u => u.Id == ingredientTip.UserId);
+			tip.User = _mapper.Map<UserShortInfoDTO>(userFromDb);
+			return tip;
 		}
 
-		public async Task CreateIngredientTipAsync(IngredientTipDTO ingredientTipDTO)
+		public async Task CreateIngredientTipAsync(string userId, IngredientTipDTO ingredientTipDTO)
 		{
-			ingredientTipDTO.CreatedAt = DateTime.Now;
 			var ingredientTip = _mapper.Map<IngredientTip>(ingredientTipDTO);
-			var userFromDb = await _userRepository.GetAsync(u => u.Id == ingredientTipDTO.User.Id);
-			ingredientTip.User = userFromDb;
-
+			ingredientTip.Id = Guid.NewGuid().ToString();
+			ingredientTip.UserId = userId;
+			ingredientTip.CreatedAt = DateTime.UtcNow;
 			await _ingredientTipRepository.CreateAsync(ingredientTip);
+
+			foreach (var content in ingredientTipDTO.Contents)
+			{
+				var contentForDb = _mapper.Map<IngredientTipContent>(content);
+				contentForDb.Id = 0;
+				contentForDb.IngredientTipId = ingredientTip.Id;
+				await _ingredientTipContentRepository.CreateAsync(contentForDb);
+			}
 		}
 
-		public async Task UpdateIngredientTipAsync(IngredientTipDTO ingredientTipDTO)
+		public async Task UpdateIngredientTipAsync(string userId, IngredientTipDTO ingredientTipDTO)
 		{
-			var ingredientTipFromDb = await _ingredientTipRepository.GetAsync(i => i.Id == ingredientTipDTO.Id, includeProperties: "User");
-			if (ingredientTipFromDb.User.Id != ingredientTipDTO.User.Id && await _userRepository.GetRoleAsync(ingredientTipDTO.User.Id) != StaticDetails.Role_Admin)
+			var ingredientTipFromDb = await _ingredientTipRepository.GetAsync(i => i.Id == ingredientTipDTO.Id);
+			if (ingredientTipFromDb.UserId != userId && await _userRepository.GetRoleAsync(userId) != StaticDetails.Role_Admin)
 			{
 				throw new Exception("You don't have permission to update this.");
 			}
 
-			ingredientTipDTO.UpdatedAt = DateTime.Now;
 			var ingredientTip = _mapper.Map<IngredientTip>(ingredientTipDTO);
-			foreach (var ingredientTipContent in ingredientTip.Contents)
+			var contentsFromDb = await _ingredientTipContentRepository.GetAllAsync(c => c.IngredientTipId == ingredientTipDTO.Id);
+
+			if (ingredientTipDTO.Contents.Count() > contentsFromDb.Count())
 			{
-				await _ingredientTipContentRepository.UpdateAsync(ingredientTipContent);
+				for (int i = 0; i < contentsFromDb.Count(); i++)
+				{
+					var content = _mapper.Map<IngredientTipContent>(ingredientTipDTO.Contents.ToList()[i]);
+					content.Id = contentsFromDb.ToList()[i].Id;
+					await _ingredientTipContentRepository.UpdateAsync(content);
+				}
+				for (int i =  contentsFromDb.Count(); i < ingredientTipDTO.Contents.Count(); i++)
+				{
+					var content = _mapper.Map<IngredientTipContent>(ingredientTipDTO.Contents.ToList()[i]);
+					content.Id = 0;
+					content.IngredientTipId = ingredientTipFromDb.Id;
+					await _ingredientTipContentRepository.CreateAsync(content);
+				}
+			}
+			else
+			{
+				for (int i = 0; i < ingredientTipDTO.Contents.Count(); i++)
+				{
+					var content = _mapper.Map<IngredientTipContent>(ingredientTipDTO.Contents.ToList()[i]);
+					content.Id = contentsFromDb.ToList()[i].Id;
+					await _ingredientTipContentRepository.UpdateAsync(content);
+				}
+				for (int i = ingredientTipDTO.Contents.Count(); i < contentsFromDb.Count(); i++)
+				{
+					var content = contentsFromDb.ToList()[i];
+					await _ingredientTipContentRepository.RemoveAsync(content);
+				}
 			}
 
 			await _ingredientTipRepository.UpdateAsync(ingredientTip);
 		}
 
-		public async Task DeleteIngredientTipAsync(int id)
+		public async Task DeleteIngredientTipAsync(string userId, string id)
 		{
-			var ingredientTip = await _ingredientTipRepository.GetAsync(i => i.Id == id, includeProperties: "Contents");
-			if (ingredientTip != null)
+			var ingredientTipFromDb = await _ingredientTipRepository.GetAsync(i => i.Id == id);
+
+			if (ingredientTipFromDb != null)
 			{
-				foreach (var ingredientTipContent in ingredientTip.Contents)
+				if (ingredientTipFromDb.UserId != userId && await _userRepository.GetRoleAsync(userId) != StaticDetails.Role_Admin)
 				{
-					await _ingredientTipContentRepository.RemoveAsync(ingredientTipContent);
+					throw new Exception("You don't have permission to update this.");
 				}
 
-				await _ingredientTipRepository.RemoveAsync(ingredientTip);
+				var contentsFromDb = await _ingredientTipContentRepository.GetAllAsync(c => c.IngredientTipId == id);
+				foreach (var content in contentsFromDb)
+				{
+					await _ingredientTipContentRepository.RemoveAsync(content);
+				}
+
+				await _ingredientTipRepository.RemoveAsync(ingredientTipFromDb);
 			}
 		}
 	}

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
-using NESTCOOKING_API.Utility;
+using System.Security.Claims;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
@@ -34,7 +34,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		[HttpGet("page/{pageNumber}")]
 		public async Task<IActionResult> GetIngredientTipsAsync([FromRoute] int pageNumber)
 		{
-			if (pageNumber != null)
+			if (pageNumber != 0)
 			{
 				_paginationInfo.PageNumber = pageNumber;
 			}
@@ -42,13 +42,13 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 			if (ingredientTips == null)
 			{
-				return BadRequest(ResponseDTO.BadRequest());
+				return BadRequest(ResponseDTO.BadRequest(message: "Page number is not valid!"));
 			}
 			return Ok(ResponseDTO.Accept(result: ingredientTips));
 		}
 
 		[HttpGet("{ingredientTipId}")]
-		public async Task<IActionResult> GetIngredientTipAsync([FromRoute] int ingredientTipId)
+		public async Task<IActionResult> GetIngredientTipAsync([FromRoute] string ingredientTipId)
 		{
 			var ingredientTip = await _ingredientTipService.GetIngredientTipByIdAsync(ingredientTipId);
 
@@ -65,7 +65,8 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		{
 			try
 			{
-				await _ingredientTipService.CreateIngredientTipAsync(ingredientTipDTO);
+				var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+				await _ingredientTipService.CreateIngredientTipAsync(userId, ingredientTipDTO);
 				return Created();
 			}
 			catch (Exception ex)
@@ -80,8 +81,10 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		{
 			try
 			{
-				await _ingredientTipService.UpdateIngredientTipAsync(ingredientTipDTO);
-				return NoContent();
+				var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+				ingredientTipDTO.UpdatedAt = DateTime.UtcNow;
+				await _ingredientTipService.UpdateIngredientTipAsync(userId, ingredientTipDTO);
+				return Ok(ResponseDTO.Accept(result: ingredientTipDTO));
 			}
 			catch (Exception ex)
 			{
@@ -91,11 +94,12 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 		[HttpDelete("delete/{ingredientTipId}")]
 		[Authorize]
-		public async Task<IActionResult> DeleteIngredientTipAsync([FromRoute] int ingredientTipId)
+		public async Task<IActionResult> DeleteIngredientTipAsync([FromRoute] string ingredientTipId)
 		{
 			try
 			{
-				await _ingredientTipService.DeleteIngredientTipAsync(ingredientTipId);
+				var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+				await _ingredientTipService.DeleteIngredientTipAsync(userId, ingredientTipId);
 				return NoContent();
 			}
 			catch (Exception ex)

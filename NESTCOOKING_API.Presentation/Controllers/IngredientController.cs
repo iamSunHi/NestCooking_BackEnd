@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
 using NESTCOOKING_API.Business.Services;
@@ -45,7 +46,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		[HttpGet("page/{pageNumber}")]
 		public async Task<IActionResult> GetIngredientsAsync([FromRoute] int pageNumber)
 		{
-			if (pageNumber != null)
+			if (pageNumber != 0)
 			{
 				_paginationInfo.PageNumber = pageNumber;
 			}
@@ -59,6 +60,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpPost]
+		[Authorize]
 		public async Task<IActionResult> CreateIngredientAsync([FromBody] IngredientDTO ingredientDTO)
 		{
 			try
@@ -73,12 +75,13 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpPatch]
+		[Authorize]
 		public async Task<IActionResult> UpdateIngredientAsync([FromBody] IngredientDTO ingredientDTO)
 		{
 			try
 			{
 				await _ingredientService.UpdateIngredientAsync(ingredientDTO);
-				return NoContent();
+				return Ok(ResponseDTO.Accept(result: ingredientDTO));
 			}
 			catch (Exception ex)
 			{
@@ -87,6 +90,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpDelete("delete/{ingredientId}")]
+		[Authorize]
 		public async Task<IActionResult> DeleteIngredientAsync([FromRoute] int ingredientId)
 		{
 			try

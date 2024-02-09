@@ -20,6 +20,7 @@ namespace NESTCOOKING_API.DataAccess.Data
 		public DbSet<Ingredient> Ingredients { get; set; }
 		public DbSet<Instructor> Instructors { get; set; }
 		public DbSet<Recipe> Recipes { get; set; }
+		public DbSet<CategoryRecipe> CategoryRecipe { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -38,6 +39,23 @@ namespace NESTCOOKING_API.DataAccess.Data
 				role.ToTable("Roles");
 			});
 			modelBuilder.Entity<IdentityUserToken<string>>().ToTable("UserTokens");
+
+			modelBuilder.Entity<CategoryRecipe>().HasKey(cr => new { cr.CategoryId, cr.RecipeId });
+			modelBuilder.Entity<IngredientTip>(ingredientTip =>
+			{
+				ingredientTip.HasMany<IngredientTipContent>().WithOne().HasForeignKey(ingredientTipContent => ingredientTipContent.IngredientTipId).IsRequired(true);
+				ingredientTip.HasMany<Ingredient>().WithOne().HasForeignKey(ingredient => ingredient.IngredientTipId).IsRequired(false);
+			});
+			modelBuilder.Entity<Recipe>(recipe =>
+			{
+				recipe.HasMany<Ingredient>().WithOne().HasForeignKey(ingredient => ingredient.RecipeId).IsRequired(true);
+				recipe.HasMany<Instructor>().WithOne().HasForeignKey(instructor => instructor.RecipeId).IsRequired(true);
+			});
+			modelBuilder.Entity<User>(user =>
+			{
+				user.HasMany<Recipe>().WithOne().HasForeignKey(recipe => recipe.UserId).IsRequired(true);
+				user.HasMany<IngredientTip>().WithOne().HasForeignKey(ingredientTip => ingredientTip.UserId).IsRequired(true);
+			});
 		}
 	}
 }

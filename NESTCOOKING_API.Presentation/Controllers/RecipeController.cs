@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
+using System.Security.Claims;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
@@ -46,11 +48,13 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpPost]
+		[Authorize]
 		public async Task<IActionResult> CreateRecipeAsync([FromBody] RecipeDetailDTO recipeDetailDTO)
 		{
 			try
 			{
-				await _recipeService.CreateRecipeAsync(recipeDetailDTO);
+				var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+				await _recipeService.CreateRecipeAsync(userId, recipeDetailDTO);
 				return Created();
 			}
 			catch (Exception ex)
@@ -60,12 +64,15 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpPatch]
+		[Authorize]
 		public async Task<IActionResult> UpdateRecipeAsync([FromBody] RecipeDetailDTO recipeDetailDTO)
 		{
 			try
 			{
-				await _recipeService.UpdateRecipeAsync(recipeDetailDTO);
-				return NoContent();
+				var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+				recipeDetailDTO.UpdatedAt = DateTime.UtcNow;
+				await _recipeService.UpdateRecipeAsync(userId, recipeDetailDTO);
+				return Ok(ResponseDTO.Accept(result: recipeDetailDTO));
 			}
 			catch (Exception ex)
 			{
@@ -74,11 +81,13 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpDelete("delete/{id}")]
+		[Authorize]
 		public async Task<IActionResult> DeleteRecipeAsync([FromRoute] string id)
 		{
 			try
 			{
-				await _recipeService.DeleteRecipeAsync(id);
+				var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+				await _recipeService.DeleteRecipeAsync(userId, id);
 				return NoContent();
 			}
 			catch (Exception ex)

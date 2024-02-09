@@ -7,70 +7,22 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 {
 	public class RecipeRepository : Repository<Recipe>, IRecipeRepository
 	{
-		private readonly ICategoryRepository _categoryRepository;
-
-		public RecipeRepository(ApplicationDbContext context, ICategoryRepository categoryRepository) : base(context)
+		public RecipeRepository(ApplicationDbContext context) : base(context)
 		{
-			_categoryRepository = categoryRepository;
 		}
 
-		public async Task<IEnumerable<Recipe>> GetRecipesWithPaginationAsync(int pageNumber, int pageSize, string? includeProperties = null)
+		public async Task<IEnumerable<Recipe>> GetRecipesWithPaginationAsync(int pageNumber, int pageSize)
 		{
 			var skipNumber = (pageNumber - 1) * pageSize;
 			var query = _dbSet.AsQueryable<Recipe>();
 
-			var recipes = query.Skip(skipNumber).Take(pageSize);
-			if (recipes.Any())
-			{
-				if (!string.IsNullOrEmpty(includeProperties))
-				{
-					foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-					{
-						recipes = recipes.Include(includeProp.Trim());
-					}
-				}
-				return recipes;
-			}
-			return null;
+			var recipes = await query.Skip(skipNumber).Take(pageSize).ToListAsync();
+			return recipes;
 		}
-
-		public async Task<Recipe> GetRecipeByIdAsync(string recipeId)
-		{
-			var recipe = await _context.Recipes
-				.Where(r => r.Id == recipeId)
-				.Include(r => r.User)
-				.Include(r => r.Categories)
-				.Include(r => r.Ingredients).ThenInclude(i => i.IngredientTip)
-				.FirstOrDefaultAsync();
-			if (recipe == null)
-			{
-				return null;
-			}
-			else
-			{
-				return recipe;
-			}
-		}
-
-		public async Task<IEnumerable<Recipe>> GetRecipesByCategoryIdAsync(int categoryId)
-		{
-			var categories = await _categoryRepository.GetAsync(c => c.Id == categoryId, includeProperties: "Recipes");
-
-			var recipeList = categories.Recipes.ToList();
-			foreach (var recipe in recipeList)
-			{
-				await _context.Entry(recipe)
-					.Reference(r => r.User)
-					.LoadAsync();
-			}
-
-			return recipeList;
-		}
-
 
 		public async Task UpdateAsync(Recipe recipe)
 		{
-			var recipeFromDb = await this.GetAsync(c => c.Id == recipe.Id);
+			var recipeFromDb = await this.GetAsync(r => r.Id == recipe.Id);
 
 			if (recipeFromDb != null)
 			{
@@ -78,6 +30,13 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 				{
 					_context.Attach(recipeFromDb);
 				}
+
+				recipeFromDb.Title = recipe.Title;
+				recipeFromDb.Description = recipe.Description;
+				recipeFromDb.ThumbnailUrl = recipe.ThumbnailUrl;
+				recipeFromDb.CookingTime = recipe.CookingTime;
+				recipeFromDb.Portion = recipe.Portion;
+				recipeFromDb.UpdatedAt = recipe.UpdatedAt;
 
 				await _context.SaveChangesAsync();
 			}

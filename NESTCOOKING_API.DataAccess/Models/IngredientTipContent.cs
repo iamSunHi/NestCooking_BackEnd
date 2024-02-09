@@ -6,6 +6,7 @@ namespace NESTCOOKING_API.DataAccess.Models
 	{
 		[Key]
 		public int Id { get; set; }
+		public string IngredientTipId { get; set; } = null!;
 		public string Content { get; set; } = null!;
 		public string? ImageUrl { get; set; }
 	}

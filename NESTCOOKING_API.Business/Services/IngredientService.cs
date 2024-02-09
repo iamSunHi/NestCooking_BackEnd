@@ -28,7 +28,7 @@ namespace NESTCOOKING_API.Business.Services
 			foreach (var ingredient in ingredients)
 			{
 				if (ingredient.IngredientTip?.Id != null)
-					ingredient.IngredientTip = await _ingredientTipService.GetIngredientTipShortInfoByIdAsync((int)ingredient.IngredientTip.Id);
+					ingredient.IngredientTip = await _ingredientTipService.GetIngredientTipShortInfoByIdAsync(ingredient.IngredientTip.Id);
 			}
 			return ingredients;
 		}
@@ -40,7 +40,7 @@ namespace NESTCOOKING_API.Business.Services
 			foreach (var ingredient in ingredients)
 			{
 				if (ingredient.IngredientTip?.Id != null)
-					ingredient.IngredientTip = await _ingredientTipService.GetIngredientTipShortInfoByIdAsync((int)ingredient.IngredientTip.Id);
+					ingredient.IngredientTip = await _ingredientTipService.GetIngredientTipShortInfoByIdAsync(ingredient.IngredientTip.Id);
 			}
 			return ingredients;
 		}
@@ -50,7 +50,7 @@ namespace NESTCOOKING_API.Business.Services
 			var ingredientsFromDb = await _ingredientRepository.GetAsync(i => i.Id == id, includeProperties: "IngredientTip");
 			var ingredient = _mapper.Map<IngredientDTO>(ingredientsFromDb);
 			if (ingredient.IngredientTip?.Id != null)
-				ingredient.IngredientTip = await _ingredientTipService.GetIngredientTipShortInfoByIdAsync((int)ingredient.IngredientTip.Id);
+				ingredient.IngredientTip = await _ingredientTipService.GetIngredientTipShortInfoByIdAsync(ingredient.IngredientTip.Id);
 			return ingredient;
 		}
 
