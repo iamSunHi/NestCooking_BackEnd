@@ -50,5 +50,13 @@
 		public static string RequestErrorMessage = "Error in request !";
 		public static string ResetPasswordSuccessMessage = "Reset password was successfully.";
 		public static string ResetPasswordSendMailMessage = "A password change request has been sent on your email. Please open your email to continue verify.";
+
+		public static string RequestBecomeChefNotFound = "Request Become Chef Not Found";
+		public static string UpdateRequestBecomeChefSuccessMessage = "Change Infomation Request Successfully.";
+		public static string InvalidId = "Invalid format for requestId";
+		public static string DeleteRequestSuccessMessage = "Delete request become a chef successfully.";
+		public static string CreateRequestSuccessMessage = "Create request become a chef successfully.";
+		public static string RequestNotFoundMessage = "Request Become Chef not found";
+		public static string BecomeChefRequestInternalServerErrorMessage = "Failed to create request to become chef.";
 	}
 }

@@ -67,7 +67,6 @@ namespace NESTCOOKING_API.Business.Authorization
 
 				var jwtToken = (JwtSecurityToken)validatedToken;
 				var userId = jwtToken.Claims.FirstOrDefault(claim => claim.Type == "nameid")?.Value;
-
 				// return user's id from JWT token if validation successful
 				if (!string.IsNullOrEmpty(userId))
 				{
