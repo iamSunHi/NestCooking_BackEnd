@@ -12,6 +12,9 @@
 			GET, POST, PUT, DELETE
 		}
 
+		public enum ProviderLogin {
+			FACEBOOK, GOOGLE
+		}
 		public const string Role_Admin = "admin";
 		public const string Role_User = "user";
 		public const string Role_Chef = "chef";

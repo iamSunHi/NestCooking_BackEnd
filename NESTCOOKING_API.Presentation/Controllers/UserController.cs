@@ -74,17 +74,17 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpPatch("")]
-		public async Task<IActionResult> EditProfile([FromBody] UserInfoDTO userInfoDTO)
+		public async Task<IActionResult> EditProfile([FromBody] UpdateUserDTO updateUserDTO)
 		{
 			var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
 
 			if (userId != null)
 			{
-				var isSuccess = await _userService.EditProfile(userId, userInfoDTO);
+				var user = await _userService.EditProfile(userId, updateUserDTO);
 
-				if (isSuccess)
+				if (user != null)
 				{
-					return Ok(ResponseDTO.Accept(message: AppString.UpdateInformationSuccessMessage));
+					return Ok(ResponseDTO.Accept(message: AppString.UpdateInformationSuccessMessage, result: user));
 				}
 				else
 				{

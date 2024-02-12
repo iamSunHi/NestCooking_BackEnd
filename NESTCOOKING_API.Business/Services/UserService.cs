@@ -16,130 +16,134 @@ using static NESTCOOKING_API.Utility.StaticDetails;
 
 namespace NESTCOOKING_API.Business.Services
 {
-	public class UserService : IUserService
-	{
-		private readonly IUserRepository _userRepository;
-		private readonly IRoleRepository _roleRepository;
-		private readonly UserManager<User> _userManager;
-		private readonly IMapper _mapper;
+    public class UserService : IUserService
+    {
+        private readonly IUserRepository _userRepository;
+        private readonly IRoleRepository _roleRepository;
+        private readonly UserManager<User> _userManager;
+        private readonly IMapper _mapper;
 
-		public UserService(IUserRepository userRepository, IRoleRepository roleRepository, UserManager<User> userManager, IMapper mapper)
-		{
-			_userRepository = userRepository;
-			_roleRepository = roleRepository;
-			_userManager = userManager;
-			_mapper = mapper;
-	
-		}	
+        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, UserManager<User> userManager, IMapper mapper)
+        {
+            _userRepository = userRepository;
+            _roleRepository = roleRepository;
+            _userManager = userManager;
+            _mapper = mapper;
 
-		public Task<User> GetUserByEmail(string email)
-		{
-			return _userManager.FindByEmailAsync(email);
-		}
+        }
 
-		public Task<User> GetUserByUsername(string username)
-		{
-			return _userManager.FindByNameAsync(username);
-		}
+        public Task<User> GetUserByEmail(string email)
+        {
+            return _userManager.FindByEmailAsync(email);
+        }
 
-		public bool IsUniqueEmail(string email)
-		{
-			return this._userRepository.IsUniqueEmail(email);
-		}
+        public Task<User> GetUserByUsername(string username)
+        {
+            return _userManager.FindByNameAsync(username);
+        }
 
-		public async Task<UserInfoDTO> GetUserById(string id)
-		{
-			var user = await _userManager.FindByIdAsync(id);
+        public bool IsUniqueEmail(string email)
+        {
+            return this._userRepository.IsUniqueEmail(email);
+        }
 
-			if (user == null)
-			{
-				return null;
-			}
-			var userDTO = _mapper.Map<UserInfoDTO>(user);
-			userDTO.Role = await _roleRepository.GetRoleNameByIdAsync(user.RoleId);
-			return userDTO;
-		}
+        public async Task<UserInfoDTO> GetUserById(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
 
-		public async Task<bool> ChangePassword(string userId, string currentPassword, string newPassword, string confirmPassword)
-		{
-			var user = await _userManager.FindByIdAsync(userId);
-			if (user == null)
-			{
-				return false;
-			}
+            if (user == null)
+            {
+                return null;
+            }
+            var userDTO = _mapper.Map<UserInfoDTO>(user);
+            userDTO.Role = await _roleRepository.GetRoleNameByIdAsync(user.RoleId);
+            return userDTO;
+        }
 
-			var result = await _userManager.ChangePasswordAsync(user,
-				currentPassword, newPassword);
+        public async Task<bool> ChangePassword(string userId, string currentPassword, string newPassword, string confirmPassword)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return false;
+            }
 
-			if (!result.Succeeded)
-			{
-				return false;
-			}
-			return true;
-		}
+            var result = await _userManager.ChangePasswordAsync(user,
+                currentPassword, newPassword);
 
-		public async Task<bool> EditProfile(string userId, UserInfoDTO userInfoDTO)
-		{
-			var user = await _userManager.FindByIdAsync(userId);
-			if (user == null)
-			{
-				return false;
-			}
+            if (!result.Succeeded)
+            {
+                return false;
+            }
+            return true;
+        }
 
-			user.UserName = userInfoDTO.UserName;
-			user.FirstName = userInfoDTO.FirstName;
-			user.LastName = userInfoDTO.LastName;
-			user.IsMale = userInfoDTO.IsMale;
-			user.PhoneNumber = userInfoDTO.PhoneNumber;
-			user.Address = userInfoDTO.Address;
-			user.AvatarUrl = userInfoDTO.AvatarUrl;
-			user.UpdatedAt = DateTime.UtcNow;
+        public async Task<UserInfoDTO> EditProfile(string userId, UpdateUserDTO updateUserDTO)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new UserNotFoundException();
+            }
 
-			var result = await _userManager.UpdateAsync(user);
-			if (!result.Succeeded)
-			{
-				return false;
-			}
-			return true;
-		}
-		public async Task<bool> ChangeAvatar(string userId, IFormFile file)
-		{
-			var currentDirectory = Path.Combine(Directory.GetCurrentDirectory());
+            user.Address = updateUserDTO.Address;
 
-			var uploadPath = Path.Combine(currentDirectory, StaticDetails.AvatarFolderPath);
+            user.IsMale = updateUserDTO.IsMale;
 
-			if (!Directory.Exists(uploadPath))
-			{
-				Directory.CreateDirectory(uploadPath);
-			}
+            user.UserName = updateUserDTO.UserName;
 
-			var fileName = $"{Guid.NewGuid()}_{file.FileName}";
-			var filePath = Path.Combine(uploadPath, fileName);
+            user.FirstName = updateUserDTO.FirstName;
 
-			using (var stream = new FileStream(filePath, FileMode.Create))
-			{
-				await file.CopyToAsync(stream);
-			}
+            user.LastName = updateUserDTO.LastName;
 
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                throw new Exception();
+            }
 
-			var user = await _userManager.FindByIdAsync(userId);
+            var userInfoDTO = await this.GetUserById(userId);
 
+            return userInfoDTO;
+        }
+        public async Task<bool> ChangeAvatar(string userId, IFormFile file)
+        {
+            var currentDirectory = Path.Combine(Directory.GetCurrentDirectory());
 
-			if (user.AvatarUrl != null)
-			{
-				var oldFilePath = Path.Combine(currentDirectory, user.AvatarUrl);
-				File.Delete(oldFilePath);
-			}
-			user.AvatarUrl = Path.Combine(StaticDetails.AvatarFolderPath, fileName);
+            var uploadPath = Path.Combine(currentDirectory, StaticDetails.AvatarFolderPath);
+
+            if (!Directory.Exists(uploadPath))
+            {
+                Directory.CreateDirectory(uploadPath);
+            }
+
+            var fileName = $"{Guid.NewGuid()}_{file.FileName}";
+            var filePath = Path.Combine(uploadPath, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
 
 
-			var result = await _userManager.UpdateAsync(user);
+            var user = await _userManager.FindByIdAsync(userId);
 
-			if (!result.Succeeded)
-			{
-				return false;
-			}
-			return true;
-		}
-	}
+
+            if (user.AvatarUrl != null)
+            {
+                var oldFilePath = Path.Combine(currentDirectory, user.AvatarUrl);
+                File.Delete(oldFilePath);
+            }
+            user.AvatarUrl = Path.Combine(StaticDetails.AvatarFolderPath, fileName);
+
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                return false;
+            }
+            return true;
+        }
+    }
 }
