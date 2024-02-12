@@ -14,7 +14,7 @@ namespace NESTCOOKING_API.DataAccess.Models
 		public double? BookingPrice { get; set; }
 		public DateTime CreatedAt { get; set; }
 		public DateTime UpdatedAt { get; set; }
-
+		public double Balance { get; set; } = 0;
 		public string RoleId { get; set; } = null!;
 		[JsonIgnore]
 		public List<RequestToBecomeChef> RequestsToBecomeChefs { get; set; }
