@@ -2,13 +2,12 @@
 
 namespace NESTCOOKING_API.DataAccess.Models
 {
-	public class Instructor
+	public class IngredientTipContent
 	{
 		[Key]
 		public int Id { get; set; }
-		public string RecipeId { get; set; } = null!;
-		public string Description { get; set; } = null!;
+		public string IngredientTipId { get; set; } = null!;
+		public string Content { get; set; } = null!;
 		public string? ImageUrl { get; set; }
-		public int StepNumber { get; set; }
 	}
 }

@@ -8,6 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DTOs\CategoryDTOs\**" />
+    <EmbeddedResource Remove="DTOs\CategoryDTOs\**" />
+    <None Remove="DTOs\CategoryDTOs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\NESTCOOKING_API.DataAccess\NESTCOOKING_API.DataAccess.csproj" />
     <ProjectReference Include="..\NESTCOOKING_API.Utility\NESTCOOKING_API.Utility.csproj" />
   </ItemGroup>
