@@ -74,17 +74,17 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpPatch("")]
-		public async Task<IActionResult> EditProfile([FromBody] UserInfoDTO userInfoDTO)
+		public async Task<IActionResult> EditProfile([FromBody] UpdateUserDTO updateUserDTO)
 		{
 			var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
 
 			if (userId != null)
 			{
-				var isSuccess = await _userService.EditProfile(userId, userInfoDTO);
+				var user = await _userService.EditProfile(userId, updateUserDTO);
 
-				if (isSuccess)
+				if (user != null)
 				{
-					return Ok(ResponseDTO.Accept(message: AppString.UpdateInformationSuccessMessage));
+					return Ok(ResponseDTO.Accept(message: AppString.UpdateInformationSuccessMessage, result: user));
 				}
 				else
 				{
@@ -94,39 +94,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 			return Unauthorized();
 		}
-
-		[HttpPost("avatar")]
-		public async Task<IActionResult> ChangeAvatar(IFormFile file)
-		{
-			try
-			{
-				if (file == null || !Validation.IsValidImageFileExtension(file))
-				{
-					return BadRequest(ResponseDTO.BadRequest(message: AppString.InvalidImageErrorMessage));
-				}
-
-				var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
-
-				if (userId != null)
-				{
-					var result = await _userService.ChangeAvatar(userId, file);
-					if (result == true)
-					{
-						return Ok(ResponseDTO.Accept(message: AppString.UpdateAvatarSuccessMessage));
-					}
-					else
-					{
-						return BadRequest(ResponseDTO.BadRequest(AppString.UpdateAvatarErrorMessage));
-					}
-				}
-				return Unauthorized();
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, $"Internal server error: {ex.Message}");
-			}
-		}
-
 	}
 }
 

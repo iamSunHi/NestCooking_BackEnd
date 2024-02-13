@@ -23,12 +23,16 @@ namespace NESTCOOKING_API.DataAccess.Repositories
             _roleManager = roleManager;
         }
 
-		//public async Task<RequestToBecomeChef> CreateRequestToBecomeChef(RequestToBecomeChef requestToBecomeChef)
-		//{
-		//	_context.RequestToBecomeChefs.Add(requestToBecomeChef);
-		//	await _context.SaveChangesAsync();
-		//	return requestToBecomeChef;
-		//}
+		public async Task<string> GetRoleAsync(string userId)
+		{
+            var user = await this.GetAsync(u => u.Id ==  userId);
+            if (user == null)
+            {
+                return string.Empty;
+            }
+            var role = await _roleRepository.GetRoleNameByIdAsync(user.RoleId);
+            return role;
+		}
 
 		public bool IsUniqueEmail(string email)
         {

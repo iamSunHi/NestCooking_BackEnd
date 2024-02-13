@@ -8,7 +8,10 @@ using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using NESTCOOKING_API.Utility;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.ComponentModel.DataAnnotations;
+using static NESTCOOKING_API.Utility.StaticDetails;
 
 namespace NESTCOOKING_API.Business.Services
 {
@@ -20,8 +23,9 @@ namespace NESTCOOKING_API.Business.Services
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IMapper _mapper;
+        private readonly IOAuthRepository _oAuthRepository;
         public AuthService(IUserRepository userRepository, IRoleRepository roleRepository, IJwtUtils jwtUtils,
-            UserManager<User> userManager, IMapper mapper, RoleManager<IdentityRole> roleManager)
+            UserManager<User> userManager, IMapper mapper, RoleManager<IdentityRole> roleManager, IOAuthRepository oAuthRepository)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
@@ -29,6 +33,7 @@ namespace NESTCOOKING_API.Business.Services
             _userManager = userManager;
             _roleManager = roleManager;
             _mapper = mapper;
+            _oAuthRepository = oAuthRepository;
         }
 
         public async Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO)
@@ -75,14 +80,26 @@ namespace NESTCOOKING_API.Business.Services
             return result;
         }
 
-        public async Task<string> LoginWithThirdParty(LoginWithThirdPartyRequestDTO info)
+        public async Task<string> LoginWithThirdParty(OAuth2RequestDTO oAuth2RequestDTO, ProviderLogin providerLogin)
         {
             try
             {
-                if (info == null)
+                JObject oAuth2Profile = null;
+
+                if (providerLogin == ProviderLogin.FACEBOOK)
                 {
-                    return null;
+                    oAuth2Profile = await _oAuthRepository.SignInWithFacebook(oAuth2RequestDTO.AccessToken);
                 }
+                if (providerLogin == ProviderLogin.GOOGLE)
+                {
+                    oAuth2Profile = await _oAuthRepository.SignInWithGoogle(oAuth2RequestDTO.AccessToken);
+                }
+
+                if (oAuth2Profile == null)
+                {
+                    throw new Exception(AppString.InvalidTokenErrorMessage);
+                }
+                var info = CreateLoginWithThirdPartyRequest(oAuth2Profile, providerLogin);
 
                 var user = await _userManager.FindByEmailAsync(info.Email);
 
@@ -100,6 +117,7 @@ namespace NESTCOOKING_API.Business.Services
                         LastName = info.LastName,
                         Email = info.Email,
                         CreatedAt = DateTime.UtcNow,
+                        AvatarUrl = info.Picture,
                         RoleId = await _roleRepository.GetRoleIdByNameAsync(StaticDetails.Role_User)
                     };
 
@@ -127,7 +145,7 @@ namespace NESTCOOKING_API.Business.Services
             }
             catch (Exception ex)
             {
-                return $"Error: {ex.Message}";
+                throw new Exception(ex.Message);
             }
         }
         public async Task<(string, string)> GenerateResetPasswordToken(string identifier)
@@ -269,6 +287,24 @@ namespace NESTCOOKING_API.Business.Services
             if (!result) throw new Exception(AppString.InvalidTokenErrorMessage);
 
             return true;
+        }
+
+
+        private LoginWithThirdPartyRequestDTO CreateLoginWithThirdPartyRequest(JObject principal, ProviderLogin provider)
+        {
+
+            string firstNameKey = provider == ProviderLogin.FACEBOOK ? "first_name" : "given_name";
+            string lastNameKey = provider == ProviderLogin.FACEBOOK ? "last_name" : "name";
+            string pictureKey = provider == ProviderLogin.FACEBOOK ? "picture.data.url" : "picture";
+
+            var pictureUrl = principal.SelectToken(pictureKey).ToString();
+            return new LoginWithThirdPartyRequestDTO
+            {
+                FirstName = principal[firstNameKey]?.ToString(),
+                LastName = principal[lastNameKey]?.ToString(),
+                Email = principal["email"]?.ToString(),
+                Picture = pictureUrl
+            };
         }
     }
 }

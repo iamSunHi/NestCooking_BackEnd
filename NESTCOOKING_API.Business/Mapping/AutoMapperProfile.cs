@@ -2,6 +2,7 @@
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.AuthDTOs;
 using NESTCOOKING_API.Business.DTOs.ChefRequestDTOs;
+using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
 using NESTCOOKING_API.Business.DTOs.ReportDTOs;
 using NESTCOOKING_API.Business.DTOs.ResponseDTOs;
 using NESTCOOKING_API.Business.DTOs.UserDTOs;
@@ -13,18 +14,32 @@ namespace NESTCOOKING_API.Business.Mapping
 	{
 		public AutoMapperProfile()
 		{
-			CreateMap<User, UserDTO>().ReverseMap();
 			CreateMap<User, RegistrationRequestDTO>().ReverseMap();
 			CreateMap<User, LoginWithThirdPartyRequestDTO>().ReverseMap();
+
 			CreateMap<User, UserInfoDTO>().ReverseMap();
 			CreateMap<Report, ReportResponseDTO>().ReverseMap()
 			.ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User));
 			CreateMap<Report, CreateReportDTO>().ReverseMap();
 			CreateMap<RequestToBecomeChef, CreatedRequestToBecomeChefDTO>().ReverseMap();
 			CreateMap<RequestToBecomeChef, RequestToBecomeChefDTO>().ReverseMap();
+			
+			CreateMap<User, UserDTO>().ReverseMap();
+			CreateMap<User, UserInfoDTO>().ReverseMap();
+			CreateMap<User, UpdateUserDTO>().ReverseMap();
+			CreateMap<User, UserShortInfoDTO>().ReverseMap();
 			CreateMap<Response, AdminResponseDTO>().ReverseMap()
 			.ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User));
 
+			// Recipe
+			CreateMap<Category, CategoryDTO>().ReverseMap();
+			CreateMap<IngredientTipContent, IngredientTipContentDTO>().ReverseMap();
+			CreateMap<IngredientTip, IngredientTipDTO>().ReverseMap();
+			CreateMap<IngredientTip, IngredientTipShortInfoDTO>().ReverseMap();
+			CreateMap<Ingredient, IngredientDTO>().ReverseMap();
+			CreateMap<Recipe, RecipeDTO>().ReverseMap();
+			CreateMap<Instructor, InstructorDTO>().ReverseMap();
+			CreateMap<Recipe, RecipeDetailDTO>().ReverseMap();
 		}
 	}
 }

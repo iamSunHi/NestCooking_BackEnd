@@ -29,6 +29,9 @@
 		public const string ReportType_COMMENT = "comment";
 		public const string ReportType_RECIPE = "recipe";
 
+		public enum ProviderLogin {
+			FACEBOOK, GOOGLE
+		}
 		public const string Role_Admin = "admin";
 		public const string Role_User = "user";
 		public const string Role_Chef = "chef";

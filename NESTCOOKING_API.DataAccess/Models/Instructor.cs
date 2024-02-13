@@ -6,8 +6,9 @@ namespace NESTCOOKING_API.DataAccess.Models
 	{
 		[Key]
 		public int Id { get; set; }
-		public Recipe Recipe { get; set; }
+		public string RecipeId { get; set; } = null!;
 		public string Description { get; set; } = null!;
 		public string? ImageUrl { get; set; }
+		public int StepNumber { get; set; }
 	}
 }
