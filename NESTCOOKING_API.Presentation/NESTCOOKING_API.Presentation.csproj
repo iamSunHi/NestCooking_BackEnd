@@ -22,6 +22,7 @@
     <PackageReference Include="Microsoft.Graph" Version="5.41.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="images\" />
+    <Folder Include="images\avatar\" />
   </ItemGroup>
 
 </Project>

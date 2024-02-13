@@ -31,6 +31,34 @@ namespace NESTCOOKING_API.Business.ServiceManager
                        .AddJsonFile("appsettings.json");
             var configurationRoot = configBuilder.Build();
 
+			// Add repositories to the container.
+			service.AddScoped<IUserRepository, UserRepository>();
+			service.AddScoped<IRoleRepository, RoleRepository>();
+			service.AddScoped<IReportRepository, ReportRepository>();
+			service.AddScoped<IResponseRepository, ResponseRepository>();
+			service.AddScoped<IChefRequestRepository, ChefRequestRepository>();
+
+			// Add services to the container.
+			service.AddScoped<IJwtUtils, JwtUtils>();
+			service.AddScoped<IAuthService, AuthService>();
+			service.AddScoped<IUserService, UserService>();
+			service.AddScoped<IEmailService, EmailService>();
+			service.AddScoped<IReportService, ReportService>();
+			service.AddScoped<IResponseService, ResponseService>();
+			service.AddScoped<IRequestBecomeChefService, RequestBecomeChefService>();
+            service.AddScoped<IRepository<Report>, ReportRepository>();
+
+            service.AddCors(options =>
+			{
+				options.AddPolicy("AllowAnyOrigin", builder =>
+				{
+					builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+				});
+			});
+			service.AddAuthorization(options =>
+			{
+				options.AddPolicy("admin", policy => policy.RequireRole("admin"));
+			});
             // Add repositories to the container.
             service.AddScoped<IUserRepository, UserRepository>();
             service.AddScoped<IRoleRepository, RoleRepository>();
@@ -79,9 +107,21 @@ namespace NESTCOOKING_API.Business.ServiceManager
             // DBContext and Identity
             service.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(configurationRoot.GetConnectionString("Default"));
+                options.UseSqlServer(configurationRoot.GetConnectionString("Test"));
 
-            });
+			});
+			service
+				.AddIdentityCore<User>(options =>
+				{
+					options.Lockout.AllowedForNewUsers = true;
+					options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+					options.Lockout.MaxFailedAccessAttempts = 3;
+				})
+				.AddRoles<IdentityRole>()
+				.AddSignInManager<SignInManager<User>>()
+				.AddEntityFrameworkStores<ApplicationDbContext>()
+				.AddDefaultTokenProviders();
+			service.AddAutoMapper(typeof(AutoMapperProfile));
             service
                 .AddIdentityCore<User>(options =>
                 {

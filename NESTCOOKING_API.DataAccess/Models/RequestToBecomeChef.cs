@@ -20,6 +20,5 @@ namespace NESTCOOKING_API.DataAccess.Models
 		public DateTime CreatedAt { get; set; }
 		[JsonIgnore]
 		public User User { get; set; }
-
 	}
 }

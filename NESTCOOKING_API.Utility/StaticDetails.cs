@@ -11,6 +11,23 @@
 		{
 			GET, POST, PUT, DELETE
 		}
+		public enum ActionStatus
+		{
+			PENDING, ACCEPTED, REJECTED
+		}
+		public enum AdminAction
+		{
+			Accept, Reject
+		}
+		public enum ReportType
+		{
+			user, comment, recipe
+
+		}
+
+		public const string ReportType_USER = "user";
+		public const string ReportType_COMMENT = "comment";
+		public const string ReportType_RECIPE = "recipe";
 
 		public enum ProviderLogin {
 			FACEBOOK, GOOGLE

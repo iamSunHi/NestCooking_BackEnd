@@ -1,14 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
-using NESTCOOKING_API.Business.DTOs.ChefRequestDTOs;
-using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
-using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.Utility;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
-    [Route("api/upload")]
+	[Route("api/upload")]
     [ApiController]
     [Authorize]
     public class FileController : ControllerBase
@@ -25,7 +22,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
         {
             if (string.IsNullOrEmpty(uploadImageDTO.Path))
             {
-                return BadRequest(ResponseDTO.BadRequest(message: "Path is required"));
+                return BadRequest(ResponseDTO.BadRequest(message: "Path is required!"));
 
             }
             if (uploadImageDTO.File == null || !Validation.IsValidImageFileExtension(uploadImageDTO.File))
@@ -37,7 +34,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
             if (result == null)
             {
-                return BadRequest(ResponseDTO.BadRequest(message: "Failed to upload image"));
+                return BadRequest(ResponseDTO.BadRequest(message: "Failed to upload image."));
             }
 
             return Ok(ResponseDTO.Accept(result: result));

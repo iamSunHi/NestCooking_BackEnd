@@ -28,4 +28,8 @@
 		<ProjectReference Include="..\NESTCOOKING_API.Utility\NESTCOOKING_API.Utility.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Migrations\" />
+	</ItemGroup>
+
 </Project>

@@ -348,6 +348,52 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.ToTable("Recipes");
                 });
 
+            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Report", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ResponseId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TargetId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ResponseId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Reports");
+                });
+
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.RequestToBecomeChef", b =>
                 {
                     b.Property<string>("RequestChefId")
@@ -396,6 +442,33 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.HasIndex("UserID");
 
                     b.ToTable("RequestToBecomeChefs", (string)null);
+                });
+
+            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Response", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Responses");
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.User", b =>
@@ -549,6 +622,23 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Report", b =>
+                {
+                    b.HasOne("NESTCOOKING_API.DataAccess.Models.Response", "Response")
+                        .WithMany()
+                        .HasForeignKey("ResponseId");
+
+                    b.HasOne("NESTCOOKING_API.DataAccess.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Response");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.CategoryRecipe", b =>
                 {
                     b.HasOne("NESTCOOKING_API.DataAccess.Models.Category", "Category")
@@ -622,6 +712,17 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.HasOne("NESTCOOKING_API.DataAccess.Models.User", "User")
                         .WithMany("RequestsToBecomeChefs")
                         .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Response", b =>
+                {
+                    b.HasOne("NESTCOOKING_API.DataAccess.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
