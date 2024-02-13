@@ -106,44 +106,5 @@ namespace NESTCOOKING_API.Business.Services
 
             return userInfoDTO;
         }
-        public async Task<bool> ChangeAvatar(string userId, IFormFile file)
-        {
-            var currentDirectory = Path.Combine(Directory.GetCurrentDirectory());
-
-            var uploadPath = Path.Combine(currentDirectory, StaticDetails.AvatarFolderPath);
-
-            if (!Directory.Exists(uploadPath))
-            {
-                Directory.CreateDirectory(uploadPath);
-            }
-
-            var fileName = $"{Guid.NewGuid()}_{file.FileName}";
-            var filePath = Path.Combine(uploadPath, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-
-            var user = await _userManager.FindByIdAsync(userId);
-
-
-            if (user.AvatarUrl != null)
-            {
-                var oldFilePath = Path.Combine(currentDirectory, user.AvatarUrl);
-                File.Delete(oldFilePath);
-            }
-            user.AvatarUrl = Path.Combine(StaticDetails.AvatarFolderPath, fileName);
-
-
-            var result = await _userManager.UpdateAsync(user);
-
-            if (!result.Succeeded)
-            {
-                return false;
-            }
-            return true;
-        }
     }
 }
