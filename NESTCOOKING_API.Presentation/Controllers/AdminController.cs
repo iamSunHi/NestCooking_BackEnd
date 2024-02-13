@@ -2,15 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.AdminDTOs;
-using NESTCOOKING_API.Business.DTOs.ResponseDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using static NESTCOOKING_API.Utility.StaticDetails;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
-
-
-    [Route("api/admin")]
+	[Route("api/admin")]
     [ApiController]
     [Authorize(Role_Admin)]
     public class AdminController : ControllerBase
@@ -19,9 +16,9 @@ namespace NESTCOOKING_API.Presentation.Controllers
         private readonly IResponseService _responseService;
         private readonly IReportService _reportService;
 
-        public AdminController(IResponseService reponseService, IReportService reportService)
+        public AdminController(IResponseService responseService, IReportService reportService)
         {
-            _responseService = reponseService;
+            _responseService = responseService;
             _reportService = reportService;
         }
         [HttpPost("reports/{reportId}")]

@@ -11,5 +11,4 @@ namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
         Task<bool> Register(User newUser, string password);
         Task<string> GetRoleAsync(string userId);
     }
-    }
 }

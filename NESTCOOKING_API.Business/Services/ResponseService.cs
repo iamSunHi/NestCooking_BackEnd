@@ -26,9 +26,10 @@ namespace NESTCOOKING_API.Business.Services
             _mapper = mapper;
             _reportRepository = reportRepository;
         }
+
         public async Task<AdminResponseDTO> AdminHandleReportAsync(AdminRequestDTO adminRequestDTO)
         {
-            var report = await _reportRepository.GetReportById(adminRequestDTO.ReportId);
+            var report = await _reportRepository.GetAsync(r => r.Id == adminRequestDTO.ReportId);
             if (report == null)
             {
                 throw new Exception(AppString.ReportNotFoundErrorMessage);

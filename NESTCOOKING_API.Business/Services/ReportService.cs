@@ -1,104 +1,87 @@
 ﻿using AutoMapper;
-using AutoMapper.Features;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using NESTCOOKING_API.Business.DTOs.ReportDTOs;
-using NESTCOOKING_API.Business.DTOs.UserDTOs;
 using NESTCOOKING_API.Business.Exceptions;
 using NESTCOOKING_API.Business.Services.IServices;
-using NESTCOOKING_API.DataAccess.Migrations;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using NESTCOOKING_API.Utility;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static NESTCOOKING_API.Utility.StaticDetails;
 
 namespace NESTCOOKING_API.Business.Services
 {
-    public class ReportService : IReportService
-    {
-        private readonly IReportRepository _reportRepository;
-        private readonly IUserRepository _userRepository;
+	public class ReportService : IReportService
+	{
+		private readonly IReportRepository _reportRepository;
+		private readonly IUserRepository _userRepository;
 
-        private readonly IMapper _mapper;
-        public ReportService(IReportRepository reportRepository, IMapper mapper, IUserRepository userRepository)
-        {
-            _reportRepository = reportRepository;
-            _mapper = mapper;
-            _userRepository = userRepository;
-        }
+		private readonly IMapper _mapper;
+		public ReportService(IReportRepository reportRepository, IMapper mapper, IUserRepository userRepository)
+		{
+			_reportRepository = reportRepository;
+			_mapper = mapper;
+			_userRepository = userRepository;
+		}
 
-        public async Task<ReportResponseDTO> CreateReportAsync(CreateReportDTO createReportDto, string userId)
-        {
-            var user = await _userRepository.GetAsync(u => u.Id == userId);
-            var createdReportMapped = _mapper.Map<Report>(createReportDto);
-            if (createReportDto.Type == ReportType_USER)
-            {
-                var targetUser = await _userRepository.GetAsync(u => u.Id == createReportDto.TargetId);
-                if (targetUser == null) {
-                    throw new UserNotFoundException();
-                }
-                createdReportMapped.TargetId = targetUser.Id;
-            }
-            // if (createReportDto.Type == ReportType.comment.ToString())
-            // {
-            //     var comment = await _reportRepository.GetCommentByIdAsync(createReportDto.TargetId);
-            //     createdReportMapped.Comment = comment;
-            // }
-            // else if (createReportDto.Type == ReportType.recipe.ToString())
-            // {
-            //     var recipe = await _reportRepository.GetRecipeByIdAsync(createReportDto.TargetId);
-            //     createdReportMapped.Recipe = recipe;
-            // }
-            var report = await _reportRepository.AddReportAsync(user, createdReportMapped);
-            var reportResponse = _mapper.Map<ReportResponseDTO>(report);
-            return reportResponse;
-        }
+		public async Task<List<ReportResponseDTO>> GetAllReportsAsync()
+		{
+			try
+			{
+				var reportsFromDb = await _reportRepository.GetAllAsync(includeProperties: "User");
+				var reportDTOs = _mapper.Map<List<ReportResponseDTO>>(reportsFromDb);
+				return reportDTOs;
+			}
+			catch (Exception ex)
+			{
+				throw new Exception(ex.Message, ex.InnerException);
+			}
+		}
 
-        public async Task<bool> DeleteReportAsync(string reportId,string userId)
-        {
-            return await _reportRepository.DeleteReportAsync(reportId,userId);
-        }
-        public async Task<ReportResponseDTO> UpdateReportAsync(string reportId, UpdateReportDTO updatedReportDto, string userId)
-        {
-            var report = await _reportRepository.UpdateReportAsync(reportId, updatedReportDto.Title, updatedReportDto.Content, updatedReportDto.ImagesURL,userId);
-            ReportResponseDTO reportResponeDTO = new ReportResponseDTO();
-            reportResponeDTO = _mapper.Map<ReportResponseDTO>(report);
-            return reportResponeDTO;
-        }
-        public async Task<List<ReportResponseDTO>> GetAllReportsAsync()
-        {
-            try
-            {
-                var reports = await _reportRepository.GetAllReportsAsync();
-                var reportDTOs = reports.Select(report => _mapper.Map<ReportResponseDTO>(report)).ToList();
+		public async Task<List<ReportResponseDTO>> GetAllReportsByUserIdAsync(string userId)
+		{
+			try
+			{
+				var reportsFromDb = await _reportRepository.GetAllAsync(r => r.UserId == userId, includeProperties: "User");
+				var reportDTOs = _mapper.Map<List<ReportResponseDTO>>(reportsFromDb);
+				return reportDTOs;
+			}
+			catch (Exception ex)
+			{
+				throw new Exception(ex.Message, ex.InnerException);
+			}
+		}
 
-                return reportDTOs;
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-        }
-        public async Task<List<ReportResponseDTO>> GetAllReportsByUserIdAsync(string userId)
-        {
-            try
-            {
-                var reports = await _reportRepository.GetAllReportsByUserIdAsync(userId);
-                var reportDTOs = reports.Select(report => _mapper.Map<ReportResponseDTO>(report)).ToList();
+		public async Task CreateReportAsync(CreateReportDTO createReportDTO, string userId)
+		{
+			var user = await _userRepository.GetAsync(u => u.Id == userId);
+			var createdReportMapped = _mapper.Map<Report>(createReportDTO);
+			if (createReportDTO.Type == StaticDetails.ReportType_USER)
+			{
+				var targetUser = await _userRepository.GetAsync(u => u.Id == createReportDTO.TargetId);
+				if (targetUser == null)
+				{
+					throw new UserNotFoundException();
+				}
+				createdReportMapped.TargetId = targetUser.Id;
+			}
+			createdReportMapped.Id = Guid.NewGuid().ToString();
+			createdReportMapped.User = user;
+			createdReportMapped.CreatedAt = DateTime.UtcNow;
+			createdReportMapped.Status = StaticDetails.ActionStatus_PENDING;
 
-                return reportDTOs;
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-        }
+			await _reportRepository.CreateAsync(createdReportMapped);
+		}
 
-    }
+		public async Task<ReportResponseDTO> UpdateReportAsync(UpdateReportDTO updatedReportDTO, string userId)
+		{
+			var reportToDb = _mapper.Map<Report>(updatedReportDTO);
+			var report = await _reportRepository.UpdateReportAsync(reportToDb, userId);
+
+			var reportResponseDTO = _mapper.Map<ReportResponseDTO>(report);
+			return reportResponseDTO;
+		}
+
+		public async Task<bool> DeleteReportAsync(string reportId, string userId)
+		{
+			return await _reportRepository.DeleteReportAsync(reportId, userId);
+		}
+	}
 }

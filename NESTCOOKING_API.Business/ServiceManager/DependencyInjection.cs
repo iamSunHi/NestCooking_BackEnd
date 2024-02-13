@@ -107,7 +107,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
             // DBContext and Identity
             service.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(configurationRoot.GetConnectionString("Default"));
+                options.UseSqlServer(configurationRoot.GetConnectionString("Test"));
 
 			});
 			service
@@ -122,7 +122,6 @@ namespace NESTCOOKING_API.Business.ServiceManager
 				.AddEntityFrameworkStores<ApplicationDbContext>()
 				.AddDefaultTokenProviders();
 			service.AddAutoMapper(typeof(AutoMapperProfile));
-            });
             service
                 .AddIdentityCore<User>(options =>
                 {

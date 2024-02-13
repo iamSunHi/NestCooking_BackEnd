@@ -1,155 +1,80 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using NESTCOOKING_API.DataAccess.Data;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using NESTCOOKING_API.Utility;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static NESTCOOKING_API.Utility.StaticDetails;
 
 namespace NESTCOOKING_API.DataAccess.Repositories
 {
-    public class ReportRepository : Repository<Report>, IReportRepository
-    {
-        private readonly ApplicationDbContext _dbContext;
-        private readonly UserManager<User> _userManager;
+	public class ReportRepository : Repository<Report>, IReportRepository
+	{
+		public ReportRepository(ApplicationDbContext context) : base(context)
+		{
+		}
 
-        public ReportRepository(ApplicationDbContext dbContext, UserManager<User> userManager) : base(dbContext)
-        {
-            _dbContext = dbContext;
-            _userManager = userManager;
-        }
+		public async Task<Report> UpdateReportAsync(Report reportToDb, string userId)
+		{
+			try
+			{
+				var reportEntity = await _context.Reports
+					.Where(r => r.Id == reportToDb.Id)
+					.Include(r => r.User)
+					.FirstOrDefaultAsync();
 
-        public async Task<Report> AddReportAsync(User user, Report report)
-        {
-            //if (await _dbContext.Users.AnyAsync(u => u.Id == targetId))
-            //{
-            //     reportType = StaticDetails.ReportType.user.ToString();
-            //}
-            //else if (await _dbContext.Comments.AnyAsync(c => c.Id == targetId))
-            //{
-            //    reportType = StaticDetails.ReportType.comment.ToString();
-            //}
-            //else if (await _dbContext.Recipes.AnyAsync(r => r.Id == targetId))
-            //{
+				if (reportEntity == null)
+				{
+					throw new Exception("Report not found!");
+				}
+				else
+				{
+					if (reportEntity.User.Id == userId || await _context.Roles.FirstOrDefaultAsync(r => r.Id == reportEntity.User.RoleId && r.Name == StaticDetails.Role_Admin) != null)
+					{
+						reportEntity.Title = reportToDb.Title;
+						reportEntity.Content = reportToDb.Content;
+						reportEntity.ImageUrl = reportToDb.ImageUrl;
+						reportEntity.CreatedAt = DateTime.UtcNow;
 
-            //    reportType = StaticDetails.ReportType.recipe.ToString();
-            //}
-            var reportEntity = new Report
-            {
-                Id = Guid.NewGuid().ToString(),
-                User = user,
-                TargetId = report.TargetId,
-                Title = report.Title,
-                Type = report.Type,
-                Content = report.Content,
-                ImageUrl = report.ImageUrl,
-                Status = StaticDetails.ActionStatus_PENDING,
-                CreatedAt = DateTime.Now,
-                Response = null
-            };
-            try
-            {
-                await _dbContext.AddAsync(reportEntity);
-                await _dbContext.SaveChangesAsync();
-                return reportEntity;
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-        }
-        public async Task<bool> DeleteReportAsync(string reportId, string userId)
-        {
-            try
-            {
-                var reportEntity = await _dbContext.Reports.Include(r => r.User).FirstOrDefaultAsync(r => r.Id == reportId);
-                if (reportEntity == null)
-                {
-                    return false;
-                }
-                else
-                {
-                    if (reportEntity.User.Id == userId || await _dbContext.Roles.FirstOrDefaultAsync(r => r.Id == reportEntity.User.RoleId && r.Name == "admin")!= null)
-                    {
+						await _context.SaveChangesAsync();
+						return reportEntity;
+					}
+					else
+					{
+						throw new Exception("You don't have permission to update this.");
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				throw new Exception(ex.Message);
+			}
+		}
 
-
-                        await RemoveAsync(reportEntity);
-                        await _dbContext.SaveChangesAsync();
-
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                return false;
-            }
-        }
-        public async Task<Report> UpdateReportAsync(string reportId, string title, string content, string imagesURL, string userId)
-        {
-            try
-            {
-                var reportEntity = await _dbContext.Reports
-                .Include(r => r.User)
-                .FirstOrDefaultAsync(r => r.Id == reportId);
-                if (reportEntity == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    if (reportEntity.User.Id == userId || await _dbContext.Roles.FirstOrDefaultAsync(r => r.Id == reportEntity.User.RoleId && r.Name == "admin") != null)
-                    {
-                        reportEntity.Title = title;
-                        reportEntity.Content = content;
-                        reportEntity.ImageUrl = imagesURL;
-                        reportEntity.CreatedAt = DateTime.Now;
-                        await _dbContext.SaveChangesAsync();
-                        return reportEntity;
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-        }
-        public async Task<List<Report>> GetAllReportsAsync()
-        {
-            var reports = await _dbContext.Reports
-          .Include(r => r.User)
-          .ToListAsync();
-
-            return reports;
-        }
-        public async Task<List<Report>> GetAllReportsByUserIdAsync(string userId)
-        {
-            var reports = await _dbContext.Reports
-                .Include(r => r.User)
-                .Where(report => report.User.Id == userId)
-                .ToListAsync();
-
-            return reports.ToList();
-        }
-        public async Task<Report> GetReportById(string reportId)
-        {
-            return await _dbContext.Reports.Where(r => r.Id == reportId)
-            .Include(r => r.User)
-            .FirstOrDefaultAsync();
-        }
-    }
+		public async Task<bool> DeleteReportAsync(string reportId, string userId)
+		{
+			try
+			{
+				var reportEntity = await this.GetAsync(r => r.Id == reportId, includeProperties: "User");
+				if (reportEntity == null)
+				{
+					throw new Exception("Report not found!");
+				}
+				else
+				{
+					if (reportEntity.User.Id == userId || await _context.Roles.FirstOrDefaultAsync(r => r.Id == reportEntity.User.RoleId && r.Name == StaticDetails.Role_Admin) != null)
+					{
+						await this.RemoveAsync(reportEntity);
+						return true;
+					}
+					else
+					{
+						return false;
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				throw new Exception(ex.Message);
+			}
+		}
+	}
 }
