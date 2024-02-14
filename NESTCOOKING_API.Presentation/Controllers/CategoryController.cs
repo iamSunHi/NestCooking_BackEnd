@@ -34,7 +34,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		[HttpGet("page/{pageNumber}")]
 		public async Task<IActionResult> GetCategoriesAsync([FromRoute] int pageNumber)
 		{
-			if (pageNumber != null)
+			if (pageNumber != 0)
 			{
 				_paginationInfo.PageNumber = pageNumber;
 			}

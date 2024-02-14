@@ -36,6 +36,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 				}
 
 				categoryFromDb.Name = category.Name;
+				categoryFromDb.ImageUrl = category.ImageUrl;
 				await _context.SaveChangesAsync();
 			}
 		}

@@ -17,6 +17,7 @@ using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using System.Text;
+using System.Text.Json;
 
 
 
@@ -104,12 +105,12 @@ namespace NESTCOOKING_API.Business.ServiceManager
             var emailConfig = configurationRoot.GetSection("EmailConfiguration").Get<EmailRequestDTO>();
             service.AddSingleton(emailConfig);
 
-            // DBContext and Identity
-            service.AddDbContext<ApplicationDbContext>(options =>
+			// DBContext and Identity
+			service.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(configurationRoot.GetConnectionString("Test"));
-
+                options.UseSqlServer(configurationRoot.GetConnectionString("Default"));
 			});
+
 			service
 				.AddIdentityCore<User>(options =>
 				{
