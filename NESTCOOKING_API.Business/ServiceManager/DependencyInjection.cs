@@ -17,6 +17,7 @@ using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using System.Text;
+using System.Text.Json;
 
 
 
@@ -104,21 +105,22 @@ namespace NESTCOOKING_API.Business.ServiceManager
             var emailConfig = configurationRoot.GetSection("EmailConfiguration").Get<EmailRequestDTO>();
             service.AddSingleton(emailConfig);
 
-            // DBContext and Identity
-            /*service.AddDbContext<ApplicationDbContext>(options =>
+			// DBContext and Identity
+			/*service.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(configurationRoot.GetConnectionString("Default"));
 			});*/
 
 			// Config Connection String for CI/CD
-			string connectionString = Environment.GetEnvironmentVariable("APPSETTINGS");
-            if (!string.IsNullOrEmpty(connectionString))
+			string appSettingsJson = Environment.GetEnvironmentVariable("APPSETTINGS");
+			// Parse the JSON string into a dictionary
+			var appSettings = JsonSerializer.Deserialize<Dictionary<string, dynamic>>(appSettingsJson);
+			// Retrieve the connection string from the parsed JSON
+			string connectionString = appSettings["ConnectionStrings"]["Server"];
+			service.AddDbContext<ApplicationDbContext>(options =>
 			{
-				service.AddDbContext<ApplicationDbContext>(options =>
-				{
-					options.UseSqlServer(connectionString: connectionString);
-				});
-			}
+				options.UseSqlServer(connectionString);
+			});
 
 			service
 				.AddIdentityCore<User>(options =>
