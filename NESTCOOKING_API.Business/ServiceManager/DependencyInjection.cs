@@ -105,10 +105,21 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddSingleton(emailConfig);
 
             // DBContext and Identity
-            service.AddDbContext<ApplicationDbContext>(options =>
+            /*service.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(configurationRoot.GetConnectionString("Default"));
-			});
+			});*/
+
+			// Config Connection String for CI/CD
+			string connectionString = Environment.GetEnvironmentVariable("APPSETTINGS");
+            if (!string.IsNullOrEmpty(connectionString))
+			{
+				service.AddDbContext<ApplicationDbContext>(options =>
+				{
+					options.UseSqlServer(connectionString: connectionString);
+				});
+			}
+
 			service
 				.AddIdentityCore<User>(options =>
 				{
