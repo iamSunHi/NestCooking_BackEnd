@@ -6,8 +6,17 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var dependencyInjection = new DependencyInjection();
-dependencyInjection.ConfigureServices(builder.Services);
+var isAzureEnvironment = Environment.GetEnvironmentVariable("AZURE_WEBAPP_NAME") != null;
+if (isAzureEnvironment)
+{
+	var azureDependencyInjection = new AzureDependencyInjection();
+	azureDependencyInjection.ConfigureServices(builder.Services);
+}
+else
+{
+	var dependencyInjection = new DependencyInjection();
+	dependencyInjection.ConfigureServices(builder.Services);
+}
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {

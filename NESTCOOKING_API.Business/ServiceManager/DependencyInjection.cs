@@ -106,20 +106,9 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddSingleton(emailConfig);
 
 			// DBContext and Identity
-			/*service.AddDbContext<ApplicationDbContext>(options =>
+			service.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(configurationRoot.GetConnectionString("Default"));
-			});*/
-
-			// Config Connection String for CI/CD
-			string appSettingsJson = Environment.GetEnvironmentVariable("APPSETTINGS");
-			// Parse the JSON string into a dictionary
-			var appSettings = JsonSerializer.Deserialize<Dictionary<string, dynamic>>(appSettingsJson);
-			// Retrieve the connection string from the parsed JSON
-			string connectionString = appSettings["ConnectionStrings"]["Server"];
-			service.AddDbContext<ApplicationDbContext>(options =>
-			{
-				options.UseSqlServer(connectionString);
 			});
 
 			service
