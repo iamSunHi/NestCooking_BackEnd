@@ -9,5 +9,6 @@ namespace NESTCOOKING_API.Business.DTOs.UserDTOs
         public string LastName { get; set; }
         public bool IsMale { get; set; }
         public string Address { get; set; }
+        public string AvatarUrl { get; set; }
     }
 }

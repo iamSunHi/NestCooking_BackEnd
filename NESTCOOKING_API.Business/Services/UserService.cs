@@ -96,6 +96,8 @@ namespace NESTCOOKING_API.Business.Services
 
             user.LastName = updateUserDTO.LastName;
 
+            user.AvatarUrl = updateUserDTO.AvatarUrl;
+
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
             {
