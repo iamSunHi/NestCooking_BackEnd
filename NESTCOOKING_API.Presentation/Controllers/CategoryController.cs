@@ -60,7 +60,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpPost]
-		[Authorize(Roles = StaticDetails.Role_Admin)]
+		// [Authorize(Roles = StaticDetails.Role_Admin)]
 		public async Task<IActionResult> CreateCategoryAsync([FromBody] CategoryDTO categoryDTO)
 		{
 			try

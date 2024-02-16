@@ -14,7 +14,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 {
 	[Route("api/requests")]
 	[ApiController]
-	[Authorize]
+	// [Authorize]
 	public class RequestChefController : ControllerBase
 	{
 		private readonly IRequestBecomeChefService _userRequestService;
@@ -66,12 +66,34 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			}
 		}
 
-		[HttpGet("{requestId}")]
+		[HttpGet("{requestId}", Name = "GetRequestById")]
 		public async Task<IActionResult> GetRequestById(string requestId)
 		{
 			try
 			{
 				var request = await _userRequestService.GetRequestToBecomeChefById(requestId);
+
+				if (request != null)
+				{
+					return Ok(ResponseDTO.Accept(result: request));
+				}
+				else
+				{
+					return NotFound(AppString.RequestBecomeChefNotFound);
+				}
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, "Internal Server Error");
+			}
+		}
+
+		[HttpGet("user/{userId}")]
+		public async Task<IActionResult> GetRequestByUserId(string userId)
+		{
+			try
+			{
+				var request = await _userRequestService.GetRequestToBecomeChefByUserId(userId);
 
 				if (request != null)
 				{

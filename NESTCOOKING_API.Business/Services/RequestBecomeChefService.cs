@@ -88,5 +88,12 @@ namespace NESTCOOKING_API.Business.Services
             return result;
         }
 
+        public async Task<RequestToBecomeChefDTO> GetRequestToBecomeChefByUserId(string userId)
+        {
+            var requestBecomeChef = await _chefRequestRepository.GetAsync(x => x.UserID == userId, null);
+
+            var result = _mapper.Map<RequestToBecomeChefDTO>(requestBecomeChef);
+            return result;
+        }
     }
 }
