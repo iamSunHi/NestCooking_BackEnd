@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NESTCOOKING_API.DataAccess.Data;
 
@@ -11,9 +12,11 @@ using NESTCOOKING_API.DataAccess.Data;
 namespace NESTCOOKING_API.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240216031644_Update-Request-Chef")]
+    partial class UpdateRequestChef
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -172,7 +175,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.CategoryRecipe", b =>
@@ -187,7 +190,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasIndex("RecipeId");
 
-                    b.ToTable("CategoryRecipe", (string)null);
+                    b.ToTable("CategoryRecipe");
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Ingredient", b =>
@@ -219,7 +222,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasIndex("RecipeId");
 
-                    b.ToTable("Ingredients", (string)null);
+                    b.ToTable("Ingredients");
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.IngredientTip", b =>
@@ -245,7 +248,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("IngredientTips", (string)null);
+                    b.ToTable("IngredientTips");
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.IngredientTipContent", b =>
@@ -271,7 +274,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasIndex("IngredientTipId");
 
-                    b.ToTable("IngredientTipContents", (string)null);
+                    b.ToTable("IngredientTipContents");
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Instructor", b =>
@@ -300,7 +303,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasIndex("RecipeId");
 
-                    b.ToTable("Instructors", (string)null);
+                    b.ToTable("Instructors");
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Recipe", b =>
@@ -348,7 +351,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Recipes", (string)null);
+                    b.ToTable("Recipes");
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Report", b =>
@@ -394,7 +397,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reports", (string)null);
+                    b.ToTable("Reports");
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.RequestToBecomeChef", b =>
@@ -491,7 +494,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Responses", (string)null);
+                    b.ToTable("Responses");
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.User", b =>
