@@ -63,10 +63,5 @@
 			Rejected,
 			Completed
 		}
-
-		public const string RequestStatus_Pending = "Pending";
-		public const string RequestStatus_Approved = "Approved";
-		public const string RequestStatus_Rejected = "Rejected";
-		public const string RequestStatus_Completed = "Completed";
 	}
 }
