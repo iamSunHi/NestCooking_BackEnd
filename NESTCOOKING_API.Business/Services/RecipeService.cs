@@ -99,6 +99,19 @@ namespace NESTCOOKING_API.Business.Services
 			return recipeList;
 		}
 
+		public async Task<IEnumerable<RecipeDTO>> GetRecipesByUserIdAsync(string userId)
+		{
+			var recipesFromDb = await _recipeRepository.GetAllAsync(r => r.UserId == userId);
+			var recipeList = _mapper.Map<IEnumerable<RecipeDTO>>(recipesFromDb);
+
+			for (int i = 0; i < recipesFromDb.Count(); i++)
+			{
+				var user = await _userRepository.GetAsync(u => u.Id == recipesFromDb.ToList()[i].UserId);
+				recipeList.ToList()[i].User = _mapper.Map<UserShortInfoDTO>(user);
+			}
+			return recipeList;
+		}
+
 		public async Task CreateRecipeAsync(string userId, RecipeDetailDTO recipeDetailDTO)
 		{
 			var recipe = _mapper.Map<Recipe>(recipeDetailDTO);

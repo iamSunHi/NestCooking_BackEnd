@@ -9,6 +9,8 @@ namespace NESTCOOKING_API.Business.DTOs.RecipeDTOs
 		public string Title { get; set; } = null!;
 		public string Description { get; set; } = null!;
 		public string? ThumbnailUrl { get; set; }
+		public bool IsPrivate { get; set; }
+		public double? Price { get; set; }
 		public double Ratings { get; set; }
 		public int CookingTime { get; set; }
 		public int Portion { get; set; }
