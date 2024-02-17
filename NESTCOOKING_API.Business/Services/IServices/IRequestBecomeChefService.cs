@@ -16,5 +16,7 @@ namespace NESTCOOKING_API.Business.Services.IServices
 		Task<RequestToBecomeChefDTO> CreateRequestToBecomeChef(string userId, CreatedRequestToBecomeChefDTO requestToBecomeChefDTO);
 		Task<RequestToBecomeChefDTO> UpdateRequestToBecomeChef(string requestId, CreatedRequestToBecomeChefDTO requestToBecomeChefDTO);
 		Task<bool> DeleteRequestToBecomeChef(string requestId);
+		Task<RequestToBecomeChefDTO> GetRequestToBecomeChefByUserId(string userId);
+
 	}
 }

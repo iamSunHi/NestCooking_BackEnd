@@ -1,12 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.ChefRequestDTOs;
-using NESTCOOKING_API.Business.Services;
 using NESTCOOKING_API.Business.Services.IServices;
-using NESTCOOKING_API.DataAccess.Models;
-using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using NESTCOOKING_API.Utility;
 using System.Security.Claims;
 
@@ -15,11 +11,11 @@ namespace NESTCOOKING_API.Presentation.Controllers
 	[Route("api/requests")]
 	[ApiController]
 	[Authorize]
-	public class RequestChefController : ControllerBase
+	public class RequestBecomeChefController : ControllerBase
 	{
 		private readonly IRequestBecomeChefService _userRequestService;
 
-		public RequestChefController(IRequestBecomeChefService userRequestChef)
+		public RequestBecomeChefController(IRequestBecomeChefService userRequestChef)
 		{
 			_userRequestService = userRequestChef;
 		}
@@ -66,12 +62,34 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			}
 		}
 
-		[HttpGet("{requestId}")]
+		[HttpGet("{requestId}", Name = "GetRequestById")]
 		public async Task<IActionResult> GetRequestById(string requestId)
 		{
 			try
 			{
 				var request = await _userRequestService.GetRequestToBecomeChefById(requestId);
+
+				if (request != null)
+				{
+					return Ok(ResponseDTO.Accept(result: request));
+				}
+				else
+				{
+					return NotFound(AppString.RequestBecomeChefNotFound);
+				}
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, "Internal Server Error");
+			}
+		}
+
+		[HttpGet("user/{userId}")]
+		public async Task<IActionResult> GetRequestByUserId(string userId)
+		{
+			try
+			{
+				var request = await _userRequestService.GetRequestToBecomeChefByUserId(userId);
 
 				if (request != null)
 				{
@@ -129,13 +147,5 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				return StatusCode(500, "Internal Server Error");
 			}
 		}
-
-
-
-
 	}
-
-
-
-
 }

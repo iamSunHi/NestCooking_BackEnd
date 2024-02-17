@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
 {
-	public interface IChefRequestRepository : IRepository<RequestToBecomeChef>
+	public interface IRequestBecomeChefRepository : IRepository<RequestToBecomeChef>
 	{
 		Task<RequestToBecomeChef> GetRequestById(string requestId);
 		Task<RequestToBecomeChef> CreateRequestToBecomeChef(RequestToBecomeChef requestToBecomeChef);
