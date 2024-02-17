@@ -14,7 +14,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 {
 	[Route("api/requests")]
 	[ApiController]
-	// [Authorize]
+	[Authorize]
 	public class RequestChefController : ControllerBase
 	{
 		private readonly IRequestBecomeChefService _userRequestService;
@@ -151,13 +151,5 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				return StatusCode(500, "Internal Server Error");
 			}
 		}
-
-
-
-
 	}
-
-
-
-
 }
