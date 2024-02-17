@@ -64,10 +64,13 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			return Ok(ResponseDTO.Accept(result: recipe));
 		}
 
-		[HttpGet("your-recipe")]
-		public async Task<IActionResult> GetRecipesByUserIdAsync()
+		[HttpGet("user/{userId}")]
+		public async Task<IActionResult> GetRecipesByUserIdAsync([FromRoute] string userId)
 		{
-			var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+			if (userId == null)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: $"User id is required."));
+			}
 			var recipe = await _recipeService.GetRecipesByUserIdAsync(userId);
 			if (recipe == null)
 			{
