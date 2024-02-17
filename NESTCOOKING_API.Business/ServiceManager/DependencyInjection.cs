@@ -17,13 +17,10 @@ using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using System.Text;
-using System.Text.Json;
-
-
 
 namespace NESTCOOKING_API.Business.ServiceManager
 {
-    public class DependencyInjection
+	public class DependencyInjection
     {
         public void ConfigureServices(IServiceCollection service)
         {
@@ -32,13 +29,11 @@ namespace NESTCOOKING_API.Business.ServiceManager
                        .AddJsonFile("appsettings.json");
             var configurationRoot = configBuilder.Build();
 
-
-
             // Add repositories to the container.
             service.AddScoped<IUserRepository, UserRepository>();
             service.AddScoped<IRoleRepository, RoleRepository>();
             service.AddScoped<IResponseRepository, ResponseRepository>();
-            service.AddScoped<IChefRequestRepository, ChefRequestRepository>();
+            service.AddScoped<IRequestBecomeChefRepository, RequestBecomeChefRepository>();
             service.AddScoped<ICategoryRepository, CategoryRepository>();
             service.AddScoped<IIngredientTipContentRepository, IngredientTipContentRepository>();
             service.AddScoped<IIngredientTipRepository, IngredientTipRepository>();

@@ -1,22 +1,20 @@
-﻿using Microsoft.AspNetCore.Authentication.Facebook;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using NESTCOOKING_API.Business.Authorization;
 using NESTCOOKING_API.Business.DTOs.EmailDTOs;
 using NESTCOOKING_API.Business.Mapping;
-using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.Business.Services;
+using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Data;
 using NESTCOOKING_API.DataAccess.Models;
-using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using NESTCOOKING_API.DataAccess.Repositories;
-using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.IdentityModel.Tokens;
+using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using System.Text;
 
 namespace NESTCOOKING_API.Business.ServiceManager
@@ -26,15 +24,24 @@ namespace NESTCOOKING_API.Business.ServiceManager
 		public void ConfigureServices(IServiceCollection service)
 		{
 			// Config for github CI/CD
-			string appSettingsJson = Environment.GetEnvironmentVariable("APPSETTINGS");
-			var appSettings = JsonSerializer.Deserialize<Dictionary<string, dynamic>>(appSettingsJson);
+			string dbConnectionStringServer = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING_SERVER");
+			string emailFrom = Environment.GetEnvironmentVariable("EMAIL_FROM");
+			string emailSmtpServer = Environment.GetEnvironmentVariable("EMAIL_SMTP_SERVER");
+			int emailPort = Convert.ToInt32(Environment.GetEnvironmentVariable("EMAIL_PORT"));
+			string emailUsername = Environment.GetEnvironmentVariable("EMAIL_USERNAME");
+			string emailPassword = Environment.GetEnvironmentVariable("EMAIL_PASSWORD");
+			string apiSecret = Environment.GetEnvironmentVariable("API_SECRET");
+			string facebookAppId = Environment.GetEnvironmentVariable("FACEBOOK_APP_ID");
+			string facebookAppSecret = Environment.GetEnvironmentVariable("FACEBOOK_APP_SECRET");
+			string googleClientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID");
+			string googleClientSecret = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET");
 
 			// Add repositories to the container.
 			service.AddScoped<IUserRepository, UserRepository>();
 			service.AddScoped<IRoleRepository, RoleRepository>();
 			service.AddScoped<IReportRepository, ReportRepository>();
 			service.AddScoped<IResponseRepository, ResponseRepository>();
-			service.AddScoped<IChefRequestRepository, ChefRequestRepository>();
+			service.AddScoped<IRequestBecomeChefRepository, RequestBecomeChefRepository>();
 
 			// Add services to the container.
 			service.AddScoped<IJwtUtils, JwtUtils>();
@@ -60,7 +67,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			// Add repositories to the container.
 			service.AddScoped<IUserRepository, UserRepository>();
 			service.AddScoped<IRoleRepository, RoleRepository>();
-			service.AddScoped<IChefRequestRepository, ChefRequestRepository>();
+			service.AddScoped<IRequestBecomeChefRepository, RequestBecomeChefRepository>();
 			service.AddScoped<ICategoryRepository, CategoryRepository>();
 			service.AddScoped<IIngredientTipContentRepository, IngredientTipContentRepository>();
 			service.AddScoped<IIngredientTipRepository, IngredientTipRepository>();
@@ -100,19 +107,18 @@ namespace NESTCOOKING_API.Business.ServiceManager
 
 			var emailConfiguration = new EmailRequestDTO
 			{
-				From = appSettings["EmailConfiguration:From"],
-				SmtpServer = appSettings["EmailConfiguration:SmtpServer"],
-				Port = Convert.ToInt32(appSettings["EmailConfiguration:Port"]),
-				UserName = appSettings["EmailConfiguration:Username"],
-				Password = appSettings["EmailConfiguration:Password"]
+				From = emailFrom,
+				SmtpServer = emailSmtpServer,
+				Port = emailPort,
+				UserName = emailUsername,
+				Password = emailPassword
 			};
 			service.AddSingleton(emailConfiguration);
 
 			// DBContext and Identity
-			string connectionString = appSettings["ConnectionStrings:Server"];
 			service.AddDbContext<ApplicationDbContext>(options =>
 			{
-				options.UseSqlServer(connectionString);
+				options.UseSqlServer(dbConnectionStringServer);
 			});
 
 			service
@@ -157,18 +163,18 @@ namespace NESTCOOKING_API.Business.ServiceManager
 				{
 					ValidateIssuer = false,
 					ValidateAudience = false,
-					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings["ApiSettings:Secret"])),
+					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(apiSecret)),
 				};
 			})
 			.AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
 			{
-				options.ClientId = appSettings["Authentication:Google:ClientId"];
-				options.ClientSecret = appSettings["Authentication:Google:ClientSecret"];
+				options.ClientId = googleClientId;
+				options.ClientSecret = googleClientSecret;
 			})
 			.AddFacebook(FacebookDefaults.AuthenticationScheme, options =>
 			{
-				options.AppId = appSettings["Authentication:Facebook:AppId"];
-				options.AppSecret = appSettings["Authentication:Facebook:AppSecret"];
+				options.AppId = facebookAppId;
+				options.AppSecret = facebookAppSecret;
 			});
 		}
 	}

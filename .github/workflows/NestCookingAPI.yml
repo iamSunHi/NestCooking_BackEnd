@@ -10,7 +10,20 @@ env:
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 8.0.x
   WORKING_DIRECTORY: NESTCOOKING_API.Presentation
-  APPSETTINGS: ${{ secrets.APPSETTINGS }}  # Add the APPSETTINGS secret here
+  DB_CONNECTION_STRING_SERVER: ${{ secrets.DB_CONNECTION_STRING_SERVER }}
+  EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+  EMAIL_SMTP_SERVER: ${{ secrets.EMAIL_SMTP_SERVER }}
+  EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+  EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+  EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+  API_SECRET: ${{ secrets.API_SECRET }}
+  FACEBOOK_APP_ID: ${{ secrets.FACEBOOK_APP_ID }}
+  FACEBOOK_APP_SECRET: ${{ secrets.FACEBOOK_APP_SECRET }}
+  GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+  GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+  CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+  CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+  CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
 jobs:
   build:
     runs-on: windows-latest
@@ -48,4 +61,3 @@ jobs:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
         publish-profile: ${{ secrets.NestCookingAPI_F706 }}
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-        app-settings: ${{ env.APPSETTINGS }}  # Pass the APPSETTINGS secret to the deployment action

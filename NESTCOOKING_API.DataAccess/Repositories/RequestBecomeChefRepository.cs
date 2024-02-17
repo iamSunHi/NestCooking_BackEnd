@@ -1,25 +1,15 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
 using NESTCOOKING_API.DataAccess.Data;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
-using NESTCOOKING_API.Utility;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NESTCOOKING_API.DataAccess.Repositories
 {
-	public class ChefRequestRepository : Repository<RequestToBecomeChef>, IChefRequestRepository
+	public class RequestBecomeChefRepository : Repository<RequestToBecomeChef>, IRequestBecomeChefRepository
 	{
 		private readonly ApplicationDbContext _context;
 
-		public ChefRequestRepository(ApplicationDbContext context) : base(context)
+		public RequestBecomeChefRepository(ApplicationDbContext context) : base(context)
 		{
 			_context = context;
 

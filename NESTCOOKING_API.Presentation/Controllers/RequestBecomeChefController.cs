@@ -11,11 +11,11 @@ namespace NESTCOOKING_API.Presentation.Controllers
 	[Route("api/requests")]
 	[ApiController]
 	[Authorize]
-	public class RequestChefController : ControllerBase
+	public class RequestBecomeChefController : ControllerBase
 	{
 		private readonly IRequestBecomeChefService _userRequestService;
 
-		public RequestChefController(IRequestBecomeChefService userRequestChef)
+		public RequestBecomeChefController(IRequestBecomeChefService userRequestChef)
 		{
 			_userRequestService = userRequestChef;
 		}

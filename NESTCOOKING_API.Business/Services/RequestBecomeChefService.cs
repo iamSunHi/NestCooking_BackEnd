@@ -18,11 +18,11 @@ namespace NESTCOOKING_API.Business.Services
 {
     public class RequestBecomeChefService : IRequestBecomeChefService
     {
-        private readonly IChefRequestRepository _chefRequestRepository;
+        private readonly IRequestBecomeChefRepository _chefRequestRepository;
         private readonly UserManager<User> _userManager;
         private readonly IMapper _mapper;
 
-        public RequestBecomeChefService(IChefRequestRepository chefRequestRepository, UserManager<User> userManager, IMapper mapper)
+        public RequestBecomeChefService(IRequestBecomeChefRepository chefRequestRepository, UserManager<User> userManager, IMapper mapper)
         {
             _chefRequestRepository = chefRequestRepository;
             _userManager = userManager;

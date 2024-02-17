@@ -7,11 +7,25 @@ public class CloudinaryService : ICloudinaryService
     private readonly Cloudinary _cloudinary;
     public CloudinaryService(IConfiguration configuration)
     {
-        Account account = new Account(
-            configuration["Cloudinary:CloudName"],
-            configuration["Cloudinary:ApiKey"],
-            configuration["Cloudinary:ApiSecret"]
-        );
+        Account account;
+
+		var isAzureEnvironment = Environment.GetEnvironmentVariable("AZURE_WEBAPP_NAME") != null;
+		if (isAzureEnvironment)
+		{
+			account = new Account(
+				cloud: Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME"),
+				apiKey: Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY"),
+				apiSecret: Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET")
+			);
+		}
+		else
+		{
+			account = new Account(
+				configuration["Cloudinary:CloudName"],
+				configuration["Cloudinary:ApiKey"],
+				configuration["Cloudinary:ApiSecret"]
+			);
+		}
         _cloudinary = new Cloudinary(account);
     }
     public async Task<string> UploadImageAsync(IFormFile file, string path)
