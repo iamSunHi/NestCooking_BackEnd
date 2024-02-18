@@ -63,6 +63,7 @@
 		public static string InvalidReportTypeErrorMessage = "Invalid Report Type";
 		public static string ReportNotFoundErrorMessage = "Report Not Found";
 		public static string ReportAlreadyHandledErrorMessage = "Report has already been handled";
-	}
 
+		public static string NoResultsFoundErrorMessage = "No result found matching the specified criteria";
+	}
 }

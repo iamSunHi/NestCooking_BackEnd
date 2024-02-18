@@ -29,38 +29,37 @@ namespace NESTCOOKING_API.Business.ServiceManager
                        .AddJsonFile("appsettings.json");
             var configurationRoot = configBuilder.Build();
 
-            // Add repositories to the container.
-            service.AddScoped<IUserRepository, UserRepository>();
-            service.AddScoped<IRoleRepository, RoleRepository>();
-            service.AddScoped<IResponseRepository, ResponseRepository>();
-            service.AddScoped<IRequestBecomeChefRepository, RequestBecomeChefRepository>();
-            service.AddScoped<ICategoryRepository, CategoryRepository>();
-            service.AddScoped<IIngredientTipContentRepository, IngredientTipContentRepository>();
-            service.AddScoped<IIngredientTipRepository, IngredientTipRepository>();
-            service.AddScoped<IIngredientRepository, IngredientRepository>();
-            service.AddScoped<IRecipeRepository, RecipeRepository>();
-            service.AddScoped<ICategoryRecipeRepository, CategoryRecipeRepository>();
-            service.AddScoped<IInstructorRepository, InstructorRepository>();
-            service.AddScoped<IOAuthRepository, OAuthRepository>();
-            service.AddScoped<IReportRepository, ReportRepository>();
+			// Add repositories to the container.
+			service.AddScoped<IUserRepository, UserRepository>();
+			service.AddScoped<IRoleRepository, RoleRepository>();
+			service.AddScoped<IReportRepository, ReportRepository>();
+			service.AddScoped<IResponseRepository, ResponseRepository>();
+			service.AddScoped<IRequestBecomeChefRepository, RequestBecomeChefRepository>();
+			service.AddScoped<ICategoryRepository, CategoryRepository>();
+			service.AddScoped<IIngredientTipContentRepository, IngredientTipContentRepository>();
+			service.AddScoped<IIngredientTipRepository, IngredientTipRepository>();
+			service.AddScoped<IIngredientRepository, IngredientRepository>();
+			service.AddScoped<IRecipeRepository, RecipeRepository>();
+			service.AddScoped<ICategoryRecipeRepository, CategoryRecipeRepository>();
+			service.AddScoped<IInstructorRepository, InstructorRepository>();
+			service.AddScoped<IOAuthRepository, OAuthRepository>();
 
+			// Add services to the container.
+			service.AddScoped<IJwtUtils, JwtUtils>();
+			service.AddScoped<IAuthService, AuthService>();
+			service.AddScoped<IUserService, UserService>();
+			service.AddScoped<IEmailService, EmailService>();
+			service.AddScoped<IReportService, ReportService>();
+			service.AddScoped<IResponseService, ResponseService>();
+			service.AddScoped<IRequestBecomeChefService, RequestBecomeChefService>();
+			service.AddScoped<ICategoryService, CategoryService>();
+			service.AddScoped<IIngredientTipService, IngredientTipService>();
+			service.AddScoped<IIngredientService, IngredientService>();
+			service.AddScoped<IRecipeService, RecipeService>();
+			service.AddScoped<ICloudinaryService, CloudinaryService>();
+			service.AddScoped<ISearchService, SearchService>();
 
-            // Add services to the container.
-            service.AddScoped<IJwtUtils, JwtUtils>();
-            service.AddScoped<IAuthService, AuthService>();
-            service.AddScoped<IUserService, UserService>();
-            service.AddScoped<IEmailService, EmailService>();
-            service.AddScoped<IReportService, ReportService>();
-            service.AddScoped<IResponseService, ResponseService>();
-            service.AddScoped<IRequestBecomeChefService, RequestBecomeChefService>();
-            service.AddScoped<ICategoryService, CategoryService>();
-            service.AddScoped<IIngredientTipService, IngredientTipService>();
-            service.AddScoped<IIngredientService, IngredientService>();
-            service.AddScoped<IRecipeService, RecipeService>();
-            service.AddScoped<ICloudinaryService, CloudinaryService>();
-            service.AddScoped<IRepository<Report>, ReportRepository>();
-
-            service.AddHttpClient();
+			service.AddHttpClient();
 
             service.AddCors(options =>
             {
@@ -74,6 +73,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
                 {
                     options.AddPolicy("admin", policy => policy.RequireRole("admin"));
                 });
+
             // Configure for email
             service.Configure<IdentityOptions>(options => options.SignIn.RequireConfirmedEmail = true);
             // Set time Token for Email Confirm
