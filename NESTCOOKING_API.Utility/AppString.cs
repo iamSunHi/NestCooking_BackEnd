@@ -63,6 +63,12 @@
 		public static string InvalidReportTypeErrorMessage = "Invalid Report Type";
 		public static string ReportNotFoundErrorMessage = "Report Not Found";
 		public static string ReportAlreadyHandledErrorMessage = "Report has already been handled";
+
+		public static string RequestCommentNotFound = "Comment Not Found";
+		public static string UpdateCommentSuccessMassage = "Change Content Comment Successfully.";
+		public static string DeleteCommentSuccessMessage = "Delete Comment successfully.";
+		public static string CreateCommentSuccessMessage = "Create Comment successfully.";
+		public static string CreateCommentInternalServerErrorMessage = "Failed to create comment.";
 	}
 
 }

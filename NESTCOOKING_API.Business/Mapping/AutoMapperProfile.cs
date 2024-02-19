@@ -2,6 +2,7 @@
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.AuthDTOs;
 using NESTCOOKING_API.Business.DTOs.ChefRequestDTOs;
+using NESTCOOKING_API.Business.DTOs.CommentDTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
 using NESTCOOKING_API.Business.DTOs.ReportDTOs;
 using NESTCOOKING_API.Business.DTOs.ResponseDTOs;
@@ -26,7 +27,9 @@ namespace NESTCOOKING_API.Business.Mapping
 			// Request to become chef
 			CreateMap<RequestToBecomeChef, CreatedRequestToBecomeChefDTO>().ReverseMap();
 			CreateMap<RequestToBecomeChef, RequestToBecomeChefDTO>().ReverseMap();
-
+			// Comment
+			CreateMap<Comment, CreatedCommentDTO>().ReverseMap();
+			CreateMap<Comment, RequestCommentDTO>().ReverseMap();
 			// Report
 			CreateMap<Report, ReportResponseDTO>().ReverseMap().ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User));
 			CreateMap<Report, CreateReportDTO>().ReverseMap();
