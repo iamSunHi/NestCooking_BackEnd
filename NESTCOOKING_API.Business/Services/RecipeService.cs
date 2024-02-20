@@ -18,12 +18,13 @@ namespace NESTCOOKING_API.Business.Services
 		private readonly ICategoryRecipeRepository _categoryRecipeRepository;
 		private readonly IIngredientRepository _ingredientRepository;
 		private readonly IInstructorRepository _instructorRepository;
+		private readonly IFavoriteRecipeRepository _favoriteRecipeRepository;
 		private readonly UserManager<User> _userManager;
 
 		private readonly IIngredientTipService _ingredientTipService;
 
 		public RecipeService(IMapper mapper,
-			IUserRepository userRepository, IRecipeRepository recipeRepository, ICategoryRecipeRepository categoryRecipeRepository, IIngredientRepository ingredientRepository, IInstructorRepository instructorRepository,
+			IUserRepository userRepository, IRecipeRepository recipeRepository, ICategoryRecipeRepository categoryRecipeRepository, IIngredientRepository ingredientRepository, IInstructorRepository instructorRepository, IFavoriteRecipeRepository favoriteRecipeRepository,
 			UserManager<User> userManager,
 			IIngredientTipService ingredientTipService)
 		{
@@ -33,6 +34,7 @@ namespace NESTCOOKING_API.Business.Services
 			_categoryRecipeRepository = categoryRecipeRepository;
 			_ingredientRepository = ingredientRepository;
 			_instructorRepository = instructorRepository;
+			_favoriteRecipeRepository = favoriteRecipeRepository;
 			_userManager = userManager;
 			_ingredientTipService = ingredientTipService;
 		}
@@ -258,6 +260,49 @@ namespace NESTCOOKING_API.Business.Services
 
 				await _recipeRepository.RemoveAsync(recipeFromDb);
 			}
+		}
+
+		public async Task<IEnumerable<RecipeDTO>> GetAllFavoriteRecipeAsync(string userId)
+		{
+			var favoriteRecipesFromDb = await _favoriteRecipeRepository.GetAllAsync(fr => fr.UserId == userId, includeProperties: "Recipe");
+			var recipeList = new List<RecipeDTO>();
+			foreach (var favoriteRecipe in favoriteRecipesFromDb)
+			{
+				recipeList.Add(_mapper.Map<RecipeDTO>(favoriteRecipe.Recipe));
+			}
+			return recipeList;
+		}
+
+		public async Task SaveFavoriteRecipeAsync(string userId, string recipeId)
+		{
+			if (await CheckIfRecipeIsFavorite(userId, recipeId))
+				throw new Exception(message: "This recipe is already in your favorite list.");
+
+			FavoriteRecipe favoriteRecipe = new()
+			{
+				UserId = userId,
+				RecipeId = recipeId
+			};
+			await _favoriteRecipeRepository.CreateAsync(favoriteRecipe);
+		}
+
+		public async Task RemoveFavoriteRecipeAsync(string userId, string recipeId)
+		{
+			if (!(await CheckIfRecipeIsFavorite(userId, recipeId)))
+				throw new Exception(message: "This recipe is not exist in your favorite list.");
+
+			var favoriteRecipeFromDb = await _favoriteRecipeRepository.GetAsync(fr => fr.UserId == userId && fr.RecipeId == recipeId);
+			await _favoriteRecipeRepository.RemoveAsync(favoriteRecipeFromDb);
+		}
+
+		private async Task<bool> CheckIfRecipeIsFavorite(string userId, string recipeId)
+		{
+			var favoriteRecipeFromDb = await _favoriteRecipeRepository.GetAsync(fr => fr.UserId == userId && fr.RecipeId == recipeId);
+			if (favoriteRecipeFromDb == null)
+			{
+				return false;
+			}
+			return true;
 		}
 	}
 }

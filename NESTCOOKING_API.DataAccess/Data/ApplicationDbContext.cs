@@ -23,6 +23,7 @@ namespace NESTCOOKING_API.DataAccess.Data
         public DbSet<Instructor> Instructors { get; set; }
         public DbSet<Recipe> Recipes { get; set; }
         public DbSet<CategoryRecipe> CategoryRecipe { get; set; }
+        public DbSet<FavoriteRecipe> FavoriteRecipes { get; set; }
 
         public DbSet<Report> Reports { get; set; }
         public DbSet<Response> Responses { get; set; }
@@ -72,16 +73,17 @@ namespace NESTCOOKING_API.DataAccess.Data
             {
                 recipe.HasMany<Ingredient>().WithOne().HasForeignKey(ingredient => ingredient.RecipeId).IsRequired(true);
                 recipe.HasMany<Instructor>().WithOne().HasForeignKey(instructor => instructor.RecipeId).IsRequired(true);
-            });
+			});
             modelBuilder.Entity<User>(user =>
             {
                 user.HasMany<Recipe>().WithOne().HasForeignKey(recipe => recipe.UserId).IsRequired(true);
                 user.HasMany<IngredientTip>().WithOne().HasForeignKey(ingredientTip => ingredientTip.UserId).IsRequired(true);
             });
-            // modelBuilder.Entity<Response>();
-            // modelBuilder.Entity<Report>();
-
-
-        }
+            modelBuilder.Entity<FavoriteRecipe>(favoriteRecipe => {
+                favoriteRecipe.HasKey(fr => new { fr.UserId, fr.RecipeId });
+                favoriteRecipe.HasOne(fr => fr.User).WithMany().HasForeignKey(fr => fr.UserId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
+				favoriteRecipe.HasOne(fr => fr.Recipe).WithMany().HasForeignKey(fr => fr.RecipeId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
+			});
+		}
     }
 }
