@@ -268,7 +268,10 @@ namespace NESTCOOKING_API.Business.Services
 			var recipeList = new List<RecipeDTO>();
 			foreach (var favoriteRecipe in favoriteRecipesFromDb)
 			{
-				recipeList.Add(_mapper.Map<RecipeDTO>(favoriteRecipe.Recipe));
+				var recipe = _mapper.Map<RecipeDTO>(favoriteRecipe.Recipe);
+				var userFromDb = await _userRepository.GetAsync(u => u.Id == favoriteRecipe.Recipe.UserId);
+				recipe.User = _mapper.Map<UserShortInfoDTO>(userFromDb);
+				recipeList.Add(recipe);
 			}
 			return recipeList;
 		}
