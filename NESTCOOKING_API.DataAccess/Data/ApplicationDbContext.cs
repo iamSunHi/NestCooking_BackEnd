@@ -26,7 +26,7 @@ namespace NESTCOOKING_API.DataAccess.Data
 
         public DbSet<Report> Reports { get; set; }
         public DbSet<Response> Responses { get; set; }
-
+        public DbSet<Comment> Comments { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -78,10 +78,21 @@ namespace NESTCOOKING_API.DataAccess.Data
                 user.HasMany<Recipe>().WithOne().HasForeignKey(recipe => recipe.UserId).IsRequired(true);
                 user.HasMany<IngredientTip>().WithOne().HasForeignKey(ingredientTip => ingredientTip.UserId).IsRequired(true);
             });
-            // modelBuilder.Entity<Response>();
-            // modelBuilder.Entity<Report>();
-
-
-        }
+			// modelBuilder.Entity<Response>();
+			// modelBuilder.Entity<Report>();
+			modelBuilder.Entity<Comment>(comment =>
+			{
+				comment.ToTable("Comments");
+				comment.HasKey(comment => comment.CommentId);
+				comment.HasOne<Recipe>(c => c.Recipe)
+					.WithMany(r => r.Comments)
+					.HasForeignKey(c => c.RecipeId)
+					.IsRequired();
+				comment.HasOne<User>(c => c.User)
+					.WithMany(u => u.Comments)
+					.HasForeignKey(c => c.UserId)
+					.IsRequired();
+			});
+		}
     }
 }

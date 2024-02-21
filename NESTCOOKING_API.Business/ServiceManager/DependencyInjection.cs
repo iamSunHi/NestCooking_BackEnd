@@ -43,10 +43,10 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<IInstructorRepository, InstructorRepository>();
             service.AddScoped<IOAuthRepository, OAuthRepository>();
             service.AddScoped<IReportRepository, ReportRepository>();
+			service.AddScoped<ICommentRepository, CommentRepository>();
 
-
-            // Add services to the container.
-            service.AddScoped<IJwtUtils, JwtUtils>();
+			// Add services to the container.
+			service.AddScoped<IJwtUtils, JwtUtils>();
             service.AddScoped<IAuthService, AuthService>();
             service.AddScoped<IUserService, UserService>();
             service.AddScoped<IEmailService, EmailService>();
@@ -59,8 +59,8 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<IRecipeService, RecipeService>();
             service.AddScoped<ICloudinaryService, CloudinaryService>();
             service.AddScoped<IRepository<Report>, ReportRepository>();
-
-            service.AddHttpClient();
+			service.AddScoped<ICommentService, CommentService>();
+			service.AddHttpClient();
 
             service.AddCors(options =>
             {
