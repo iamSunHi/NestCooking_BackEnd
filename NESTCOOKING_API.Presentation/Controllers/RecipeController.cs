@@ -170,7 +170,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			{
 				var userId = GetUserIdFromContext(HttpContext);
 				await _recipeService.SaveFavoriteRecipeAsync(userId, recipeId);
-				return Created();
+				return Ok(ResponseDTO.Create(HttpStatusCode.Created, message: "Save favorite recipe successfully"));
 			}
 			catch (Exception ex)
 			{
@@ -186,7 +186,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			{
 				var userId = GetUserIdFromContext(HttpContext);
 				await _recipeService.RemoveFavoriteRecipeAsync(userId, recipeId);
-				return NoContent();
+				return Ok(ResponseDTO.Create(HttpStatusCode.NoContent, message: "Remove successfully"));
 			}
 			catch (Exception ex)
 			{
