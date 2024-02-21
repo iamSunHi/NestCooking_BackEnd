@@ -26,6 +26,8 @@ namespace NESTCOOKING_API.DataAccess.Data
 
         public DbSet<Report> Reports { get; set; }
         public DbSet<Response> Responses { get; set; }
+        public DbSet<RecipeReaction> RecipeReaction { get; set; }
+        public DbSet<Reaction> Reaction { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -78,10 +80,16 @@ namespace NESTCOOKING_API.DataAccess.Data
                 user.HasMany<Recipe>().WithOne().HasForeignKey(recipe => recipe.UserId).IsRequired(true);
                 user.HasMany<IngredientTip>().WithOne().HasForeignKey(ingredientTip => ingredientTip.UserId).IsRequired(true);
             });
-            // modelBuilder.Entity<Response>();
-            // modelBuilder.Entity<Report>();
-
-
+            SeedData(modelBuilder);
+        }
+        private void SeedData(ModelBuilder modelBuilder)
+        {       
+                modelBuilder.Entity<Reaction>().HasData(new Reaction { Id = Guid.NewGuid().ToString(), Emoji = "like", CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now });
+                 
+                modelBuilder.Entity<Reaction>().HasData(new Reaction { Id = Guid.NewGuid().ToString(), Emoji = "favorite", CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now });
+                      
+                modelBuilder.Entity<Reaction>().HasData(new Reaction { Id = Guid.NewGuid().ToString(), Emoji = "haha", CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now });
+            
         }
     }
 }

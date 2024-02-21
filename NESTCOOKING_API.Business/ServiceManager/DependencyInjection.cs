@@ -43,6 +43,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<IInstructorRepository, InstructorRepository>();
             service.AddScoped<IOAuthRepository, OAuthRepository>();
             service.AddScoped<IReportRepository, ReportRepository>();
+            service.AddScoped<IReactionRepository, ReactionRepository>();
 
 
             // Add services to the container.
@@ -59,6 +60,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<IRecipeService, RecipeService>();
             service.AddScoped<ICloudinaryService, CloudinaryService>();
             service.AddScoped<IRepository<Report>, ReportRepository>();
+            service.AddScoped<IReactionService, ReactionService>();
 
             service.AddHttpClient();
 

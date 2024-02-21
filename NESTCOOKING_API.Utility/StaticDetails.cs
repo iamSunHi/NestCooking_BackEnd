@@ -24,6 +24,10 @@
 			user, comment, recipe
 
 		}
+		public enum ReactionType
+		{
+			haha, favorite, like
+		}
 
 		public const string ReportType_USER = "user";
 		public const string ReportType_COMMENT = "comment";

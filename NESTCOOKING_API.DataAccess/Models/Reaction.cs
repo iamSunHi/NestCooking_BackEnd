@@ -9,6 +9,5 @@ namespace NESTCOOKING_API.DataAccess.Models
 		public DateTime CreatedAt { get; set; }
 		public DateTime UpdatedAt { get; set; }
 
-		public IEnumerable<Recipe> Recipes { get; set; }
 	}
 }
