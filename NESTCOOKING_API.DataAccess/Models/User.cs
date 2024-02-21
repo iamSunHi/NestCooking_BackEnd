@@ -18,5 +18,6 @@ namespace NESTCOOKING_API.DataAccess.Models
 		public string RoleId { get; set; } = null!;
 		[JsonIgnore]
 		public List<RequestToBecomeChef> RequestsToBecomeChefs { get; set; }
+		public ICollection<Comment> Comments { get; set; }
 	}
 }

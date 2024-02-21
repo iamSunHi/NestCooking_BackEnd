@@ -65,6 +65,12 @@
 		public static string ReportAlreadyHandledErrorMessage = "Report has already been handled";
 		public static string RequestAlreadyHandledErrorMessage = "Request has already been handled";
 		public static string RequestExistedErrorMessage = "Request has already existed";
+
+		public static string RequestCommentNotFound = "Comment Not Found";
+		public static string UpdateCommentSuccessMassage = "Change Content Comment Successfully.";
+		public static string DeleteCommentSuccessMessage = "Delete Comment successfully.";
+		public static string CreateCommentSuccessMessage = "Create Comment successfully.";
+		public static string CreateCommentInternalServerErrorMessage = "Failed to create comment.";
 	}
 
 }
