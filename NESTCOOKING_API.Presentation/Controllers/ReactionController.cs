@@ -114,8 +114,16 @@ namespace NESTCOOKING_API.Presentation.Controllers
         [HttpGet("reactions-by-type/{targetId}")]
         public async Task<IActionResult> GetReactionsById(string targetId)
         {
-            var result = await _reactionService.GetReactionsByIdAsync(targetId);
-            return Ok(result);
+            try
+            {
+                var result = await _reactionService.GetReactionsByIdAsync(targetId);
+                return Ok(ResponseDTO.Accept(result: result));
+            }
+
+            catch(Exception e)
+            {
+                return BadRequest(ResponseDTO.BadRequest());
+            }
         }
 
     }
