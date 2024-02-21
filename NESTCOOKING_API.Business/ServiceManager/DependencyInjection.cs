@@ -41,6 +41,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<IRecipeRepository, RecipeRepository>();
             service.AddScoped<ICategoryRecipeRepository, CategoryRecipeRepository>();
             service.AddScoped<IInstructorRepository, InstructorRepository>();
+            service.AddScoped<IFavoriteRecipeRepository, FavoriteRecipeRepository>();
             service.AddScoped<IOAuthRepository, OAuthRepository>();
             service.AddScoped<IReportRepository, ReportRepository>();
 
