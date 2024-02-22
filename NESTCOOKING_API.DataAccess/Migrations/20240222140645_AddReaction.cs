@@ -18,9 +18,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Emoji = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Emoji = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -62,12 +60,12 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
             migrationBuilder.InsertData(
                 table: "Reaction",
-                columns: new[] { "Id", "CreatedAt", "Emoji", "UpdatedAt" },
+                columns: new[] { "Id", "Emoji" },
                 values: new object[,]
                 {
-                    { "3a285380-2754-4d3a-b1a3-daf91906b41c", new DateTime(2024, 2, 21, 21, 11, 48, 158, DateTimeKind.Local).AddTicks(5526), "like", new DateTime(2024, 2, 21, 21, 11, 48, 158, DateTimeKind.Local).AddTicks(5539) },
-                    { "3c1934cf-37ac-42de-a38a-a36d6713b8d7", new DateTime(2024, 2, 21, 21, 11, 48, 158, DateTimeKind.Local).AddTicks(5601), "haha", new DateTime(2024, 2, 21, 21, 11, 48, 158, DateTimeKind.Local).AddTicks(5602) },
-                    { "ec785843-c674-4e1b-b51f-eb3d2192647e", new DateTime(2024, 2, 21, 21, 11, 48, 158, DateTimeKind.Local).AddTicks(5581), "favorite", new DateTime(2024, 2, 21, 21, 11, 48, 158, DateTimeKind.Local).AddTicks(5582) }
+                    { "0da3fad8-2932-4212-b7b7-44e1418154c1", "haha" },
+                    { "292bc520-b323-4bf2-8fe5-c77d8d57bf83", "like" },
+                    { "5b7cacbd-4076-48cb-a3a7-b7b734d3acdc", "favorite" }
                 });
 
             migrationBuilder.CreateIndex(
