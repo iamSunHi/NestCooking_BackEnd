@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Azure.Core;
 using Microsoft.AspNetCore.Identity;
 using NESTCOOKING_API.Business.DTOs.ChefRequestDTOs;
 using NESTCOOKING_API.Business.Exceptions;
@@ -7,11 +6,6 @@ using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using NESTCOOKING_API.Utility;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static NESTCOOKING_API.Utility.StaticDetails;
 
 namespace NESTCOOKING_API.Business.Services
@@ -28,15 +22,30 @@ namespace NESTCOOKING_API.Business.Services
             _userManager = userManager;
             _mapper = mapper;
         }
+
         public async Task<RequestToBecomeChefDTO> CreateRequestToBecomeChef(string userId, CreatedRequestToBecomeChefDTO requestToBecomeChefDTO)
         {
             try
             {
                 var user = await _userManager.FindByIdAsync(userId);
+
                 if (user == null)
                 {
                     throw new UserNotFoundException();
                 }
+
+                var existedRequest = await this.GetRequestToBecomeChefByUserId(userId);
+
+                if (existedRequest != null && existedRequest.Status.Equals(ActionStatus_ACCEPTED))
+                {
+                    throw new Exception(AppString.RequestExistedErrorMessage);
+                }
+
+                if (existedRequest != null && existedRequest.Status.Equals(ActionStatus_PENDING))
+                {
+                    throw new Exception(AppString.RequestAlreadyHandledErrorMessage);
+                }
+
                 var requestToBecomeChef = _mapper.Map<RequestToBecomeChef>(requestToBecomeChefDTO);
                 requestToBecomeChef.RequestChefId = Guid.NewGuid().ToString();
                 requestToBecomeChef.UserID = userId;
@@ -44,20 +53,19 @@ namespace NESTCOOKING_API.Business.Services
                 requestToBecomeChef.ResponseId = null;
                 requestToBecomeChef.CreatedAt = DateTime.Now;
 
-                var createdRequest = await _chefRequestRepository.CreateRequestToBecomeChef(requestToBecomeChef);
-
-                var result = _mapper.Map<RequestToBecomeChefDTO>(createdRequest);
+                var result = this._mapper.Map<RequestToBecomeChefDTO>(await _chefRequestRepository.CreateRequestToBecomeChef(requestToBecomeChef));
 
                 return result;
             }
             catch (Exception ex)
             {
-                throw new Exception(AppString.SomethingWrongMessage);
+                throw new Exception(ex.Message);
             }
         }
+
         public async Task<RequestToBecomeChefDTO> UpdateRequestToBecomeChef(string requestId, CreatedRequestToBecomeChefDTO requestToBecomeChefDTO)
         {
-            var existingRequest = await _chefRequestRepository.GetRequestById(requestId);
+            var existingRequest = await _chefRequestRepository.GetAsync(request => request.RequestChefId == requestId);
 
             if (existingRequest != null)
             {
@@ -69,20 +77,27 @@ namespace NESTCOOKING_API.Business.Services
             }
             return null;
         }
-        public async Task<bool> DeleteRequestToBecomeChef(string requestId)
-        {
-            return await _chefRequestRepository.DeleteRequestToBecomeChef(requestId);
 
+        public async Task DeleteRequestToBecomeChef(string requestId)
+        {
+            var requestFromDb = await _chefRequestRepository.GetAsync(request => request.RequestChefId == requestId);
+            if (requestFromDb == null)
+            {
+                throw new Exception(AppString.RequestBecomeChefNotFound);
+            }
+            await _chefRequestRepository.RemoveAsync(requestFromDb);
         }
+
         public async Task<IEnumerable<RequestToBecomeChefDTO>> GetAllRequestsToBecomeChef()
         {
             var listRequests = await _chefRequestRepository.GetAllAsync();
             var result = _mapper.Map<IEnumerable<RequestToBecomeChefDTO>>(listRequests);
             return result;
         }
+
         public async Task<RequestToBecomeChefDTO> GetRequestToBecomeChefById(string requestId)
         {
-            var requestBecomeChef = await _chefRequestRepository.GetRequestById(requestId);
+            var requestBecomeChef = await _chefRequestRepository.GetAsync(request => request.RequestChefId == requestId);
 
             var result = _mapper.Map<RequestToBecomeChefDTO>(requestBecomeChef);
             return result;
@@ -90,7 +105,7 @@ namespace NESTCOOKING_API.Business.Services
 
         public async Task<RequestToBecomeChefDTO> GetRequestToBecomeChefByUserId(string userId)
         {
-            var requestBecomeChef = await _chefRequestRepository.GetAsync(x => x.UserID == userId, null);
+            var requestBecomeChef = await _chefRequestRepository.GetAsync(x => x.UserID == userId);
 
             var result = _mapper.Map<RequestToBecomeChefDTO>(requestBecomeChef);
             return result;
