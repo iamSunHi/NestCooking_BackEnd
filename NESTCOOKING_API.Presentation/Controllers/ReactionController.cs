@@ -44,7 +44,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
             }
             catch(Exception ex) 
             {
-                return BadRequest(ResponseDTO.BadRequest());
+                return BadRequest(ResponseDTO.BadRequest(message:ex.Message));
             }
 
         }
@@ -71,7 +71,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ResponseDTO.BadRequest());
+                return BadRequest(ResponseDTO.BadRequest(message:ex.Message));
             }
         }
         [HttpPut]
@@ -94,9 +94,9 @@ namespace NESTCOOKING_API.Presentation.Controllers
                     return BadRequest(ResponseDTO.BadRequest());
                 }   
             }
-            catch(Exception e)
+            catch(Exception ex)
             {
-                return BadRequest(ResponseDTO.BadRequest());
+                return BadRequest(ResponseDTO.BadRequest(message:ex.Message));
             }
         }
         [HttpGet("total-reactions/{targetId}")]
@@ -106,9 +106,9 @@ namespace NESTCOOKING_API.Presentation.Controllers
             {
                 var result = await _reactionService.GetTotalReactionsByIdAsync(targetId);
                 return Ok(ResponseDTO.Accept(result:result));
-            }catch(Exception e)
+            }catch(Exception ex)
             {
-                return BadRequest(ResponseDTO.BadRequest());
+                return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
             }                       
         }
         [HttpGet("reactions-by-type/{targetId}")]
@@ -120,9 +120,9 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 return Ok(ResponseDTO.Accept(result: result));
             }
 
-            catch(Exception e)
+            catch(Exception ex)
             {
-                return BadRequest(ResponseDTO.BadRequest());
+                return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
             }
         }
 

@@ -12,7 +12,7 @@ using NESTCOOKING_API.DataAccess.Data;
 namespace NESTCOOKING_API.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240221141148_AddReaction")]
+    [Migration("20240222140645_AddReaction")]
     partial class AddReaction
     {
         /// <inheritdoc />
@@ -311,15 +311,9 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Emoji")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -328,24 +322,18 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "3a285380-2754-4d3a-b1a3-daf91906b41c",
-                            CreatedAt = new DateTime(2024, 2, 21, 21, 11, 48, 158, DateTimeKind.Local).AddTicks(5526),
-                            Emoji = "like",
-                            UpdatedAt = new DateTime(2024, 2, 21, 21, 11, 48, 158, DateTimeKind.Local).AddTicks(5539)
+                            Id = "292bc520-b323-4bf2-8fe5-c77d8d57bf83",
+                            Emoji = "like"
                         },
                         new
                         {
-                            Id = "ec785843-c674-4e1b-b51f-eb3d2192647e",
-                            CreatedAt = new DateTime(2024, 2, 21, 21, 11, 48, 158, DateTimeKind.Local).AddTicks(5581),
-                            Emoji = "favorite",
-                            UpdatedAt = new DateTime(2024, 2, 21, 21, 11, 48, 158, DateTimeKind.Local).AddTicks(5582)
+                            Id = "5b7cacbd-4076-48cb-a3a7-b7b734d3acdc",
+                            Emoji = "favorite"
                         },
                         new
                         {
-                            Id = "3c1934cf-37ac-42de-a38a-a36d6713b8d7",
-                            CreatedAt = new DateTime(2024, 2, 21, 21, 11, 48, 158, DateTimeKind.Local).AddTicks(5601),
-                            Emoji = "haha",
-                            UpdatedAt = new DateTime(2024, 2, 21, 21, 11, 48, 158, DateTimeKind.Local).AddTicks(5602)
+                            Id = "0da3fad8-2932-4212-b7b7-44e1418154c1",
+                            Emoji = "haha"
                         });
                 });
 

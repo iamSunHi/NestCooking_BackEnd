@@ -90,13 +90,13 @@ namespace NESTCOOKING_API.DataAccess.Data
             SeedData(modelBuilder);
         }
         private void SeedData(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Reaction>().HasData(new Reaction { Id = Guid.NewGuid().ToString(), Emoji = "like", CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now });
-
-            modelBuilder.Entity<Reaction>().HasData(new Reaction { Id = Guid.NewGuid().ToString(), Emoji = "favorite", CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now });
-
-            modelBuilder.Entity<Reaction>().HasData(new Reaction { Id = Guid.NewGuid().ToString(), Emoji = "haha", CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now });
-
+        {       
+                modelBuilder.Entity<Reaction>().HasData(new Reaction { Id = Guid.NewGuid().ToString(), Emoji = "like"});
+                 
+                modelBuilder.Entity<Reaction>().HasData(new Reaction { Id = Guid.NewGuid().ToString(), Emoji = "favorite"});
+                      
+                modelBuilder.Entity<Reaction>().HasData(new Reaction {Id = Guid.NewGuid().ToString(), Emoji = "haha"});
+            
         }
     }
 }
