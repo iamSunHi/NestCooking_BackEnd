@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
+using NESTCOOKING_API.Utility;
 using System.Net;
 using System.Security.Claims;
 
@@ -83,14 +84,18 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpPost]
-		[Authorize]
-		public async Task<IActionResult> CreateRecipeAsync([FromBody] RecipeDetailDTO recipeDetailDTO)
+		// [Authorize]
+		public async Task<IActionResult> CreateRecipeAsync([FromBody] CreateRecipeDTO createRecipeDTO)
 		{
 			try
 			{
-				var userId = GetUserIdFromContext(HttpContext);
-				await _recipeService.CreateRecipeAsync(userId, recipeDetailDTO);
-				return Created();
+				var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+				if (userId == null)
+				{
+					return BadRequest(ResponseDTO.BadRequest(message: AppString.UserNotFoundMessage));
+				}
+				var result = await _recipeService.CreateRecipeAsync(userId, createRecipeDTO);
+				return Ok(ResponseDTO.Create(HttpStatusCode.Created, result: result));
 			}
 			catch (Exception ex)
 			{
@@ -98,16 +103,19 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			}
 		}
 
-		[HttpPatch]
+		[HttpPatch("{recipeId}")]
 		[Authorize]
-		public async Task<IActionResult> UpdateRecipeAsync([FromBody] RecipeDetailDTO recipeDetailDTO)
+		public async Task<IActionResult> UpdateRecipeAsync([FromRoute] string recipeId, [FromBody] UpdateRecipeDTO updateRecipeDTO)
 		{
 			try
 			{
 				var userId = GetUserIdFromContext(HttpContext);
-				recipeDetailDTO.UpdatedAt = DateTime.UtcNow;
-				await _recipeService.UpdateRecipeAsync(userId, recipeDetailDTO);
-				return Ok(ResponseDTO.Accept(result: recipeDetailDTO));
+				var result = await _recipeService.UpdateRecipeAsync(userId, recipeId, updateRecipeDTO);
+				if (result == null)
+				{
+					return Ok(ResponseDTO.Create(HttpStatusCode.InternalServerError, message: "Couldn't update recipe"));
+				}
+				return Ok(ResponseDTO.Accept(result: result));
 			}
 			catch (Exception ex)
 			{

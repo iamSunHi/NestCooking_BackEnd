@@ -38,10 +38,16 @@ namespace NESTCOOKING_API.Business.Mapping
 			CreateMap<IngredientTipContent, IngredientTipContentDTO>().ReverseMap();
 			CreateMap<IngredientTip, IngredientTipDTO>().ReverseMap();
 			CreateMap<IngredientTip, IngredientTipShortInfoDTO>().ReverseMap();
+			CreateMap<Ingredient, CreateIngredientDTO>().ReverseMap();
 			CreateMap<Ingredient, IngredientDTO>().ReverseMap();
 			CreateMap<Recipe, RecipeDTO>().ReverseMap();
 			CreateMap<Instructor, InstructorDTO>().ReverseMap();
+			CreateMap<Instructor, InstructorDTO>().ReverseMap();
+			CreateMap<Instructor, CreateInstructorDTO>().ReverseMap();
 			CreateMap<Recipe, RecipeDetailDTO>().ReverseMap();
+			CreateMap<Recipe, CreateRecipeDTO>().ReverseMap();
+			CreateMap<Recipe, UpdateRecipeDTO>().ReverseMap();
+
 		}
 	}
 }
