@@ -159,7 +159,7 @@ namespace NESTCOOKING_API.Business.Services
 
 			await UpdateCategories(recipeFromDb.Id, updateRecipeDTO.Categories);
 			await UpdateIngredients(recipeFromDb.Id, updateRecipeDTO.Ingredients);
-			await AddOrUpdateInstructors(recipeFromDb.Id, updateRecipeDTO.Instructors);
+			await AddOrUpdateInstructors(recipeFromDb.Id, updateRecipeDTO.Instructors.ToList());
 
 			return await this.GetRecipeByIdAsync(recipeId);
 		}
