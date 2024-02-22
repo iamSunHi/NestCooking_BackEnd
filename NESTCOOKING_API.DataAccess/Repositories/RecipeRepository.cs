@@ -49,10 +49,12 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 		{
 			var query = _context.Recipes.Where(recipe => recipe.Title.ToLower().Contains(criteria.ToLower()));
 
-			if (userId != null)
-			{
-				query = query.OrderByDescending(recipe => recipe.UserId == userId);
-			}
+			// Get recipes with the priority of who the user is following
+			//if (userId != null)
+			//{
+			//}
+
+			query = query.OrderByDescending(r => r.CreatedAt);
 
 			var result = await query.ToListAsync();
 
