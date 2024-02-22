@@ -84,7 +84,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpPost]
-		// [Authorize]
+		[Authorize]
 		public async Task<IActionResult> CreateRecipeAsync([FromBody] CreateRecipeDTO createRecipeDTO)
 		{
 			try
@@ -113,7 +113,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				var result = await _recipeService.UpdateRecipeAsync(userId, recipeId, updateRecipeDTO);
 				if (result == null)
 				{
-					return Ok(ResponseDTO.Create(HttpStatusCode.InternalServerError, message: "Couldn't update recipe"));
+					return StatusCode((int)HttpStatusCode.InternalServerError, ResponseDTO.Create(statusCode: HttpStatusCode.InternalServerError, message: "Couldn't update recipe"));
 				}
 				return Ok(ResponseDTO.Accept(result: result));
 			}

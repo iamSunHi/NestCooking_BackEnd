@@ -70,5 +70,6 @@
 		public static string RecipeNotFoundErrorMessage = "Recipe not found. ";
 
 		public static string NoResultsFoundErrorMessage = "No result found matching the specified criteria";
+		public static string InvalidVideoErrorMessage = "Please choose a valid video file to upload.";
 	}
 }
