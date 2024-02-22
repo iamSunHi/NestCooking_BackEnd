@@ -45,23 +45,22 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<IOAuthRepository, OAuthRepository>();
             service.AddScoped<IReportRepository, ReportRepository>();
 
+			// Add services to the container.
+			service.AddScoped<IJwtUtils, JwtUtils>();
+			service.AddScoped<IAuthService, AuthService>();
+			service.AddScoped<IUserService, UserService>();
+			service.AddScoped<IEmailService, EmailService>();
+			service.AddScoped<IReportService, ReportService>();
+			service.AddScoped<IResponseService, ResponseService>();
+			service.AddScoped<IRequestBecomeChefService, RequestBecomeChefService>();
+			service.AddScoped<ICategoryService, CategoryService>();
+			service.AddScoped<IIngredientTipService, IngredientTipService>();
+			service.AddScoped<IIngredientService, IngredientService>();
+			service.AddScoped<IRecipeService, RecipeService>();
+			service.AddScoped<ICloudinaryService, CloudinaryService>();
+			service.AddScoped<ISearchService, SearchService>();
 
-            // Add services to the container.
-            service.AddScoped<IJwtUtils, JwtUtils>();
-            service.AddScoped<IAuthService, AuthService>();
-            service.AddScoped<IUserService, UserService>();
-            service.AddScoped<IEmailService, EmailService>();
-            service.AddScoped<IReportService, ReportService>();
-            service.AddScoped<IResponseService, ResponseService>();
-            service.AddScoped<IRequestBecomeChefService, RequestBecomeChefService>();
-            service.AddScoped<ICategoryService, CategoryService>();
-            service.AddScoped<IIngredientTipService, IngredientTipService>();
-            service.AddScoped<IIngredientService, IngredientService>();
-            service.AddScoped<IRecipeService, RecipeService>();
-            service.AddScoped<ICloudinaryService, CloudinaryService>();
-            service.AddScoped<IRepository<Report>, ReportRepository>();
-
-            service.AddHttpClient();
+			service.AddHttpClient();
 
             service.AddCors(options =>
             {
@@ -75,6 +74,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
                 {
                     options.AddPolicy("admin", policy => policy.RequireRole("admin"));
                 });
+
             // Configure for email
             service.Configure<IdentityOptions>(options => options.SignIn.RequireConfirmedEmail = true);
             // Set time Token for Email Confirm

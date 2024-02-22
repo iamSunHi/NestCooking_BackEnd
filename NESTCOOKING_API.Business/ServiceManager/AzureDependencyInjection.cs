@@ -42,32 +42,6 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			service.AddScoped<IReportRepository, ReportRepository>();
 			service.AddScoped<IResponseRepository, ResponseRepository>();
 			service.AddScoped<IRequestBecomeChefRepository, RequestBecomeChefRepository>();
-
-			// Add services to the container.
-			service.AddScoped<IJwtUtils, JwtUtils>();
-			service.AddScoped<IAuthService, AuthService>();
-			service.AddScoped<IUserService, UserService>();
-			service.AddScoped<IEmailService, EmailService>();
-			service.AddScoped<IReportService, ReportService>();
-			service.AddScoped<IResponseService, ResponseService>();
-			service.AddScoped<IRequestBecomeChefService, RequestBecomeChefService>();
-			service.AddScoped<IRepository<Report>, ReportRepository>();
-
-			service.AddCors(options =>
-			{
-				options.AddPolicy("AllowAnyOrigin", builder =>
-				{
-					builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-				});
-			});
-			service.AddAuthorization(options =>
-			{
-				options.AddPolicy("admin", policy => policy.RequireRole("admin"));
-			});
-			// Add repositories to the container.
-			service.AddScoped<IUserRepository, UserRepository>();
-			service.AddScoped<IRoleRepository, RoleRepository>();
-			service.AddScoped<IRequestBecomeChefRepository, RequestBecomeChefRepository>();
 			service.AddScoped<ICategoryRepository, CategoryRepository>();
 			service.AddScoped<IIngredientTipContentRepository, IngredientTipContentRepository>();
 			service.AddScoped<IIngredientTipRepository, IngredientTipRepository>();
@@ -82,13 +56,15 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			service.AddScoped<IAuthService, AuthService>();
 			service.AddScoped<IUserService, UserService>();
 			service.AddScoped<IEmailService, EmailService>();
+			service.AddScoped<IReportService, ReportService>();
+			service.AddScoped<IResponseService, ResponseService>();
 			service.AddScoped<IRequestBecomeChefService, RequestBecomeChefService>();
 			service.AddScoped<ICategoryService, CategoryService>();
 			service.AddScoped<IIngredientTipService, IngredientTipService>();
 			service.AddScoped<IIngredientService, IngredientService>();
 			service.AddScoped<IRecipeService, RecipeService>();
 			service.AddScoped<ICloudinaryService, CloudinaryService>();
-
+			service.AddScoped<ISearchService, SearchService>();
 
 			service.AddHttpClient();
 
@@ -98,6 +74,11 @@ namespace NESTCOOKING_API.Business.ServiceManager
 				{
 					builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
 				});
+			});
+
+			service.AddAuthorization(options =>
+			{
+				options.AddPolicy("admin", policy => policy.RequireRole("admin"));
 			});
 
 			// Configure for email
