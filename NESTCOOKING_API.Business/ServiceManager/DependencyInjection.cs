@@ -29,20 +29,21 @@ namespace NESTCOOKING_API.Business.ServiceManager
                        .AddJsonFile("appsettings.json");
             var configurationRoot = configBuilder.Build();
 
-			// Add repositories to the container.
-			service.AddScoped<IUserRepository, UserRepository>();
-			service.AddScoped<IRoleRepository, RoleRepository>();
-			service.AddScoped<IReportRepository, ReportRepository>();
-			service.AddScoped<IResponseRepository, ResponseRepository>();
-			service.AddScoped<IRequestBecomeChefRepository, RequestBecomeChefRepository>();
-			service.AddScoped<ICategoryRepository, CategoryRepository>();
-			service.AddScoped<IIngredientTipContentRepository, IngredientTipContentRepository>();
-			service.AddScoped<IIngredientTipRepository, IngredientTipRepository>();
-			service.AddScoped<IIngredientRepository, IngredientRepository>();
-			service.AddScoped<IRecipeRepository, RecipeRepository>();
-			service.AddScoped<ICategoryRecipeRepository, CategoryRecipeRepository>();
-			service.AddScoped<IInstructorRepository, InstructorRepository>();
-			service.AddScoped<IOAuthRepository, OAuthRepository>();
+            // Add repositories to the container.
+            service.AddScoped<IUserRepository, UserRepository>();
+            service.AddScoped<IRoleRepository, RoleRepository>();
+            service.AddScoped<IResponseRepository, ResponseRepository>();
+            service.AddScoped<IRequestBecomeChefRepository, RequestBecomeChefRepository>();
+            service.AddScoped<ICategoryRepository, CategoryRepository>();
+            service.AddScoped<IIngredientTipContentRepository, IngredientTipContentRepository>();
+            service.AddScoped<IIngredientTipRepository, IngredientTipRepository>();
+            service.AddScoped<IIngredientRepository, IngredientRepository>();
+            service.AddScoped<IRecipeRepository, RecipeRepository>();
+            service.AddScoped<ICategoryRecipeRepository, CategoryRecipeRepository>();
+            service.AddScoped<IInstructorRepository, InstructorRepository>();
+            service.AddScoped<IFavoriteRecipeRepository, FavoriteRecipeRepository>();
+            service.AddScoped<IOAuthRepository, OAuthRepository>();
+            service.AddScoped<IReportRepository, ReportRepository>();
 
 			// Add services to the container.
 			service.AddScoped<IJwtUtils, JwtUtils>();

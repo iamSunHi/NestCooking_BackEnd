@@ -28,27 +28,19 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
 				if (userId != null)
 				{
-
 					var result = await _userRequestService.CreateRequestToBecomeChef(userId, requestToBecomeChefDTO);
-
-					if (result != null)
-					{
-						return Ok(ResponseDTO.Accept(result: result));
-					}
-					else
-					{
-						return StatusCode(500, AppString.BecomeChefRequestInternalServerErrorMessage);
-					}
+					return Ok(ResponseDTO.Accept(message: AppString.CreateRequestSuccessMessage));
 				}
 				return Unauthorized();
 			}
 			catch (Exception ex)
 			{
-				return StatusCode(500, "Internal Server Error");
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
 			}
 		}
 
 		[HttpGet]
+		[Authorize(Roles = StaticDetails.Role_Admin)]
 		public async Task<IActionResult> GetAllRequests()
 		{
 			try
@@ -58,7 +50,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			}
 			catch (Exception ex)
 			{
-				return StatusCode(500, "Internal Server Error");
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
 			}
 		}
 
@@ -80,7 +72,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			}
 			catch (Exception ex)
 			{
-				return StatusCode(500, "Internal Server Error");
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
 			}
 		}
 
@@ -102,30 +94,24 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			}
 			catch (Exception ex)
 			{
-				return StatusCode(500, "Internal Server Error");
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
 			}
 		}
+
 		[HttpDelete("{requestId}")]
 		public async Task<IActionResult> DeleteRequest(string requestId)
 		{
 			try
 			{
-				var success = await _userRequestService.DeleteRequestToBecomeChef(requestId);
-
-				if (success)
-				{
-					return Ok(ResponseDTO.Accept(result: AppString.DeleteRequestSuccessMessage));
-				}
-				else
-				{
-					return NotFound(AppString.RequestBecomeChefNotFound);
-				}
+				await _userRequestService.DeleteRequestToBecomeChef(requestId);
+				return Ok(ResponseDTO.Accept(result: AppString.DeleteRequestSuccessMessage));
 			}
 			catch (Exception ex)
 			{
-				return StatusCode(500, "Internal Server Error");
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
 			}
 		}
+
 		[HttpPut("{requestId}")]
 		public async Task<IActionResult> UpdateRequest(string requestId, [FromBody] CreatedRequestToBecomeChefDTO updatedRequestDTO)
 		{
@@ -144,7 +130,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			}
 			catch (Exception ex)
 			{
-				return StatusCode(500, "Internal Server Error");
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
 			}
 		}
 	}

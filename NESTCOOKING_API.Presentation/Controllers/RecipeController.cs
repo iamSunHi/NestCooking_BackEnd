@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
+using System.Net;
 using System.Security.Claims;
 
 namespace NESTCOOKING_API.Presentation.Controllers
@@ -20,6 +21,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpGet]
+		[ResponseCache(Duration = 30)]
 		public async Task<IActionResult> GetAllRecipesAsync()
 		{
 			var recipes = await _recipeService.GetAllRecipesAsync();
@@ -27,6 +29,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpGet("{id}")]
+		[ResponseCache(Duration = 30)]
 		public async Task<IActionResult> GetRecipeByIdAsync([FromRoute] string id)
 		{
 			var recipe = await _recipeService.GetRecipeByIdAsync(id);
@@ -85,7 +88,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		{
 			try
 			{
-				var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+				var userId = GetUserIdFromContext(HttpContext);
 				await _recipeService.CreateRecipeAsync(userId, recipeDetailDTO);
 				return Created();
 			}
@@ -101,7 +104,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		{
 			try
 			{
-				var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+				var userId = GetUserIdFromContext(HttpContext);
 				recipeDetailDTO.UpdatedAt = DateTime.UtcNow;
 				await _recipeService.UpdateRecipeAsync(userId, recipeDetailDTO);
 				return Ok(ResponseDTO.Accept(result: recipeDetailDTO));
@@ -118,7 +121,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		{
 			try
 			{
-				var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+				var userId = GetUserIdFromContext(HttpContext);
 				await _recipeService.DeleteRecipeAsync(userId, id);
 				return NoContent();
 			}
@@ -126,6 +129,74 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			{
 				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
 			}
+		}
+
+		[HttpGet("favorites")]
+		[Authorize]
+		public async Task<IActionResult> GetAllFavoriteRecipeAsync()
+		{
+			try
+			{
+				var userId = GetUserIdFromContext(HttpContext);
+				var recipes = await _recipeService.GetAllFavoriteRecipeAsync(userId);
+				return Ok(ResponseDTO.Accept(result: recipes));
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+		}
+
+		[HttpGet("favorites/user/{userId}")]
+		[Authorize]
+		public async Task<IActionResult> GetAllFavoriteRecipeOfOtherAsync([FromRoute] string userId)
+		{
+			try
+			{
+				var recipes = await _recipeService.GetAllFavoriteRecipeAsync(userId);
+				return Ok(ResponseDTO.Accept(result: recipes));
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+		}
+
+		[HttpPost("favorites/save/{recipeId}")]
+		[Authorize]
+		public async Task<IActionResult> SaveFavoriteRecipeAsync([FromRoute] string recipeId)
+		{
+			try
+			{
+				var userId = GetUserIdFromContext(HttpContext);
+				await _recipeService.SaveFavoriteRecipeAsync(userId, recipeId);
+				return Ok(ResponseDTO.Create(HttpStatusCode.Created, message: "Save favorite recipe successfully"));
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+		}
+
+		[HttpDelete("favorites/remove/{recipeId}")]
+		[Authorize]
+		public async Task<IActionResult> RemoveFavoriteRecipeAsync([FromRoute] string recipeId)
+		{
+			try
+			{
+				var userId = GetUserIdFromContext(HttpContext);
+				await _recipeService.RemoveFavoriteRecipeAsync(userId, recipeId);
+				return Ok(ResponseDTO.Create(HttpStatusCode.NoContent, message: "Remove successfully"));
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+		}
+
+		private string GetUserIdFromContext(HttpContext context)
+		{
+			return context.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
 		}
 	}
 }
