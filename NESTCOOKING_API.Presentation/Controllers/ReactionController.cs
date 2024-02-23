@@ -31,20 +31,20 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 {
                     throw new UnauthorizedAccessException();
                 }
-                var result =await _reactionService.AddReactionAsync(reactionDTO, userId);
+                var result = await _reactionService.AddReactionAsync(reactionDTO, userId);
                 if (result)
                 {
-                    return Ok(ResponseDTO.Accept());
+                    return Ok(ResponseDTO.Accept("Add Reaction Success"));
                 }
                 else
                 {
-                    return BadRequest(ResponseDTO.BadRequest());
+                    return BadRequest(ResponseDTO.BadRequest("Add Reaction Fail"));
                 }
-               
+
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
-                return BadRequest(ResponseDTO.BadRequest(message:ex.Message));
+                return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
             }
 
         }
@@ -61,21 +61,21 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 var result = await _reactionService.DeleteReactionAsync(targetId, userId);
                 if (result)
                 {
-                    return Ok(ResponseDTO.Accept());
+                    return Ok(ResponseDTO.Accept("Delete Reaction Success"));
                 }
 
                 else
                 {
-                    return BadRequest(ResponseDTO.BadRequest());
+                    return BadRequest(ResponseDTO.BadRequest("Delete Reaction Fail"));
                 }
             }
             catch (Exception ex)
             {
-                return BadRequest(ResponseDTO.BadRequest(message:ex.Message));
+                return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
             }
         }
         [HttpPut]
-        public async Task<IActionResult> UpdateReaction( [FromBody] ReactionDTO reactionDTO)
+        public async Task<IActionResult> UpdateReaction([FromBody] ReactionDTO reactionDTO)
         {
             var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
             try
@@ -87,40 +87,36 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 var result = await _reactionService.UpdateReactionAsync(reactionDTO, userId);
                 if (result)
                 {
-                    return Ok(ResponseDTO.Accept());
+                    return Ok(ResponseDTO.Accept(message:"Update Reaction Success"));
                 }
                 else
                 {
-                    return BadRequest(ResponseDTO.BadRequest());
-                }   
+                    return BadRequest(ResponseDTO.BadRequest(message:"Update Reaction Fail"));
+                }
             }
-            catch(Exception ex)
-            {
-                return BadRequest(ResponseDTO.BadRequest(message:ex.Message));
-            }
-        }
-        [HttpGet("total-reactions/{targetId}")]
-        public async Task<IActionResult> GetTotalReactionsById(string targetId)
-        {
-            try 
-            {
-                var result = await _reactionService.GetTotalReactionsByIdAsync(targetId);
-                return Ok(ResponseDTO.Accept(result:result));
-            }catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
-            }                       
+            }
         }
-        [HttpGet("reactions-by-type/{targetId}")]
-        public async Task<IActionResult> GetReactionsById(string targetId)
+        [HttpGet("{type}/{targetId}")]
+        public async Task<IActionResult> GetReactionsById(string type, string targetId)
         {
             try
             {
-                var result = await _reactionService.GetReactionsByIdAsync(targetId);
+                if (string.IsNullOrEmpty(type))
+                {
+                    return BadRequest(ResponseDTO.BadRequest(message: "Type is required"));
+                }
+                if (string.IsNullOrEmpty(targetId))
+                {
+                    return BadRequest(ResponseDTO.BadRequest(message: "Target is required"));
+                }
+                var result = await _reactionService.GetReactionsByIdAsync(targetId,type);
                 return Ok(ResponseDTO.Accept(result: result));
             }
 
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
             }

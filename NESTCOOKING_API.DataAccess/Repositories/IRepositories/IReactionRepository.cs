@@ -13,7 +13,6 @@ namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
         Task AddAsync(string targetID,StaticDetails.ReactionType reactionType,string userId);
         Task DeleteAsync(string targetId, string userId);
         Task UpdateReactionAsync(string targetID, StaticDetails.ReactionType reactionType, string userId);
-        Task<int> GetTotalReactionsByIdAsync(string targetId);
-        Task<Dictionary<string, int>> GetReactionsByIdAsync(string targetId);
+        Task<Dictionary<string, int>> GetReactionsByIdAsync(string targetId, string type);
     }
 }

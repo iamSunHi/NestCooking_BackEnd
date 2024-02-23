@@ -51,16 +51,15 @@ namespace NESTCOOKING_API.Business.Services
             }catch(Exception ex) 
             {
                 throw new Exception(ex.Message);
+            }          
+        }
+        public async Task<Dictionary<string, int>> GetReactionsByIdAsync(string targetId, string type)
+        {
+            if(!String.Equals(type,"Recipe")&& !String.Equals(type, "Comment"))
+            {
+                throw new Exception("Type is not valid");
             }
-            
-        }
-        public async Task<int> GetTotalReactionsByIdAsync(string targetId)
-        {
-            return await _reactionRepository.GetTotalReactionsByIdAsync(targetId);
-        }
-        public async Task<Dictionary<string, int>> GetReactionsByIdAsync(string targetId)
-        {
-            return await _reactionRepository.GetReactionsByIdAsync(targetId);
+            return await _reactionRepository.GetReactionsByIdAsync(targetId,type);
         }
     }
 }

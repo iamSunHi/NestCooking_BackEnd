@@ -152,45 +152,34 @@ namespace NESTCOOKING_API.DataAccess.Repositories
                 throw new Exception(ex.Message);
             }
         }
-        public async Task<int> GetTotalReactionsByIdAsync(string targetId)
+        public async Task<Dictionary<string, int>> GetReactionsByIdAsync(string targetId, string type)
         {
-
-            //if (await _context.Recipes.AnyAsync(r => r.Id == targetId))
-            //{
-            //    return await _context.RecipeReaction.CountAsync(r => r.Recipe.Id == targetId);
-            //}
-            //else if(await _context.Comments.AnyAsync(r => r.Id == targetId))
-            //{
-            //     return await _context.CommentReaction.CountAsync(r => r.Comment.Id == targetId);
-            //}
-
-            return await _context.RecipeReaction.CountAsync(r => r.Recipe.Id == targetId);
-        }
-        public async Task<Dictionary<string, int>> GetReactionsByIdAsync(string targetId)
-        {
-            //if (await _context.Recipes.AnyAsync(r => r.Id == targetId))
+            //if (String.Equals(type, "Recipe"))
             //{
             //    var reactions = await _context.RecipeReaction
             //    .Where(rr => rr.Recipe.Id == targetId)
             //    .GroupBy(rr => rr.Reaction.Emoji)
             //    .Select(g => new { Reaction = g.Key, Count = g.Count() })
             //    .ToDictionaryAsync(x => x.Reaction, x => x.Count);
+            //    return reactions;
             //}
-            //else if (await _context.Comments.AnyAsync(r => r.Id == targetId))
+            //else
             //{
             //    var reactions = await _context.CommentReaction
             //    .Where(rr => rr.Comment.Id == targetId)
             //    .GroupBy(rr => rr.Reaction.Emoji)
             //    .Select(g => new { Reaction = g.Key, Count = g.Count() })
             //    .ToDictionaryAsync(x => x.Reaction, x => x.Count);
+            //    return reactions;
             //}
+
             var reactions = await _context.RecipeReaction
                 .Where(rr => rr.Recipe.Id == targetId)
                 .GroupBy(rr => rr.Reaction.Emoji)
                 .Select(g => new { Reaction = g.Key, Count = g.Count() })
                 .ToDictionaryAsync(x => x.Reaction, x => x.Count);
-
             return reactions;
+
         }
     }
 }
