@@ -22,15 +22,14 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ParentCommentId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CommentId1 = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    ParentCommentId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Comments", x => x.CommentId);
                     table.ForeignKey(
-                        name: "FK_Comments_Comments_CommentId1",
-                        column: x => x.CommentId1,
+                        name: "FK_Comments_Comments_ParentCommentId",
+                        column: x => x.ParentCommentId,
                         principalTable: "Comments",
                         principalColumn: "CommentId");
                     table.ForeignKey(
@@ -38,19 +37,19 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         column: x => x.RecipeId,
                         principalTable: "Recipes",
                         principalColumn: "Id",
-						onDelete: ReferentialAction.NoAction);
-					table.ForeignKey(
+                        onDelete: ReferentialAction.NoAction);
+                    table.ForeignKey(
                         name: "FK_Comments_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
-						onDelete: ReferentialAction.NoAction);
-				});
+                        onDelete: ReferentialAction.NoAction);
+                });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Comments_CommentId1",
+                name: "IX_Comments_ParentCommentId",
                 table: "Comments",
-                column: "CommentId1");
+                column: "ParentCommentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Comments_RecipeId",

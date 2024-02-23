@@ -28,9 +28,9 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				var result = await _commentService.GetAllComments();
 				return Ok(ResponseDTO.Accept(result: result));
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				return StatusCode(500, "Internal Server Error");
+				return BadRequest(ResponseDTO.BadRequest(ex.Message));
 			}
 		}
 		[HttpGet("{commentId}")]
@@ -48,9 +48,9 @@ namespace NESTCOOKING_API.Presentation.Controllers
 					return NotFound(AppString.RequestCommentNotFound);
 				}
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				return StatusCode(500, "Internal Server Error");
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
 			}
 		}
 		[HttpDelete("{commentId}")]
@@ -58,19 +58,12 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		{
 			try
 			{
-				var success = await _commentService.DeleteComment(commentId);
-				if (success)
-				{
-					return Ok(ResponseDTO.Accept(result: AppString.DeleteCommentSuccessMessage));
-				}
-				else
-				{
-					return NotFound(AppString.RequestCommentNotFound);
-				}
+				await _commentService.DeleteComment(commentId);
+				return Ok(ResponseDTO.Accept(result: AppString.DeleteCommentSuccessMessage));
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				return StatusCode(500, "Internal Server Error");
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
 			}
 		}
 		[HttpPut("{commentId}")]
@@ -88,10 +81,11 @@ namespace NESTCOOKING_API.Presentation.Controllers
 					return NotFound(AppString.RequestCommentNotFound);
 				}
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
 
-				return StatusCode(500, "Internal Server Error");
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+
 			}
 		}
 		[HttpPost]
@@ -114,9 +108,9 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				}
 				return Unauthorized();
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				return StatusCode(500, "Internal Server Error");
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
 			}
 
 		}

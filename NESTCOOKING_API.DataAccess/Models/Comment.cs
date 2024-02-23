@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NESTCOOKING_API.DataAccess.Models
 {
@@ -15,6 +16,8 @@ namespace NESTCOOKING_API.DataAccess.Models
 		public DateTime CreatedAt { get; set; }
 		public DateTime UpdatedAt { get; set; }
 		public string? ParentCommentId { get; set; }
+		[ForeignKey("ParentCommentId")] 
+		public Comment? ParentComment { get; set; } 
 		public ICollection<Comment> ChildComments { get; set; }
 	}
 }

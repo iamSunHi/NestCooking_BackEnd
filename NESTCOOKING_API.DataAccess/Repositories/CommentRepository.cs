@@ -12,45 +12,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 {
 	public class CommentRepository : Repository<Comment>, ICommentRepository
 	{
-		private readonly ApplicationDbContext _context;
-
-		public CommentRepository(ApplicationDbContext context) : base(context)
-		{
-
-			_context = context;
-		}
-
-		public async Task<Comment> CreateComment(Comment createComment)
-		{
-			_context.Comments.Add(createComment);
-			await _context.SaveChangesAsync();
-			return createComment;
-		}
-
-		public async Task<bool> DeleteComment(string commentId)
-		{
-			var commentIdToDelete = await GetCommentById(commentId);
-			if (commentIdToDelete != null)
-			{
-				_context.Comments.Remove(commentIdToDelete);
-				await _context.SaveChangesAsync();
-				return true;
-			}
-			return false;
-		}
-
-		public async Task<IEnumerable<Comment>> GetAllComments()
-		{
-			var comments = await _context.Comments.ToListAsync();
-			return comments;
-		}
-
-		public async Task<Comment> GetCommentById(string commentId)
-		{
-			var comment = await _context.Comments.FindAsync(commentId);
-			return comment;
-		}
-
+		public CommentRepository(ApplicationDbContext context) : base(context) { }
 		public async Task<Comment> UpdateComment(Comment updateComment)
 		{
 			_context.Update(updateComment);

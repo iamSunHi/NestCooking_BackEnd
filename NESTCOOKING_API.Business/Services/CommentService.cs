@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs.CommentDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
@@ -38,9 +39,9 @@ namespace NESTCOOKING_API.Business.Services
 				requestComment.UserId = userId;
 				requestComment.CreatedAt = DateTime.Now;
 				requestComment.UpdatedAt = DateTime.Now;
-
-				var createdComment = await _commentRepository.CreateComment(requestComment);
-				var result = _mapper.Map<RequestCommentDTO>(createdComment);
+				//var createdComment = await _commentRepository.CreateComment(requestComment);
+				await _commentRepository.CreateAsync(requestComment);
+				var result = _mapper.Map<RequestCommentDTO>(await _commentRepository.GetAsync(c => c.CommentId == requestComment.CommentId));
 				return result;
 			}
 			catch (Exception ex)
@@ -49,28 +50,30 @@ namespace NESTCOOKING_API.Business.Services
 			}
 		}
 
-		public async Task<bool> DeleteComment(string commentId)
+		public async Task DeleteComment(string commentId)
 		{
-			return await _commentRepository.DeleteComment(commentId);
+			var commentFromDb = await _commentRepository.GetAsync(cmt => cmt.CommentId == commentId);
+			if (commentFromDb == null)
+			{
+				throw new Exception(AppString.RequestCommentNotFound);
+			}	
+			await _commentRepository.RemoveAsync(commentFromDb);
 		}
 
 		public async Task<IEnumerable<RequestCommentDTO>> GetAllComments()
 		{
-			var listComments = await _commentRepository.GetAllComments();
-			var result = _mapper.Map<IEnumerable<RequestCommentDTO>>(listComments);
+			var result = _mapper.Map<IEnumerable<RequestCommentDTO>>(await _commentRepository.GetAllAsync());
 			return result;
 		}
 
 		public async Task<RequestCommentDTO> GetCommentById(string commentId)
 		{
-			var comment = await _commentRepository.GetCommentById(commentId);
-			var result = _mapper.Map<RequestCommentDTO>(comment);
+			var result = _mapper.Map<RequestCommentDTO>(await _commentRepository.GetAsync(cmt => cmt.CommentId == commentId));
 			return result;
 		}
-
-		public async Task<RequestCommentDTO> UpdateComment(string userId, CreatedCommentDTO updateComment)
+		public async Task<RequestCommentDTO> UpdateComment(string commentId, CreatedCommentDTO updateComment)
 		{
-			var existtingComment = await _commentRepository.GetCommentById(userId);
+			var existtingComment = await _commentRepository.GetAsync(cmt => cmt.CommentId == commentId);
 			if (existtingComment != null)
 			{
 				existtingComment.UpdatedAt = DateTime.Now;

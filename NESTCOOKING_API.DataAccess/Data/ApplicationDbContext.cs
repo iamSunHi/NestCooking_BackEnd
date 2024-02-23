@@ -73,33 +73,35 @@ namespace NESTCOOKING_API.DataAccess.Data
             {
                 recipe.HasMany<Ingredient>().WithOne().HasForeignKey(ingredient => ingredient.RecipeId).IsRequired(true);
                 recipe.HasMany<Instructor>().WithOne().HasForeignKey(instructor => instructor.RecipeId).IsRequired(true);
-			});
+            });
             modelBuilder.Entity<User>(user =>
             {
                 user.HasMany<Recipe>().WithOne().HasForeignKey(recipe => recipe.UserId).IsRequired(true);
                 user.HasMany<IngredientTip>().WithOne().HasForeignKey(ingredientTip => ingredientTip.UserId).IsRequired(true);
             });
-            modelBuilder.Entity<FavoriteRecipe>(favoriteRecipe => {
+            modelBuilder.Entity<FavoriteRecipe>(favoriteRecipe =>
+            {
                 favoriteRecipe.HasKey(fr => new { fr.UserId, fr.RecipeId });
                 favoriteRecipe.HasOne(fr => fr.User).WithMany().HasForeignKey(fr => fr.UserId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
-				favoriteRecipe.HasOne(fr => fr.Recipe).WithMany().HasForeignKey(fr => fr.RecipeId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
-			});
-		}
-			// modelBuilder.Entity<Response>();
-			// modelBuilder.Entity<Report>();
-			modelBuilder.Entity<Comment>(comment =>
-			{
-				comment.ToTable("Comments");
-				comment.HasKey(comment => comment.CommentId);
-				comment.HasOne<Recipe>(c => c.Recipe)
-					.WithMany(r => r.Comments)
-					.HasForeignKey(c => c.RecipeId)
-					.IsRequired();
-				comment.HasOne<User>(c => c.User)
-					.WithMany(u => u.Comments)
-					.HasForeignKey(c => c.UserId)
-					.IsRequired();
-			});
-		}
+                favoriteRecipe.HasOne(fr => fr.Recipe).WithMany().HasForeignKey(fr => fr.RecipeId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
+            });
+            modelBuilder.Entity<Comment>(comment =>
+            {
+                comment.ToTable("Comments");
+                comment.HasKey(comment => comment.CommentId);
+                // comment.HasOne(c => c.ParentCommentId)
+                // .WithMany(c => c.ChildComments)
+                // .HasForeignKey(c => c.ParentCommentId)
+                // .OnDelete(DeleteBehavior.Restrict);
+                comment.HasOne<Recipe>(c => c.Recipe)
+                    .WithMany(r => r.Comments)
+                    .HasForeignKey(c => c.RecipeId)
+                    .IsRequired();
+                comment.HasOne<User>(c => c.User)
+                    .WithMany(u => u.Comments)
+                    .HasForeignKey(c => c.UserId)
+                    .IsRequired();
+            });
+        }
     }
 }

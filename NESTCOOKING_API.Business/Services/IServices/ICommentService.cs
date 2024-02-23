@@ -12,7 +12,7 @@ namespace NESTCOOKING_API.Business.Services.IServices
 		Task<IEnumerable<RequestCommentDTO>> GetAllComments();
 		Task<RequestCommentDTO> GetCommentById(string commentId);
 		Task<RequestCommentDTO> CreateComment(string userId, CreatedCommentDTO createComment);
-		Task<RequestCommentDTO> UpdateComment(string userId, CreatedCommentDTO updateComment);
-		Task<bool> DeleteComment(string commentId);
+		Task<RequestCommentDTO> UpdateComment(string commentId, CreatedCommentDTO updateComment);
+		Task DeleteComment(string commentId);
 	}
 }

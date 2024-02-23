@@ -195,9 +195,6 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.Property<string>("CommentId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("CommentId1")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -206,7 +203,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ParentCommentId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("RecipeId")
                         .IsRequired()
@@ -225,14 +222,13 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasKey("CommentId");
 
-                    b.HasIndex("CommentId1");
+                    b.HasIndex("ParentCommentId");
 
                     b.HasIndex("RecipeId");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("Comments", (string)null);
-                    b.ToTable("CategoryRecipe");
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.FavoriteRecipe", b =>
@@ -724,6 +720,31 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.Navigation("Recipe");
                 });
 
+            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Comment", b =>
+                {
+                    b.HasOne("NESTCOOKING_API.DataAccess.Models.Comment", "ParentComment")
+                        .WithMany("ChildComments")
+                        .HasForeignKey("ParentCommentId");
+
+                    b.HasOne("NESTCOOKING_API.DataAccess.Models.Recipe", "Recipe")
+                        .WithMany("Comments")
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NESTCOOKING_API.DataAccess.Models.User", "User")
+                        .WithMany("Comments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ParentComment");
+
+                    b.Navigation("Recipe");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.FavoriteRecipe", b =>
                 {
                     b.HasOne("NESTCOOKING_API.DataAccess.Models.Recipe", "Recipe")
@@ -736,29 +757,6 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Recipe");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Comment", b =>
-                {
-                    b.HasOne("NESTCOOKING_API.DataAccess.Models.Comment", null)
-                        .WithMany("ChildComments")
-                        .HasForeignKey("CommentId1");
-
-                    b.HasOne("NESTCOOKING_API.DataAccess.Models.Recipe", "Recipe")
-                        .WithMany("Comments")
-                        .HasForeignKey("RecipeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("NESTCOOKING_API.DataAccess.Models.User", "User")
-                        .WithMany("Comments")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Recipe");
