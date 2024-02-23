@@ -55,10 +55,13 @@ namespace NESTCOOKING_API.Business.Services
 			return recipeList;
 		}
 
-		public async Task<IEnumerable<RecipeDTO>> GetRecipesAsync(PaginationInfoDTO paginationInfo)
+		public async Task<(int, int, IEnumerable<RecipeDTO>)> GetRecipesAsync(PaginationInfoDTO paginationInfo)
 		{
+			var totalItems = (await _recipeRepository.GetAllAsync()).Count();
+			var totalPages = (int)Math.Ceiling((double)totalItems / paginationInfo.PageSize);
 			var recipesFromDb = await _recipeRepository.GetRecipesWithPaginationAsync(paginationInfo.PageNumber, paginationInfo.PageSize);
-			return _mapper.Map<IEnumerable<RecipeDTO>>(recipesFromDb);
+			var recipeList = _mapper.Map<IEnumerable<RecipeDTO>>(recipesFromDb);
+			return (totalItems, totalPages, recipeList);
 		}
 
 		public async Task<RecipeDetailDTO> GetRecipeByIdAsync(string id)
