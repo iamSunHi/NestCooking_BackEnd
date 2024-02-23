@@ -59,10 +59,10 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			try
 			{
 				await _commentService.DeleteComment(commentId);
-				return Ok(ResponseDTO.Accept(result: AppString.DeleteCommentSuccessMessage));
-			}
+					return Ok(ResponseDTO.Accept(result: AppString.DeleteCommentSuccessMessage));
+				}
 			catch (Exception ex)
-			{
+				{
 				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
 			}
 		}
