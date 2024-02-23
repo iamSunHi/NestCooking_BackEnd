@@ -24,9 +24,9 @@ namespace NESTCOOKING_API.Business.Services
             {
                 await _reactionRepository.AddAsync(reactionDTO.TargetID, reactionDTO.ReactionType, userId);
                 return true;
-            } catch
+            } catch(Exception ex)
             {
-                return false;
+                throw new Exception(ex.Message);
             }
            
         }
@@ -38,9 +38,9 @@ namespace NESTCOOKING_API.Business.Services
                 await _reactionRepository.DeleteAsync(targetId, userId);
                 return true;
             }
-            catch
+            catch(Exception ex) 
             {
-                return false;
+                throw new Exception(ex.Message);
             }
         }
         public async Task<bool> UpdateReactionAsync(ReactionDTO reactionDTO, string userId)
@@ -48,9 +48,9 @@ namespace NESTCOOKING_API.Business.Services
             try {
                 await _reactionRepository.UpdateReactionAsync(reactionDTO.TargetID, reactionDTO.ReactionType, userId);
                 return true;
-            }catch
+            }catch(Exception ex) 
             {
-                return false;
+                throw new Exception(ex.Message);
             }
             
         }
