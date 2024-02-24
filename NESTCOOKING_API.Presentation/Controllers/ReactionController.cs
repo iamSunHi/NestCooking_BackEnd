@@ -99,8 +99,8 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
             }
         }
-        [HttpGet("{type}/{targetId}")]
-        public async Task<IActionResult> GetReactionsById(string type, string targetId)
+        [HttpGet("{type}")]
+        public async Task<IActionResult> GetReactionsById(string type, [FromQuery] string targetId)
         {
             try
             {

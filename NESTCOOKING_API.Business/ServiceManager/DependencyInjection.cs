@@ -59,7 +59,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<IIngredientService, IngredientService>();
             service.AddScoped<IRecipeService, RecipeService>();
             service.AddScoped<ICloudinaryService, CloudinaryService>();
-            service.AddScoped<ISearchService, SearchService>()
+            service.AddScoped<ISearchService, SearchService>();
             service.AddScoped<IReactionService, ReactionService>();
 
 

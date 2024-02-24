@@ -55,7 +55,7 @@ namespace NESTCOOKING_API.Business.Services
         }
         public async Task<Dictionary<string, int>> GetReactionsByIdAsync(string targetId, string type)
         {
-            if(!String.Equals(type,"Recipe")&& !String.Equals(type, "Comment"))
+            if(!String.Equals(type,"recipe")&& !String.Equals(type, "comment"))
             {
                 throw new Exception("Type is not valid");
             }

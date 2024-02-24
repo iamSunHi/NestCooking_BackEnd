@@ -29,13 +29,13 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 
                 if (await _context.Recipes.AnyAsync(r => r.Id == targetID))
                 {
-                    checkTarget = "Recipe";
+                    checkTarget = "recipe";
                 }
                 //else if(await _context.Comments.AnyAsync(r => r.Id == targetID))
                 //{
-                //    var checkTarget = "Comment";
+                //    var checkTarget = "comment";
                 //}
-                if (String.Equals(checkTarget, "Recipe"))
+                if (String.Equals(checkTarget, "recipe"))
                 {
                     var recipe = await _context.Recipes.FirstOrDefaultAsync(r => r.Id == targetID);
                     var user = await _context.Users.FirstOrDefaultAsync(r => r.Id == userID);
@@ -51,7 +51,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
                     await _context.AddAsync(reactionRecipe);
                     await _context.SaveChangesAsync();
                 }
-                //else if (String.Equals(checkTarget, "Comment")){
+                //else if (String.Equals(checkTarget, "comment")){
                 //    var comment = await _context.Comments.FirstOrDefaultAsync(r => r.Id == targetID);
                 //    var user = await _context.Users.FirstOrDefaultAsync(r => r.Id == userID);
                 //    var reaction = await _context.Reaction.FirstOrDefaultAsync(r => r.Emoji == reactionType.ToString());
@@ -78,13 +78,13 @@ namespace NESTCOOKING_API.DataAccess.Repositories
             string checkTarget = "";
             if (await _context.Recipes.AnyAsync(r => r.Id == targetId))
             {
-                checkTarget = "Recipe";
+                checkTarget = "recipe";
             }
             //else if(await _context.Comments.AnyAsync(r => r.Id == targetID))
             //{
-            //    var checkTarget = "Comment";
+            //    var checkTarget = "comment";
             //}
-            if (String.Equals(checkTarget, "Recipe"))
+            if (String.Equals(checkTarget, "recipe"))
             {
                 var reactionsToDelete = await _context.RecipeReaction
                     .Where(r => r.User.Id == userId && r.Recipe.Id == targetId)
@@ -96,7 +96,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
                 }
             }
 
-            //else if (String.Equals(checkTarget, "Comment"))
+            //else if (String.Equals(checkTarget, "comment"))
             //{
             //    var reactionsToDelete = await _context.CommentReaction
             //        .Where(r => r.User.Id == userId && r.Comment.Id == targetId)
@@ -116,13 +116,13 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 
                 if (await _context.Recipes.AnyAsync(r => r.Id == targetID))
                 {
-                    checkTarget = "Recipe";
+                    checkTarget = "recipe";
                 }
                 //else if(await _context.Comments.AnyAsync(r => r.Id == targetID))
                 //{
-                //    var checkTarget = "Comment";
+                //    var checkTarget = "comment";
                 //}
-                if (String.Equals(checkTarget, "Recipe"))
+                if (String.Equals(checkTarget, "recipe"))
                 {
                     var reaction = await _context.RecipeReaction
                         .FirstOrDefaultAsync(r => r.User.Id == userId && r.Recipe.Id == targetID);
@@ -135,7 +135,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
                     }
 
                 }
-                //else if (String.Equals(checkTarget, "Comment"))
+                //else if (String.Equals(checkTarget, "comment"))
                 //{
                 //    var reaction = await _context.CommentReaction
                 //        .FirstOrDefaultAsync(r => r.User.Id == userId && r.Comment.Id == targetID);
@@ -154,7 +154,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
         }
         public async Task<Dictionary<string, int>> GetReactionsByIdAsync(string targetId, string type)
         {
-            //if (String.Equals(type, "Recipe"))
+            //if (String.Equals(type, "recipe"))
             //{
             //    var reactions = await _context.RecipeReaction
             //    .Where(rr => rr.Recipe.Id == targetId)
