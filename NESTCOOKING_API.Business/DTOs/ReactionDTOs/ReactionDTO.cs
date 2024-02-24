@@ -11,6 +11,6 @@ namespace NESTCOOKING_API.Business.DTOs.ReactionDTOs
     {
         public StaticDetails.ReactionType ReactionType { get; set; }
         public string TargetID { get; set; } = null!;
-
+        public string Type { get; set; } = null!;
     }
 }

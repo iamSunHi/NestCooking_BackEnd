@@ -10,9 +10,9 @@ namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
 {
     public interface IReactionRepository 
     {
-        Task AddAsync(string targetID,StaticDetails.ReactionType reactionType,string userId);
-        Task DeleteAsync(string targetId, string userId);
-        Task UpdateReactionAsync(string targetID, StaticDetails.ReactionType reactionType, string userId);
+        Task AddAsync(string targetID,StaticDetails.ReactionType reactionType,string type,string userId);
+        Task DeleteAsync(string targetId, string userId, string type);
+        Task UpdateReactionAsync(string targetID, StaticDetails.ReactionType reactionType,string type, string userId);
         Task<Dictionary<string, int>> GetReactionsByIdAsync(string targetId, string type);
     }
 }

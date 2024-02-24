@@ -22,20 +22,19 @@ namespace NESTCOOKING_API.Business.Services
         {
             try
             {
-                await _reactionRepository.AddAsync(reactionDTO.TargetID, reactionDTO.ReactionType, userId);
+                await _reactionRepository.AddAsync(reactionDTO.TargetID, reactionDTO.ReactionType,reactionDTO.Type,userId);
                 return true;
             } catch(Exception ex)
             {
                 throw new Exception(ex.Message);
-            }
-           
+            }          
         }
 
-        public async Task<bool> DeleteReactionAsync(string targetId, string userId)
+        public async Task<bool> DeleteReactionAsync(string targetId, string userId,string type)
         {
             try
             {
-                await _reactionRepository.DeleteAsync(targetId, userId);
+                await _reactionRepository.DeleteAsync(targetId, userId, type);
                 return true;
             }
             catch(Exception ex) 
@@ -46,7 +45,7 @@ namespace NESTCOOKING_API.Business.Services
         public async Task<bool> UpdateReactionAsync(ReactionDTO reactionDTO, string userId)
         {
             try {
-                await _reactionRepository.UpdateReactionAsync(reactionDTO.TargetID, reactionDTO.ReactionType, userId);
+                await _reactionRepository.UpdateReactionAsync(reactionDTO.TargetID, reactionDTO.ReactionType,reactionDTO.Type, userId);
                 return true;
             }catch(Exception ex) 
             {
@@ -55,11 +54,12 @@ namespace NESTCOOKING_API.Business.Services
         }
         public async Task<Dictionary<string, int>> GetReactionsByIdAsync(string targetId, string type)
         {
-            if(!String.Equals(type,"recipe")&& !String.Equals(type, "comment"))
+            try { 
+                return await _reactionRepository.GetReactionsByIdAsync(targetId, type); 
+            }catch(Exception ex)
             {
-                throw new Exception("Type is not valid");
-            }
-            return await _reactionRepository.GetReactionsByIdAsync(targetId,type);
+                throw new Exception(ex.Message);
+            }          
         }
     }
 }

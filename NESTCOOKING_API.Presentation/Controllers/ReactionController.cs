@@ -26,10 +26,14 @@ namespace NESTCOOKING_API.Presentation.Controllers
         {
             try
             {
-                var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+                var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;           
                 if (userId == null)
                 {
                     throw new UnauthorizedAccessException();
+                }
+                if (!String.Equals(reactionDTO.Type, "recipe") && !String.Equals(reactionDTO.Type, "comment"))
+                {
+                    throw new Exception("Type is not valid");
                 }
                 var result = await _reactionService.AddReactionAsync(reactionDTO, userId);
                 if (result)
@@ -49,7 +53,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
         }
         [HttpDelete("{targetId}")]
-        public async Task<IActionResult> Delete(string targetId)
+        public async Task<IActionResult> Delete(string type, [FromQuery] string targetId)
         {
             var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
             try
@@ -58,7 +62,19 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 {
                     throw new UnauthorizedAccessException();
                 }
-                var result = await _reactionService.DeleteReactionAsync(targetId, userId);
+                if (string.IsNullOrEmpty(type))
+                {
+                    return BadRequest(ResponseDTO.BadRequest(message: "Type is required"));
+                }
+                if (!String.Equals(type, "recipe") && !String.Equals(type, "comment"))
+                {
+                    throw new Exception("Type is not valid");
+                }
+                if (string.IsNullOrEmpty(targetId))
+                {
+                    return BadRequest(ResponseDTO.BadRequest(message: "Target is required"));
+                }
+                var result = await _reactionService.DeleteReactionAsync(targetId, userId, type);
                 if (result)
                 {
                     return Ok(ResponseDTO.Accept("Delete Reaction Success"));
@@ -84,6 +100,10 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 {
                     throw new UnauthorizedAccessException();
                 }
+                if (!String.Equals(reactionDTO.Type, "recipe") && !String.Equals(reactionDTO.Type, "comment"))
+                {
+                    throw new Exception("Type is not valid");
+                }
                 var result = await _reactionService.UpdateReactionAsync(reactionDTO, userId);
                 if (result)
                 {
@@ -104,9 +124,14 @@ namespace NESTCOOKING_API.Presentation.Controllers
         {
             try
             {
+              
                 if (string.IsNullOrEmpty(type))
                 {
                     return BadRequest(ResponseDTO.BadRequest(message: "Type is required"));
+                }
+                if (!String.Equals(type, "recipe") && !String.Equals(type, "comment"))
+                {
+                    throw new Exception("Type is not valid");
                 }
                 if (string.IsNullOrEmpty(targetId))
                 {
