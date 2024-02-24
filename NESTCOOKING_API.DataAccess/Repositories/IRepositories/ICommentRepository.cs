@@ -10,6 +10,5 @@ namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
 	public interface ICommentRepository : IRepository<Comment>
 	{
 		Task<Comment> UpdateComment(Comment updateComment);
-		Task<bool> DeleteComment(string commentId);
 	}
 }
