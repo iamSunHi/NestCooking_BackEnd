@@ -31,20 +31,38 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			return Ok(ResponseDTO.Accept(result: ingredientTipList));
 		}
 
-		[HttpGet("page/{pageNumber}")]
-		public async Task<IActionResult> GetIngredientTipsAsync([FromRoute] int pageNumber)
+		[HttpGet("page")]
+		public async Task<IActionResult> GetIngredientTipsAsync([FromQuery] int pageNumber, [FromQuery] int pageSize)
 		{
 			if (pageNumber != 0)
 			{
 				_paginationInfo.PageNumber = pageNumber;
 			}
-			var ingredientTips = await _ingredientTipService.GetIngredientTipsAsync(_paginationInfo);
+			if (pageSize != 0)
+			{
+				_paginationInfo.PageSize = pageSize;
+			}
+			else if (pageSize > 100)
+			{
+				_paginationInfo.PageSize = 100;
+			}
+			(int totalItems, int totalPages, IEnumerable<IngredientTipShortInfoDTO> ingredientTipList) result = await _ingredientTipService.GetIngredientTipsAsync(_paginationInfo);
 
-			if (ingredientTips == null)
+			if (result.ingredientTipList == null)
 			{
 				return BadRequest(ResponseDTO.BadRequest(message: "Page number is not valid!"));
 			}
-			return Ok(ResponseDTO.Accept(result: ingredientTips));
+			return Ok(ResponseDTO.Accept(result: new
+			{
+				metadata = new
+				{
+					result.totalItems,
+					result.totalPages,
+					pageNumber,
+					pageSize
+				},
+				ingredientTips = result.ingredientTipList
+			}));
 		}
 
 		[HttpGet("{ingredientTipId}")]

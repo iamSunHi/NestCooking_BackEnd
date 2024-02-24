@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http.HttpResults;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
 using NESTCOOKING_API.Business.DTOs.UserDTOs;
@@ -42,20 +41,23 @@ namespace NESTCOOKING_API.Business.Services
 			return tipList;
 		}
 
-		public async Task<IEnumerable<IngredientTipShortInfoDTO>> GetIngredientTipsAsync(PaginationInfoDTO paginationInfo)
+		public async Task<(int, int, IEnumerable<IngredientTipShortInfoDTO>)> GetIngredientTipsAsync(PaginationInfoDTO paginationInfo)
 		{
+			var totalItems = (await _ingredientTipRepository.GetAllAsync()).Count();
+			var totalPages = (int)Math.Ceiling((double)totalItems / paginationInfo.PageSize);
 			var ingredientTips = await _ingredientTipRepository.GetIngredientTipsWithPaginationAsync(paginationInfo.PageNumber, paginationInfo.PageSize);
 			if (ingredientTips == null)
 			{
-				return null;
+				return (totalItems, totalPages, null);
 			}
+
 			var tipList = _mapper.Map<IEnumerable<IngredientTipShortInfoDTO>>(ingredientTips);
 			for (int i = 0; i < ingredientTips.Count(); i++)
 			{
 				var userFromDb = await _userRepository.GetAsync(u => u.Id == ingredientTips.ToList()[i].UserId);
 				tipList.ToList()[i].User = _mapper.Map<UserShortInfoDTO>(userFromDb);
 			}
-			return tipList;
+			return (totalItems, totalPages, tipList);
 		}
 
 		public async Task<IngredientTipDTO> GetIngredientTipByIdAsync(string id)

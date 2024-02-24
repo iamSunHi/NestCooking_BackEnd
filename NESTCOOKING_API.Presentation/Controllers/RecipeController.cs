@@ -6,7 +6,6 @@ using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.Utility;
 using System.Net;
 using System.Security.Claims;
-using System.Text.Json.Nodes;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
@@ -42,8 +41,8 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			return Ok(ResponseDTO.Accept(result: recipe));
 		}
 
-		[HttpGet("page/pageNumber={pageNumber}&pageSize={pageSize}")]
-		public async Task<IActionResult> GetRecipesAsync([FromRoute] int pageNumber, [FromRoute] int pageSize)
+		[HttpGet("page")]
+		public async Task<IActionResult> GetRecipesAsync([FromQuery] int pageNumber, [FromQuery] int pageSize)
 		{
 			if (pageNumber != 0)
 			{
@@ -53,11 +52,15 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			{
 				_paginationInfo.PageSize = pageSize;
 			}
+			else if (pageSize > 100)
+			{
+				_paginationInfo.PageSize = 100;
+			}
 			(int totalItems, int totalPages, IEnumerable<RecipeDTO> recipeList) result = await _recipeService.GetRecipesAsync(_paginationInfo);
 
 			if (result.recipeList == null)
 			{
-				return BadRequest(ResponseDTO.BadRequest());
+				return BadRequest(ResponseDTO.BadRequest(message: "Page number is not valid!"));
 			}
 			return Ok(ResponseDTO.Accept(result: new
 			{
