@@ -52,7 +52,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
             }
 
         }
-        [HttpDelete("{targetId}")]
+        [HttpDelete("{type}")]
         public async Task<IActionResult> Delete(string type, [FromQuery] string targetId)
         {
             var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
