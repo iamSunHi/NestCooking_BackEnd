@@ -9,7 +9,7 @@ namespace NESTCOOKING_API.Business.DTOs.ReactionDTOs
 {
     public class ReactionDTO
     {
-        public StaticDetails.ReactionType ReactionType { get; set; }
+        public StaticDetails.ReactionType Reaction { get; set; }
         public string TargetID { get; set; } = null!;
         public string Type { get; set; } = null!;
     }

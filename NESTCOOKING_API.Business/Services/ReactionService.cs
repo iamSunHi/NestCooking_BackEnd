@@ -22,22 +22,20 @@ namespace NESTCOOKING_API.Business.Services
         {
             try
             {
-                await _reactionRepository.AddAsync(reactionDTO.TargetID, reactionDTO.ReactionType,reactionDTO.Type,userId);
+                await _reactionRepository.AddAsync(reactionDTO.TargetID, reactionDTO.Reaction, reactionDTO.Type, userId);
                 return true;
             } catch(Exception ex)
             {
                 throw new Exception(ex.Message);
             }          
         }
-
-        public async Task<bool> DeleteReactionAsync(string targetId, string userId,string type)
+        public async Task<bool> DeleteReactionAsync(string targetId, string userId, string type)
         {
             try
             {
                 await _reactionRepository.DeleteAsync(targetId, userId, type);
                 return true;
-            }
-            catch(Exception ex) 
+            } catch(Exception ex) 
             {
                 throw new Exception(ex.Message);
             }
@@ -45,9 +43,9 @@ namespace NESTCOOKING_API.Business.Services
         public async Task<bool> UpdateReactionAsync(ReactionDTO reactionDTO, string userId)
         {
             try {
-                await _reactionRepository.UpdateReactionAsync(reactionDTO.TargetID, reactionDTO.ReactionType,reactionDTO.Type, userId);
+                await _reactionRepository.UpdateReactionAsync(reactionDTO.TargetID, reactionDTO.Reaction, reactionDTO.Type, userId);
                 return true;
-            }catch(Exception ex) 
+            } catch(Exception ex) 
             {
                 throw new Exception(ex.Message);
             }          
@@ -56,7 +54,7 @@ namespace NESTCOOKING_API.Business.Services
         {
             try { 
                 return await _reactionRepository.GetReactionsByIdAsync(targetId, type); 
-            }catch(Exception ex)
+            } catch(Exception ex)
             {
                 throw new Exception(ex.Message);
             }          
