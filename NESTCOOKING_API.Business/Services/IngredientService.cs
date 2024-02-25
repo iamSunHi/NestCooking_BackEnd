@@ -33,18 +33,6 @@ namespace NESTCOOKING_API.Business.Services
 			return ingredients;
 		}
 
-		public async Task<IEnumerable<IngredientDTO>> GetIngredientsAsync(PaginationInfoDTO paginationInfo)
-		{
-			var ingredientsFromDb = await _ingredientRepository.GetIngredientsWithPaginationAsync(paginationInfo.PageNumber, paginationInfo.PageSize, includeProperties: "IngredientTip");
-			var ingredients = _mapper.Map<IEnumerable<IngredientDTO>>(ingredientsFromDb);
-			foreach (var ingredient in ingredients)
-			{
-				if (ingredient.IngredientTip?.Id != null)
-					ingredient.IngredientTip = await _ingredientTipService.GetIngredientTipShortInfoByIdAsync(ingredient.IngredientTip.Id);
-			}
-			return ingredients;
-		}
-
 		public async Task<IngredientDTO> GetIngredientByIdAsync(int id)
 		{
 			var ingredientsFromDb = await _ingredientRepository.GetAsync(i => i.Id == id, includeProperties: "IngredientTip");
