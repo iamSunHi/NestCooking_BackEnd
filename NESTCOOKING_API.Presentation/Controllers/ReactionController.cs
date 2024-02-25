@@ -11,7 +11,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
 {
     [Route("api/reaction")]
     [ApiController]
-    [Authorize]
     public class ReactionController : ControllerBase
     {
         private readonly IReactionService _reactionService;
@@ -22,6 +21,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> AddReaction([FromBody] ReactionDTO reactionDTO)
         {
             try
@@ -47,6 +47,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
             }
         }
         [HttpDelete("{type}")]
+        [Authorize]
         public async Task<IActionResult> Delete(string type, [FromQuery] string targetId)
         {
             try
@@ -80,6 +81,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
             }
         }
         [HttpPut]
+        [Authorize]
         public async Task<IActionResult> UpdateReaction([FromBody] ReactionDTO reactionDTO)
         {        
             try
