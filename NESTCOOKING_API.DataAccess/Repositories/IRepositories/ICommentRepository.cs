@@ -10,5 +10,9 @@ namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
 	public interface ICommentRepository : IRepository<Comment>
 	{
 		Task<Comment> UpdateComment(Comment updateComment);
+		Task<IEnumerable<Comment>> GetAllCommentsOfRecipeByRecipeId(string recipeId);
+		Task<IEnumerable<Comment>> GetChildCommentsByParentCommentId(string parentCommentId);
+
+
 	}
 }

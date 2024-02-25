@@ -89,10 +89,6 @@ namespace NESTCOOKING_API.DataAccess.Data
             {
                 comment.ToTable("Comments");
                 comment.HasKey(comment => comment.CommentId);
-                // comment.HasOne(c => c.ParentCommentId)
-                // .WithMany(c => c.ChildComments)
-                // .HasForeignKey(c => c.ParentCommentId)
-                // .OnDelete(DeleteBehavior.Restrict);
                 comment.HasOne<Recipe>(c => c.Recipe)
                     .WithMany(r => r.Comments)
                     .HasForeignKey(c => c.RecipeId)

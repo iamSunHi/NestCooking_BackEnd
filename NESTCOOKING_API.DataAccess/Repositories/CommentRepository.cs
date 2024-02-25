@@ -13,6 +13,24 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 	public class CommentRepository : Repository<Comment>, ICommentRepository
 	{
 		public CommentRepository(ApplicationDbContext context) : base(context) { }
+
+	
+		public async Task<IEnumerable<Comment>> GetAllCommentsOfRecipeByRecipeId(string recipeId)
+		{
+			var comments = await _context.Comments
+					.Where(comemnt => comemnt.RecipeId == recipeId)
+					.ToListAsync();
+			return comments;
+		}
+
+		public async Task<IEnumerable<Comment>> GetChildCommentsByParentCommentId(string parentCommentId)
+		{
+			var comments = await _context.Comments
+				.Where(comemnt => comemnt.ParentCommentId == parentCommentId)
+				.ToListAsync();
+			return comments;
+		}
+
 		public async Task<Comment> UpdateComment(Comment updateComment)
 		{
 			_context.Update(updateComment);

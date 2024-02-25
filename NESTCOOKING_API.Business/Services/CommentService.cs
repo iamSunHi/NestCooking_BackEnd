@@ -34,14 +34,20 @@ namespace NESTCOOKING_API.Business.Services
 				{
 					throw new Exception(AppString.SomethingWrongMessage);
 				}
+				if (createComment.ParentCommentId != null && createComment.Type.Equals(StaticDetails.CommentType_RECIPE))
+				{
+					throw new Exception(AppString.CommentFail);
+				}
+				if (createComment.ParentCommentId == null && createComment.Type.Equals(StaticDetails.CommentType_COMMENTCHILD)){
+					throw new Exception(AppString.CommentFail);
+				}
 				var requestComment = _mapper.Map<Comment>(createComment);
 				requestComment.CommentId = Guid.NewGuid().ToString();
 				requestComment.UserId = userId;
 				requestComment.CreatedAt = DateTime.Now;
 				requestComment.UpdatedAt = DateTime.Now;
-				//var createdComment = await _commentRepository.CreateComment(requestComment);
 				await _commentRepository.CreateAsync(requestComment);
-				var result = _mapper.Map<RequestCommentDTO>(await _commentRepository.GetAsync(c => c.CommentId == requestComment.CommentId));
+				var result = await GetCommentById(requestComment.CommentId);
 				return result;
 			}
 			catch (Exception ex)
@@ -49,32 +55,55 @@ namespace NESTCOOKING_API.Business.Services
 				throw new Exception(AppString.SomethingWrongMessage);
 			}
 		}
-
 		public async Task DeleteComment(string commentId)
 		{
-			var commentFromDb = await _commentRepository.GetAsync(cmt => cmt.CommentId == commentId);
-			if (commentFromDb == null)
+			try
 			{
-				throw new Exception(AppString.RequestCommentNotFound);
-			}	
-			await _commentRepository.RemoveAsync(commentFromDb);
+				var commentFromDb = await _commentRepository.GetAsync(comment => comment.CommentId == commentId);
+				var user = await _userManager.FindByIdAsync(commentFromDb.UserId);
+				if (commentFromDb == null || user == null)
+				{
+					throw new Exception(AppString.RequestCommentNotFound);
+				}
+				if (commentFromDb != null && commentFromDb.UserId.Equals(user.Id))
+				{
+					await _commentRepository.RemoveAsync(commentFromDb);
+				}
+			}
+			catch (Exception)
+			{
+				throw new Exception(AppString.DeleteCommentNotOwner);
+			}
 		}
-
 		public async Task<IEnumerable<RequestCommentDTO>> GetAllComments()
 		{
 			var result = _mapper.Map<IEnumerable<RequestCommentDTO>>(await _commentRepository.GetAllAsync());
 			return result;
 		}
-
+		public async Task<IEnumerable<RequestCommentDTO>> GetChildCommentsByParentCommentId(string parentCommentId)
+		{
+			var result = _mapper.Map<IEnumerable<RequestCommentDTO>>(await _commentRepository.GetChildCommentsByParentCommentId(parentCommentId));
+			return result;
+		}
+		public async Task<IEnumerable<RequestCommentDTO>> GetCommentsOfRecipeByRecipeId(string recipeId)
+		{
+			var result = _mapper.Map<IEnumerable<RequestCommentDTO>>(await _commentRepository.GetAllCommentsOfRecipeByRecipeId(recipeId));
+			return result;
+		}
 		public async Task<RequestCommentDTO> GetCommentById(string commentId)
 		{
 			var result = _mapper.Map<RequestCommentDTO>(await _commentRepository.GetAsync(cmt => cmt.CommentId == commentId));
 			return result;
 		}
-		public async Task<RequestCommentDTO> UpdateComment(string commentId, CreatedCommentDTO updateComment)
+		public async Task<RequestCommentDTO> UpdateComment(string commentId, UpdateCommentDTO updateComment)
 		{
 			var existtingComment = await _commentRepository.GetAsync(cmt => cmt.CommentId == commentId);
-			if (existtingComment != null)
+			var user = await _userManager.FindByIdAsync(existtingComment.UserId);
+			if (existtingComment == null || user == null)
+			{
+				throw new Exception(AppString.RequestCommentNotFound);
+			}
+			if (existtingComment != null && existtingComment.UserId.Equals(user.Id))
 			{
 				existtingComment.UpdatedAt = DateTime.Now;
 				_mapper.Map(updateComment, existtingComment);
@@ -84,5 +113,24 @@ namespace NESTCOOKING_API.Business.Services
 			}
 			return null;
 		}
+		public Task<bool> ValidType(string type)
+		{
+			if (type == null)
+			{
+				throw new ArgumentNullException(nameof(type), AppString.TypeCommentNull);
+			}
+			try
+			{
+				bool isValidType = string.Equals(type, StaticDetails.CommentType_RECIPE, StringComparison.OrdinalIgnoreCase) ||
+								   string.Equals(type, StaticDetails.CommentType_COMMENTCHILD, StringComparison.OrdinalIgnoreCase);
+				return Task.FromResult(isValidType);
+			}
+			catch (Exception ex)
+			{
+				throw new Exception(AppString.SomethingWrongMessage, ex);
+			}
+		}
+
+		
 	}
 }

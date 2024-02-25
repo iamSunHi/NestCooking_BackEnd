@@ -71,6 +71,10 @@
 		public static string DeleteCommentSuccessMessage = "Delete Comment successfully.";
 		public static string CreateCommentSuccessMessage = "Create Comment successfully.";
 		public static string CreateCommentInternalServerErrorMessage = "Failed to create comment.";
+		public static string TypeCommentNull = "Type of comment not null";
+		public static string CreateCommentInValidType = "Invalid Comment Type";
+		public static string DeleteCommentNotOwner = "You must Owner of this Comment";
+		public static string CommentFail = "You are comment as ChildComment";
 	}
 
 }

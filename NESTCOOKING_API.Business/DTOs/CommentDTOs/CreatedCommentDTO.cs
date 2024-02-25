@@ -8,7 +8,6 @@ namespace NESTCOOKING_API.Business.DTOs.CommentDTOs
 {
 	public class CreatedCommentDTO
 	{
-		//public string CommentId { get; set; } = null!;
 		public string RecipeId { get; set; } = null!;
         public string Content { get; set; } = null!;
 		public string Type { get; set; } = null!;

@@ -29,6 +29,8 @@
 		public const string ReportType_COMMENT = "comment";
 		public const string ReportType_RECIPE = "recipe";
 
+		public const string CommentType_RECIPE = "Recipe";
+		public const string CommentType_COMMENTCHILD = "Comment";
 		public enum ProviderLogin {
 			FACEBOOK, GOOGLE
 		}
