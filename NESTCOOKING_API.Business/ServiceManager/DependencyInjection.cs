@@ -20,7 +20,7 @@ using System.Text;
 
 namespace NESTCOOKING_API.Business.ServiceManager
 {
-	public class DependencyInjection
+    public class DependencyInjection
     {
         public void ConfigureServices(IServiceCollection service)
         {
@@ -44,10 +44,11 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<IFavoriteRecipeRepository, FavoriteRecipeRepository>();
             service.AddScoped<IOAuthRepository, OAuthRepository>();
             service.AddScoped<IReportRepository, ReportRepository>();
+            service.AddScoped<IReactionRepository, ReactionRepository>();
 			service.AddScoped<ICommentRepository, CommentRepository>();
 
-			// Add services to the container.
-			service.AddScoped<IJwtUtils, JwtUtils>();
+            // Add services to the container.
+            service.AddScoped<IJwtUtils, JwtUtils>();
             service.AddScoped<IAuthService, AuthService>();
             service.AddScoped<IUserService, UserService>();
             service.AddScoped<IEmailService, EmailService>();
@@ -59,6 +60,11 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<IIngredientService, IngredientService>();
             service.AddScoped<IRecipeService, RecipeService>();
             service.AddScoped<ICloudinaryService, CloudinaryService>();
+            service.AddScoped<ISearchService, SearchService>();
+            service.AddScoped<IReactionService, ReactionService>();
+
+
+            service.AddHttpClient();
             service.AddScoped<IRepository<Report>, ReportRepository>();
 			service.AddScoped<ICommentService, CommentService>();
 			service.AddHttpClient();
@@ -75,6 +81,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
                 {
                     options.AddPolicy("admin", policy => policy.RequireRole("admin"));
                 });
+
             // Configure for email
             service.Configure<IdentityOptions>(options => options.SignIn.RequireConfirmedEmail = true);
             // Set time Token for Email Confirm

@@ -19,14 +19,15 @@ namespace NESTCOOKING_API.Business.Services
 		private readonly IIngredientRepository _ingredientRepository;
 		private readonly IInstructorRepository _instructorRepository;
 		private readonly IFavoriteRecipeRepository _favoriteRecipeRepository;
+		private readonly ICategoryRepository _categoryRepository;
 		private readonly UserManager<User> _userManager;
-
 		private readonly IIngredientTipService _ingredientTipService;
 
 		public RecipeService(IMapper mapper,
 			IUserRepository userRepository, IRecipeRepository recipeRepository, ICategoryRecipeRepository categoryRecipeRepository, IIngredientRepository ingredientRepository, IInstructorRepository instructorRepository, IFavoriteRecipeRepository favoriteRecipeRepository,
 			UserManager<User> userManager,
-			IIngredientTipService ingredientTipService)
+			IIngredientTipService ingredientTipService,
+			ICategoryRepository categoryRepository)
 		{
 			_mapper = mapper;
 			_userRepository = userRepository;
@@ -37,6 +38,7 @@ namespace NESTCOOKING_API.Business.Services
 			_favoriteRecipeRepository = favoriteRecipeRepository;
 			_userManager = userManager;
 			_ingredientTipService = ingredientTipService;
+			_categoryRepository = categoryRepository;
 		}
 
 		public async Task<IEnumerable<RecipeDTO>> GetAllRecipesAsync()
@@ -82,7 +84,7 @@ namespace NESTCOOKING_API.Business.Services
 				}
 			}
 			var instructorList = await _instructorRepository.GetAllAsync(i => i.RecipeId == id);
-			instructorList = instructorList.OrderBy(i => i.StepNumber);
+			instructorList = instructorList.OrderBy(i => i.InstructorOrder);
 			recipe.Instructors = _mapper.Map<IEnumerable<InstructorDTO>>(instructorList);
 
 			return recipe;
@@ -114,128 +116,53 @@ namespace NESTCOOKING_API.Business.Services
 			return recipeList;
 		}
 
-		public async Task CreateRecipeAsync(string userId, RecipeDetailDTO recipeDetailDTO)
+		public async Task<RecipeDetailDTO> CreateRecipeAsync(string userId, CreateRecipeDTO createRecipeDTO)
 		{
-			var recipe = _mapper.Map<Recipe>(recipeDetailDTO);
+			var recipe = _mapper.Map<Recipe>(createRecipeDTO);
 			var user = await _userManager.FindByIdAsync(userId);
-			if (user != null)
-			{
-				recipe.Id = Guid.NewGuid().ToString();
-				recipe.UserId = userId;
-				recipe.CreatedAt = DateTime.UtcNow;
-				await _recipeRepository.CreateAsync(recipe);
-
-				// Add Categories
-				foreach (var category in recipeDetailDTO.Categories)
-				{
-					await _categoryRecipeRepository.CreateAsync(new()
-					{
-						RecipeId = recipe.Id, CategoryId = category.Id,
-					});
-				}
-				// Add Ingredients
-				foreach (var ingredient in recipeDetailDTO.Ingredients)
-				{
-					var ingredientModel = _mapper.Map<Ingredient>(ingredient);
-					ingredientModel.RecipeId = recipe.Id;
-					if (ingredient.IngredientTip != null)
-					{
-						ingredientModel.IngredientTipId = ingredient.IngredientTip.Id;
-					}
-					await _ingredientRepository.CreateAsync(ingredientModel);
-				}
-				// Add Instructors
-				foreach (var instructor in recipeDetailDTO.Instructors)
-				{
-					var instructorModel = _mapper.Map<Instructor>(instructor);
-					instructorModel.RecipeId = recipe.Id;
-					await _instructorRepository.CreateAsync(instructorModel);
-				}
-			}
-			else
+			if (user == null)
 			{
 				throw new Exception("User not found!");
 			}
+
+			var newRecipeId = Guid.NewGuid().ToString();
+			recipe.Id = newRecipeId;
+			recipe.UserId = userId;
+			recipe.CreatedAt = DateTime.UtcNow;
+			recipe.UpdatedAt = DateTime.UtcNow;
+			await _recipeRepository.CreateAsync(recipe);
+
+			await AddCategories(recipe.Id, createRecipeDTO.Categories);
+			await AddIngredients(recipe.Id, createRecipeDTO.Ingredients);
+			await AddOrUpdateInstructors(recipe.Id, createRecipeDTO.Instructors);
+
+			var newRecipe = await this.GetRecipeByIdAsync(newRecipeId);
+			return newRecipe;
 		}
 
-		public async Task UpdateRecipeAsync(string userId, RecipeDetailDTO recipeDetailDTO)
+		public async Task<RecipeDetailDTO> UpdateRecipeAsync(string userId, string recipeId, UpdateRecipeDTO updateRecipeDTO)
 		{
-			var recipeFromDb = await _recipeRepository.GetAsync(i => i.Id == recipeDetailDTO.Id);
-			if (recipeFromDb != null)
+			var recipeFromDb = await _recipeRepository.GetAsync(i => i.Id == recipeId);
+			if (recipeFromDb == null)
 			{
-				if (recipeFromDb.UserId != userId && await _userRepository.GetRoleAsync(userId) != StaticDetails.Role_Admin)
-				{
-					throw new Exception("You don't have permission to update this.");
-				}
-
-				var recipe = _mapper.Map<Recipe>(recipeDetailDTO);
-				recipe.UserId = userId;
-				recipe.UpdatedAt = DateTime.UtcNow;
-				await _recipeRepository.UpdateAsync(recipe);
-
-				var relatedCategoryList = await _categoryRecipeRepository.GetAllAsync(cr => cr.RecipeId == recipeFromDb.Id);
-				foreach (var categoryRecipe in relatedCategoryList)
-				{
-					await _categoryRecipeRepository.RemoveAsync(categoryRecipe);
-				}
-				foreach (var category in recipeDetailDTO.Categories)
-				{
-					await _categoryRecipeRepository.CreateAsync(new()
-					{
-						RecipeId = recipeFromDb.Id, CategoryId = category.Id
-					});
-				}
-
-				var relatedIngredientList = await _ingredientRepository.GetAllAsync(i => i.RecipeId == recipeFromDb.Id);
-				foreach (var ingredient in relatedIngredientList)
-				{
-					await _ingredientRepository.RemoveAsync(ingredient);
-				}
-				foreach (var ingredient in recipeDetailDTO.Ingredients)
-				{
-					var ingredientModel = _mapper.Map<Ingredient>(ingredient);
-					ingredientModel.Id = 0;
-					ingredientModel.RecipeId = recipeFromDb.Id;
-					if (ingredient.IngredientTip != null)
-						ingredientModel.IngredientTipId = ingredient.IngredientTip.Id;
-					await _ingredientRepository.CreateAsync(ingredientModel);
-				}
-
-				var instructorsFromDb = await _instructorRepository.GetAllAsync(i => i.RecipeId == recipeFromDb.Id);
-				if (recipeDetailDTO.Instructors.Count() > instructorsFromDb.Count())
-				{
-					for (int i = 0; i< instructorsFromDb.Count(); i++)
-					{
-						var instructor = _mapper.Map<Instructor>(recipeDetailDTO.Instructors.ToList()[i]);
-						instructor.Id = instructorsFromDb.ToList()[i].Id;
-						await _instructorRepository.UpdateAsync(instructor);
-					}
-					for (int i = instructorsFromDb.Count(); i < recipeDetailDTO.Instructors.Count(); i++)
-					{
-						var instructor = _mapper.Map<Instructor>(recipeDetailDTO.Instructors.ToList()[i]);
-						instructor.Id = 0;
-						instructor.RecipeId = recipeFromDb.Id;
-						await _instructorRepository.CreateAsync(instructor);
-					}
-				}
-				else
-				{
-					for (int i = 0; i < recipeDetailDTO.Instructors.Count(); i++)
-					{
-						var instructor = _mapper.Map<Instructor>(recipeDetailDTO.Instructors.ToList()[i]);
-						instructor.Id = instructorsFromDb.ToList()[i].Id;
-						instructor.RecipeId = recipeFromDb.Id;
-						await _instructorRepository.UpdateAsync(instructor);
-					}
-					for (int i = recipeDetailDTO.Instructors.Count(); i < instructorsFromDb.Count(); i++)
-					{
-						var instructor = instructorsFromDb.ToList()[i];
-						await _instructorRepository.RemoveAsync(instructor);
-					}
-				}
+				throw new Exception(AppString.RecipeNotFoundErrorMessage);
 			}
-		}
+			if (recipeFromDb.UserId != userId)
+			{
+				throw new Exception("You don't have permission to update this.");
+			}
 
+			var recipe = _mapper.Map<Recipe>(updateRecipeDTO);
+			recipe.UserId = userId;
+			recipe.UpdatedAt = DateTime.UtcNow;
+			await _recipeRepository.UpdateAsync(recipe);
+
+			await UpdateCategories(recipeFromDb.Id, updateRecipeDTO.Categories);
+			await UpdateIngredients(recipeFromDb.Id, updateRecipeDTO.Ingredients);
+			await AddOrUpdateInstructors(recipeFromDb.Id, updateRecipeDTO.Instructors.ToList());
+
+			return await this.GetRecipeByIdAsync(recipeId);
+		}
 		public async Task DeleteRecipeAsync(string userId, string id)
 		{
 			var recipeFromDb = await _recipeRepository.GetAsync(r => r.Id == id);
@@ -260,6 +187,11 @@ namespace NESTCOOKING_API.Business.Services
 
 				await _recipeRepository.RemoveAsync(recipeFromDb);
 			}
+			else
+			{
+				throw new Exception(AppString.RecipeNotFoundErrorMessage);
+			}
+
 		}
 
 		public async Task<IEnumerable<RecipeDTO>> GetAllFavoriteRecipeAsync(string userId)
@@ -306,6 +238,108 @@ namespace NESTCOOKING_API.Business.Services
 				return false;
 			}
 			return true;
+		}
+		private async Task<RecipeDTO> ConvertRecipeFromDatabaseToRecipeDTO(Recipe recipe)
+		{
+			var mappedResult = _mapper.Map<RecipeDTO>(recipe);
+			var user = await _userRepository.GetAsync(u => u.Id == recipe.UserId);
+			mappedResult.User = _mapper.Map<UserShortInfoDTO>(user);
+			return mappedResult;
+		}
+
+		private async Task AddCategories(string recipeId, IEnumerable<int> categories)
+		{
+			foreach (var category in categories)
+			{
+				var existedCategory = await this._categoryRepository.GetAsync(r => r.Id == category);
+				if (existedCategory == null)
+				{
+					throw new Exception(AppString.CategoryNotFoundErrorMessage);
+				}
+				await _categoryRecipeRepository.CreateAsync(new CategoryRecipe
+				{
+					RecipeId = recipeId,
+					CategoryId = category,
+				});
+			}
+		}
+
+		private async Task UpdateCategories(string recipeId, IEnumerable<int> categories)
+		{
+			var relatedCategoryList = await _categoryRecipeRepository.GetAllAsync(cr => cr.RecipeId == recipeId);
+			foreach (var categoryRecipe in relatedCategoryList)
+			{
+				await _categoryRecipeRepository.RemoveAsync(categoryRecipe);
+			}
+			await AddCategories(recipeId, categories);
+		}
+
+		private async Task AddIngredients(string recipeId, IEnumerable<CreateIngredientDTO> ingredients)
+		{
+			foreach (var ingredient in ingredients)
+			{
+				var ingredientModel = _mapper.Map<Ingredient>(ingredient);
+				ingredientModel.RecipeId = recipeId;
+				if (ingredient.IngredientTipId != null)
+				{
+					var existedIngredientTip = await this._ingredientTipService.GetIngredientTipByIdAsync(ingredient.IngredientTipId);
+					if (existedIngredientTip == null)
+					{
+						throw new Exception(AppString.IngredientTipNotFoundErrorMessage);
+					}
+					ingredientModel.IngredientTipId = ingredient.IngredientTipId;
+				}
+				await _ingredientRepository.CreateAsync(ingredientModel);
+			}
+		}
+
+		private async Task UpdateIngredients(string recipeId, IEnumerable<CreateIngredientDTO> ingredients)
+		{
+			var relatedIngredientList = await _ingredientRepository.GetAllAsync(i => i.RecipeId == recipeId);
+			foreach (var ingredient in relatedIngredientList)
+			{
+				await _ingredientRepository.RemoveAsync(ingredient);
+			}
+			await AddIngredients(recipeId, ingredients);
+		}
+
+		private async Task AddOrUpdateInstructors(string recipeId, IEnumerable<CreateInstructorDTO> instructors)
+		{
+			var orderedOrders = instructors.Select(i => i.InstructorOrder).OrderBy(order => order).ToList();
+
+			var duplicateOrder = orderedOrders.GroupBy(order => order).FirstOrDefault(g => g.Count() > 1)?.Key;
+			if (duplicateOrder.HasValue)
+			{
+				throw new Exception($"Duplicate Order value found: {duplicateOrder}");
+			}
+
+			var missingOrder = Enumerable.Range(0, orderedOrders.Count).Except(orderedOrders).FirstOrDefault();
+			if (missingOrder != default)
+			{
+				throw new Exception($"Missing Order value: {missingOrder}");
+			}
+
+			var sortedInstructors = instructors.OrderBy(i => i.InstructorOrder).ToList();
+			var instructorsFromDb = await _instructorRepository.GetAllAsync(i => i.RecipeId == recipeId);
+			for (int i = 0; i < sortedInstructors.Count; i++)
+			{
+				var instructor = _mapper.Map<Instructor>(sortedInstructors[i]);
+				instructor.RecipeId = recipeId;
+				if (i < instructorsFromDb.Count())
+				{
+					instructor.Id = instructorsFromDb.ToList()[i].Id;
+					await _instructorRepository.UpdateAsync(instructor);
+				}
+				else
+				{
+					await _instructorRepository.CreateAsync(instructor);
+				}
+			}
+			for (int i = sortedInstructors.Count; i < instructorsFromDb.Count(); i++)
+			{
+				var instructor = instructorsFromDb.ToList()[i];
+				await _instructorRepository.RemoveAsync(instructor);
+			}
 		}
 	}
 }

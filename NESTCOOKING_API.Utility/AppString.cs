@@ -65,6 +65,12 @@
 		public static string ReportAlreadyHandledErrorMessage = "Report has already been handled";
 		public static string RequestAlreadyHandledErrorMessage = "Request has already been handled";
 		public static string RequestExistedErrorMessage = "Request has already existed";
+		public static string CategoryNotFoundErrorMessage = "Category not found. ";
+		public static string IngredientTipNotFoundErrorMessage = "Ingredient tip not found. ";
+		public static string RecipeNotFoundErrorMessage = "Recipe not found. ";
+
+		public static string NoResultsFoundErrorMessage = "No result found matching the specified criteria";
+		public static string InvalidVideoErrorMessage = "Please choose a valid video file to upload.";
 
 		public static string RequestCommentNotFound = "Comment Not Found";
 		public static string UpdateCommentSuccessMassage = "Change Content Comment Successfully.";
@@ -76,5 +82,4 @@
 		public static string DeleteCommentNotOwner = "You must Owner of this Comment";
 		public static string CommentFail = "You are comment as ChildComment";
 	}
-
 }

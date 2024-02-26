@@ -45,5 +45,20 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 			}
 		}
 
+		public async Task<IEnumerable<Recipe>> GetRecipesByCriteriaAsync(string criteria, string? userId = null)
+		{
+			var query = _context.Recipes.Where(recipe => recipe.Title.ToLower().Contains(criteria.ToLower()));
+
+			// Get recipes with the priority of who the user is following
+			//if (userId != null)
+			//{
+			//}
+
+			query = query.OrderByDescending(r => r.CreatedAt);
+
+			var result = await query.ToListAsync();
+
+			return result;
+		}
 	}
 }

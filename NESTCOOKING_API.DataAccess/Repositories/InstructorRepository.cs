@@ -22,8 +22,8 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 					_context.Attach(instructorFromDb);
 				}
 				instructorFromDb.Description = instructor.Description;
-				instructorFromDb.ImageUrl = instructor.ImageUrl;
-				instructorFromDb.StepNumber = instructor.StepNumber;
+				instructorFromDb.ImageUrls = instructor.ImageUrls;
+				instructorFromDb.InstructorOrder = instructor.InstructorOrder;
 
 				await _context.SaveChangesAsync();
 			}

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NESTCOOKING_API.DataAccess.Data;
 
@@ -11,9 +12,11 @@ using NESTCOOKING_API.DataAccess.Data;
 namespace NESTCOOKING_API.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240222135252_Change-ImageURL-Instructor")]
+    partial class ChangeImageURLInstructor
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -190,47 +193,6 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.ToTable("CategoryRecipe");
                 });
 
-            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Comment", b =>
-                {
-                    b.Property<string>("CommentId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ParentCommentId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("RecipeId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("CommentId");
-
-                    b.HasIndex("ParentCommentId");
-
-                    b.HasIndex("RecipeId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Comments", (string)null);
-                });
-
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.FavoriteRecipe", b =>
                 {
                     b.Property<string>("UserId")
@@ -357,37 +319,6 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.HasIndex("RecipeId");
 
                     b.ToTable("Instructors");
-                });
-
-            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Reaction", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Emoji")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Reaction");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "292bc520-b323-4bf2-8fe5-c77d8d57bf83",
-                            Emoji = "like"
-                        },
-                        new
-                        {
-                            Id = "5b7cacbd-4076-48cb-a3a7-b7b734d3acdc",
-                            Emoji = "favorite"
-                        },
-                        new
-                        {
-                            Id = "0da3fad8-2932-4212-b7b7-44e1418154c1",
-                            Emoji = "haha"
-                        });
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Recipe", b =>
@@ -751,31 +682,6 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.Navigation("Recipe");
                 });
 
-            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Comment", b =>
-                {
-                    b.HasOne("NESTCOOKING_API.DataAccess.Models.Comment", "ParentComment")
-                        .WithMany("ChildComments")
-                        .HasForeignKey("ParentCommentId");
-
-                    b.HasOne("NESTCOOKING_API.DataAccess.Models.Recipe", "Recipe")
-                        .WithMany("Comments")
-                        .HasForeignKey("RecipeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("NESTCOOKING_API.DataAccess.Models.User", "User")
-                        .WithMany("Comments")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ParentComment");
-
-                    b.Navigation("Recipe");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.FavoriteRecipe", b =>
                 {
                     b.HasOne("NESTCOOKING_API.DataAccess.Models.Recipe", "Recipe")
@@ -844,29 +750,6 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.RecipeReaction", b =>
-                {
-                    b.HasOne("NESTCOOKING_API.DataAccess.Models.Reaction", "Reaction")
-                        .WithMany()
-                        .HasForeignKey("ReactionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("NESTCOOKING_API.DataAccess.Models.Recipe", "Recipe")
-                        .WithMany()
-                        .HasForeignKey("RecipeId");
-
-                    b.HasOne("NESTCOOKING_API.DataAccess.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("Reaction");
-
-                    b.Navigation("Recipe");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Report", b =>
                 {
                     b.HasOne("NESTCOOKING_API.DataAccess.Models.Response", "Response")
@@ -915,20 +798,8 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Comment", b =>
-                {
-                    b.Navigation("ChildComments");
-                });
-
-            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Recipe", b =>
-                {
-                    b.Navigation("Comments");
-                });
-
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.User", b =>
                 {
-                    b.Navigation("Comments");
-
                     b.Navigation("RequestsToBecomeChefs");
                 });
 #pragma warning restore 612, 618

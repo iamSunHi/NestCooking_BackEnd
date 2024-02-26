@@ -3,12 +3,12 @@
 namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
 {
     public interface IUserRepository : IRepository<User>
-    {
-        bool IsUniqueEmail(string email);
+	{
+		Task<string> GetRoleAsync(string userId);
+		bool IsUniqueEmail(string email);
         bool IsUniqueUserName(string username);
-        Task UpdateAsync(User entity);
         Task<User> Login(string username, string password);
         Task<bool> Register(User newUser, string password);
-        Task<string> GetRoleAsync(string userId);
-    }
+        Task<IEnumerable<User>> GetUsersByCriteriaAsync(string criteria, string? userId = null);
+	}
 }
