@@ -27,6 +27,8 @@ namespace NESTCOOKING_API.DataAccess.Data
 
         public DbSet<Report> Reports { get; set; }
         public DbSet<Response> Responses { get; set; }
+        public DbSet<RecipeReaction> RecipeReaction { get; set; }
+        public DbSet<Reaction> Reaction { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -73,17 +75,28 @@ namespace NESTCOOKING_API.DataAccess.Data
             {
                 recipe.HasMany<Ingredient>().WithOne().HasForeignKey(ingredient => ingredient.RecipeId).IsRequired(true);
                 recipe.HasMany<Instructor>().WithOne().HasForeignKey(instructor => instructor.RecipeId).IsRequired(true);
-			});
+            });
             modelBuilder.Entity<User>(user =>
             {
                 user.HasMany<Recipe>().WithOne().HasForeignKey(recipe => recipe.UserId).IsRequired(true);
                 user.HasMany<IngredientTip>().WithOne().HasForeignKey(ingredientTip => ingredientTip.UserId).IsRequired(true);
             });
-            modelBuilder.Entity<FavoriteRecipe>(favoriteRecipe => {
+            modelBuilder.Entity<FavoriteRecipe>(favoriteRecipe =>
+            {
                 favoriteRecipe.HasKey(fr => new { fr.UserId, fr.RecipeId });
                 favoriteRecipe.HasOne(fr => fr.User).WithMany().HasForeignKey(fr => fr.UserId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
-				favoriteRecipe.HasOne(fr => fr.Recipe).WithMany().HasForeignKey(fr => fr.RecipeId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
-			});
-		}
+                favoriteRecipe.HasOne(fr => fr.Recipe).WithMany().HasForeignKey(fr => fr.RecipeId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
+            });
+            SeedData(modelBuilder);
+        }
+        private void SeedData(ModelBuilder modelBuilder)
+        {       
+                modelBuilder.Entity<Reaction>().HasData(new Reaction { Id = Guid.NewGuid().ToString(), Emoji = "like"});
+                 
+                modelBuilder.Entity<Reaction>().HasData(new Reaction { Id = Guid.NewGuid().ToString(), Emoji = "favorite"});
+                      
+                modelBuilder.Entity<Reaction>().HasData(new Reaction {Id = Guid.NewGuid().ToString(), Emoji = "haha"});
+            
+        }
     }
 }
