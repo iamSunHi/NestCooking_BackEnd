@@ -17,7 +17,11 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 			var query = _dbSet.AsQueryable<Recipe>();
 
 			var recipes = await query.Skip(skipNumber).Take(pageSize).ToListAsync();
-			return recipes;
+			if (recipes.Any())
+			{
+				return recipes;
+			}
+			return null;
 		}
 
 		public async Task UpdateAsync(Recipe recipe)

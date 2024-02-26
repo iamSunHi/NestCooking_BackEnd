@@ -43,22 +43,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			return Ok(ResponseDTO.Accept(result: ingredient));
 		}
 
-		[HttpGet("page/{pageNumber}")]
-		public async Task<IActionResult> GetIngredientsAsync([FromRoute] int pageNumber)
-		{
-			if (pageNumber != 0)
-			{
-				_paginationInfo.PageNumber = pageNumber;
-			}
-			var ingredientTips = await _ingredientService.GetIngredientsAsync(_paginationInfo);
-
-			if (ingredientTips == null)
-			{
-				return BadRequest(ResponseDTO.BadRequest());
-			}
-			return Ok(ResponseDTO.Accept(result: ingredientTips));
-		}
-
 		[HttpPost]
 		[Authorize]
 		public async Task<IActionResult> CreateIngredientAsync([FromBody] IngredientDTO ingredientDTO)

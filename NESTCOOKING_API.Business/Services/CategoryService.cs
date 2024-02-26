@@ -3,6 +3,7 @@ using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
+using NESTCOOKING_API.DataAccess.Repositories;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 
 namespace NESTCOOKING_API.Business.Services
@@ -24,10 +25,18 @@ namespace NESTCOOKING_API.Business.Services
 			return _mapper.Map<IEnumerable<CategoryDTO>>(categories);
 		}
 
-		public async Task<IEnumerable<CategoryDTO>> GetCategoriesAsync(PaginationInfoDTO paginationInfo)
+		public async Task<(int, int, IEnumerable<CategoryDTO>)> GetCategoriesAsync(PaginationInfoDTO paginationInfo)
 		{
-			var categories = await _categoryRepository.GetCategoriesWithPaginationAsync(paginationInfo.PageNumber, paginationInfo.PageSize);
-			return _mapper.Map<IEnumerable<CategoryDTO>>(categories);
+			var totalItems = (await _categoryRepository.GetAllAsync()).Count();
+			var totalPages = (int)Math.Ceiling((double)totalItems / paginationInfo.PageSize);
+			var categoriesFromDb = await _categoryRepository.GetCategoriesWithPaginationAsync(paginationInfo.PageNumber, paginationInfo.PageSize);
+			if (categoriesFromDb == null)
+			{
+				return (totalItems, totalPages, null);
+			}
+
+			var categoryList = _mapper.Map<IEnumerable<CategoryDTO>>(categoriesFromDb);
+			return (totalItems, totalPages, categoryList);
 		}
 
 		public async Task<CategoryDTO> GetCategoryByIdAsync(int id)

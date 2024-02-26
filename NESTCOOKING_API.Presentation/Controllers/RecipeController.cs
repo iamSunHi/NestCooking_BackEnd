@@ -41,20 +41,38 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			return Ok(ResponseDTO.Accept(result: recipe));
 		}
 
-		[HttpGet("page/{pageNumber}")]
-		public async Task<IActionResult> GetRecipesAsync([FromRoute] int pageNumber)
+		[HttpGet("page")]
+		public async Task<IActionResult> GetRecipesAsync([FromQuery] int pageNumber, [FromQuery] int pageSize)
 		{
 			if (pageNumber != 0)
 			{
 				_paginationInfo.PageNumber = pageNumber;
 			}
-			var recipes = await _recipeService.GetRecipesAsync(_paginationInfo);
-
-			if (recipes == null)
+			if (pageSize != 0)
 			{
-				return BadRequest(ResponseDTO.BadRequest());
+				_paginationInfo.PageSize = pageSize;
 			}
-			return Ok(ResponseDTO.Accept(result: recipes));
+			else if (pageSize > 100)
+			{
+				_paginationInfo.PageSize = 100;
+			}
+			(int totalItems, int totalPages, IEnumerable<RecipeDTO> recipeList) result = await _recipeService.GetRecipesAsync(_paginationInfo);
+
+			if (result.recipeList == null)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: "Page number is not valid!"));
+			}
+			return Ok(ResponseDTO.Accept(result: new
+			{
+				metadata = new
+				{
+					result.totalItems,
+					result.totalPages,
+					pageNumber,
+					pageSize
+				},
+				recipes = result.recipeList
+			}));
 		}
 
 		[HttpGet("categories/{categoryId}")]

@@ -18,21 +18,21 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			_searchService = searchService;
 		}
 
-		[HttpGet("all/{criteria}")]
-		public async Task<IActionResult> GetAllAsync([FromRoute] string criteria)
+		[HttpGet("all")]
+		public async Task<IActionResult> GetAllAsync([FromQuery] string keyWord)
 		{
 			try
 			{
-				criteria = criteria.Trim().Replace('+', ' ');
+				keyWord = keyWord.Trim().Replace('+', ' ');
 				var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
 				var result = new SearchResultDTO();
 				if (userId == null)
 				{
-					result = await _searchService.GetAllAsync(criteria);
+					result = await _searchService.GetAllAsync(keyWord);
 				}
 				else
 				{
-					result = await _searchService.GetAllAsync(criteria, userId: userId);
+					result = await _searchService.GetAllAsync(keyWord, userId: userId);
 				}
 				if (result.Users.Count() == 0 && result.Recipes.Count() == 0)
 				{
@@ -46,21 +46,21 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			}
 		}
 
-		[HttpGet("recipes/{criteria}")]
-		public async Task<IActionResult> GetRecipesAsync([FromRoute] string criteria)
+		[HttpGet("recipes")]
+		public async Task<IActionResult> GetRecipesAsync([FromQuery] string keyWord)
 		{
 			try
 			{
-				criteria = criteria.Trim().Replace('+', ' ');
+				keyWord = keyWord.Trim().Replace('+', ' ');
 				var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
 				var result = new SearchResultDTO();
 				if (userId == null)
 				{
-					result = await _searchService.GetRecipesAsync(criteria);
+					result = await _searchService.GetRecipesAsync(keyWord);
 				}
 				else
 				{
-					result = await _searchService.GetRecipesAsync(criteria, userId: userId);
+					result = await _searchService.GetRecipesAsync(keyWord, userId: userId);
 				}
 				if (result.Recipes.Count() == 0)
 				{
@@ -74,21 +74,21 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			}
 		}
 
-		[HttpGet("users/{criteria}")]
-		public async Task<IActionResult> GetUsersAsync([FromRoute] string criteria)
+		[HttpGet("users")]
+		public async Task<IActionResult> GetUsersAsync([FromQuery] string keyWord)
 		{
 			try
 			{
-				criteria = criteria.Trim().Replace('+', ' ');
+				keyWord = keyWord.Trim().Replace('+', ' ');
 				var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
 				var result = new SearchResultDTO();
 				if (userId == null)
 				{
-					result = await _searchService.GetUsersAsync(criteria);
+					result = await _searchService.GetUsersAsync(keyWord);
 				}
 				else
 				{
-					result = await _searchService.GetUsersAsync(criteria, userId: userId);
+					result = await _searchService.GetUsersAsync(keyWord, userId: userId);
 				}
 				if (result.Users.Count() == 0)
 				{

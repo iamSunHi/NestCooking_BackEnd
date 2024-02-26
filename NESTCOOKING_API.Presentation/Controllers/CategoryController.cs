@@ -31,20 +31,38 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			return Ok(ResponseDTO.Accept(result: categoryList));
 		}
 
-		[HttpGet("page/{pageNumber}")]
-		public async Task<IActionResult> GetCategoriesAsync([FromRoute] int pageNumber)
+		[HttpGet("page")]
+		public async Task<IActionResult> GetCategoriesAsync([FromQuery] int pageNumber, [FromQuery] int pageSize)
 		{
 			if (pageNumber != 0)
 			{
 				_paginationInfo.PageNumber = pageNumber;
 			}
-			var categoryList = await _categoryService.GetCategoriesAsync(_paginationInfo);
-
-			if (categoryList == null)
+			if (pageSize != 0)
 			{
-				return BadRequest(ResponseDTO.BadRequest());
+				_paginationInfo.PageSize = pageSize;
 			}
-			return Ok(ResponseDTO.Accept(result: categoryList));
+			else if (pageSize > 100)
+			{
+				_paginationInfo.PageSize = 100;
+			}
+			(int totalItems, int totalPages, IEnumerable<CategoryDTO> categorieList) result = await _categoryService.GetCategoriesAsync(_paginationInfo);
+
+			if (result.categorieList == null)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: "Page number is not valid!"));
+			}
+			return Ok(ResponseDTO.Accept(result: new
+			{
+				metadata = new
+				{
+					result.totalItems,
+					result.totalPages,
+					pageNumber,
+					pageSize
+				},
+				categories = result.categorieList
+			}));
 		}
 
 		[HttpGet("{categoryId}")]
