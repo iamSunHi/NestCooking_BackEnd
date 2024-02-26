@@ -38,7 +38,8 @@ namespace NESTCOOKING_API.Business.Services
 				{
 					throw new Exception(AppString.CommentFail);
 				}
-				if (createComment.ParentCommentId == null && createComment.Type.Equals(StaticDetails.CommentType_COMMENTCHILD)){
+				if (createComment.ParentCommentId == null && createComment.Type.Equals(StaticDetails.CommentType_COMMENTCHILD))
+				{
 					throw new Exception(AppString.CommentFail);
 				}
 				var requestComment = _mapper.Map<Comment>(createComment);
@@ -55,24 +56,35 @@ namespace NESTCOOKING_API.Business.Services
 				throw new Exception(AppString.SomethingWrongMessage);
 			}
 		}
-		public async Task DeleteComment(string commentId)
+		public async Task DeleteComment(string userId, string commentId)
 		{
 			try
 			{
 				var commentFromDb = await _commentRepository.GetAsync(comment => comment.CommentId == commentId);
-				var user = await _userManager.FindByIdAsync(commentFromDb.UserId);
-				if (commentFromDb == null || user == null)
+				if (commentFromDb == null)
 				{
 					throw new Exception(AppString.RequestCommentNotFound);
 				}
-				if (commentFromDb != null && commentFromDb.UserId.Equals(user.Id))
+				if (commentFromDb.UserId != userId)
 				{
-					await _commentRepository.RemoveAsync(commentFromDb);
+					throw new Exception(AppString.DeleteCommentNotOwner);
 				}
+
+				var childCommentsFromDb = await _commentRepository.GetAllAsync(comment => comment.ParentCommentId == commentId);
+				foreach (var childComment in childCommentsFromDb)
+				{
+					await _commentRepository.RemoveAsync(childComment);
+				}
+
+				await _commentRepository.RemoveAsync(commentFromDb);
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				throw new Exception(AppString.DeleteCommentNotOwner);
+				if (ex.InnerException == null)
+				{
+					throw;
+				}
+				throw new Exception(ex.InnerException.Message);
 			}
 		}
 		public async Task<IEnumerable<RequestCommentDTO>> GetAllComments()
@@ -131,6 +143,6 @@ namespace NESTCOOKING_API.Business.Services
 			}
 		}
 
-		
+
 	}
 }

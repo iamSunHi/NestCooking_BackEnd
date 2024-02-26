@@ -79,7 +79,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			try
 			{
 				var userId = GetUserIdFromContext(HttpContext);
-				await _commentService.DeleteComment(commentId);
+				await _commentService.DeleteComment(userId, commentId);
 				return Ok(ResponseDTO.Accept(result: AppString.DeleteCommentSuccessMessage));
 			}
 			catch (Exception ex)
@@ -106,9 +106,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			}
 			catch (Exception ex)
 			{
-
 				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
-
 			}
 		}
 		[HttpPost]

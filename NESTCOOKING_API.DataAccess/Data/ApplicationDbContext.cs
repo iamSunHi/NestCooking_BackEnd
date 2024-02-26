@@ -2,11 +2,10 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NESTCOOKING_API.DataAccess.Models;
-using static NESTCOOKING_API.Utility.StaticDetails;
 
 namespace NESTCOOKING_API.DataAccess.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<User>
+	public class ApplicationDbContext : IdentityDbContext<User>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -15,6 +14,7 @@ namespace NESTCOOKING_API.DataAccess.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<RequestToBecomeChef> RequestToBecomeChefs { get; set; }
+
         // Entities for Recipe
         public DbSet<Category> Categories { get; set; }
         public DbSet<IngredientTipContent> IngredientTipContents { get; set; }
@@ -31,6 +31,7 @@ namespace NESTCOOKING_API.DataAccess.Data
         public DbSet<Reaction> Reaction { get; set; }
 
         public DbSet<Comment> Comments { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -77,18 +78,23 @@ namespace NESTCOOKING_API.DataAccess.Data
                 recipe.HasMany<Ingredient>().WithOne().HasForeignKey(ingredient => ingredient.RecipeId).IsRequired(true);
                 recipe.HasMany<Instructor>().WithOne().HasForeignKey(instructor => instructor.RecipeId).IsRequired(true);
             });
+
             modelBuilder.Entity<User>(user =>
             {
                 user.HasMany<Recipe>().WithOne().HasForeignKey(recipe => recipe.UserId).IsRequired(true);
                 user.HasMany<IngredientTip>().WithOne().HasForeignKey(ingredientTip => ingredientTip.UserId).IsRequired(true);
             });
+
             modelBuilder.Entity<FavoriteRecipe>(favoriteRecipe =>
             {
                 favoriteRecipe.HasKey(fr => new { fr.UserId, fr.RecipeId });
                 favoriteRecipe.HasOne(fr => fr.User).WithMany().HasForeignKey(fr => fr.UserId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
                 favoriteRecipe.HasOne(fr => fr.Recipe).WithMany().HasForeignKey(fr => fr.RecipeId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
             });
-            modelBuilder.Entity<Comment>(comment =>
+
+			this.SeedDataForReaction(modelBuilder);
+
+			modelBuilder.Entity<Comment>(comment =>
             {
                 comment.ToTable("Comments");
                 comment.HasKey(comment => comment.CommentId);
@@ -101,19 +107,15 @@ namespace NESTCOOKING_API.DataAccess.Data
                     .HasForeignKey(c => c.UserId)
                     .IsRequired();
             });
-        }
-                favoriteRecipe.HasOne(fr => fr.Recipe).WithMany().HasForeignKey(fr => fr.RecipeId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
-            });
-            SeedData(modelBuilder);
-        }
-        private void SeedData(ModelBuilder modelBuilder)
+		}
+
+        private void SeedDataForReaction(ModelBuilder modelBuilder)
         {       
                 modelBuilder.Entity<Reaction>().HasData(new Reaction { Id = Guid.NewGuid().ToString(), Emoji = "like"});
                  
                 modelBuilder.Entity<Reaction>().HasData(new Reaction { Id = Guid.NewGuid().ToString(), Emoji = "favorite"});
                       
                 modelBuilder.Entity<Reaction>().HasData(new Reaction {Id = Guid.NewGuid().ToString(), Emoji = "haha"});
-            
         }
     }
 }

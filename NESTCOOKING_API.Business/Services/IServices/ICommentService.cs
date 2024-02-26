@@ -13,7 +13,7 @@ namespace NESTCOOKING_API.Business.Services.IServices
 		Task<RequestCommentDTO> GetCommentById(string commentId);
 		Task<RequestCommentDTO> CreateComment(string userId, CreatedCommentDTO createComment);
 		Task<RequestCommentDTO> UpdateComment(string commentId, UpdateCommentDTO updateComment);
-		Task DeleteComment(string commentId);
+		Task DeleteComment(string userId, string commentId);
 		Task<IEnumerable<RequestCommentDTO>> GetCommentsOfRecipeByRecipeId(string recipeId);
 		Task<IEnumerable<RequestCommentDTO>> GetChildCommentsByParentCommentId(string parenCommentId);
 		Task <bool> ValidType(string type);
