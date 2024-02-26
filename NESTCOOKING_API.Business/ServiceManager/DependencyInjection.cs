@@ -91,7 +91,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
             // DBContext and Identity
             service.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(configurationRoot.GetConnectionString("Test"));
+                options.UseSqlServer(configurationRoot.GetConnectionString("Default"));
             });
 
             service.AddIdentityCore<User>(options =>
