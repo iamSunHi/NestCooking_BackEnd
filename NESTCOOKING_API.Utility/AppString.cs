@@ -30,11 +30,11 @@
 				$"Verify Account" +
 				$"</a></td>\r\n</tr>\r\n</table>\r\n</td>\r\n</tr>\r\n</table>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td bgcolor=\"#ffffff\" align=\"left\"\r\nstyle=\"padding: 0px 30px 20px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;\">\r\n<p style=\"margin: 0;\">If you have any questions, just reply to this email&mdash;we're\r\nalways happy to help out.</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td bgcolor=\"#ffffff\" align=\"left\"\r\nstyle=\"padding: 0px 30px 40px 30px; border-radius: 0px 0px 4px 4px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;\">\r\n<p style=\"margin: 0;\">Cheers,<br>NestCooking</p>\r\n</td>\r\n</tr>\r\n</table>\r\n</td>\r\n</tr>\r\n</table>\r\n</body>\r\n</html>";
 		}
-		public static string UserNotFoundMessage = "User not found";
-		public static string EmailConfirmationSuccessMessage = "Email confirmation successfully";
-		public static string SomethingWrongMessage = "Something went wrong";
-		public static string InvalidTokenErrorMessage = "Wrong token";
-		public static string NotEmailConfirmedErrorMessage = "Sorry, but you are not confirmed your email. Please check your email again";
+		public static string UserNotFoundMessage = "User not found!";
+		public static string EmailConfirmationSuccessMessage = "Email confirmation successfully.";
+		public static string SomethingWrongMessage = "Something went wrong!";
+		public static string InvalidTokenErrorMessage = "Wrong token!";
+		public static string NotEmailConfirmedErrorMessage = "Sorry, but you are not confirmed your email. Please check your email again.";
 		public static string LockoutAccountErrorMessage = "Your account has been locked due to multiple failed login attempts. Please try again later.";
 		public static string ResendEmailConfirmationSubjectEmail = "Re-send email confirmation";
 		public static string ResendEmailConfirmationContentEmail(string emailConfirmationLink)
@@ -44,32 +44,42 @@
 				$"Verify Account" +
 				$"</a></td>\r\n</tr>\r\n</table>\r\n</td>\r\n</tr>\r\n</table>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td bgcolor=\"#ffffff\" align=\"left\"\r\nstyle=\"padding: 0px 30px 20px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;\">\r\n<p style=\"margin: 0;\">If you have any questions, just reply to this email&mdash;we're\r\nalways happy to help out.</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td bgcolor=\"#ffffff\" align=\"left\"\r\nstyle=\"padding: 0px 30px 40px 30px; border-radius: 0px 0px 4px 4px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;\">\r\n<p style=\"margin: 0;\">Cheers,<br>NestCooking</p>\r\n</td>\r\n</tr>\r\n</table>\r\n</td>\r\n</tr>\r\n</table>\r\n</body>\r\n</html>";
 		}
-		public static string InvalidEmailErrorMessage = "Invalid email";
+		public static string InvalidEmailErrorMessage = "Invalid email!";
 		public static string IncorrectCredentialsLoginErrorMessage = "Username or password is incorrect!";
 		public static string AccountLockedOutLoginErrorMessage = "This account is locked out!";
-		public static string RequestErrorMessage = "Error in request !";
+		public static string RequestErrorMessage = "Error in request!";
 		public static string ResetPasswordSuccessMessage = "Reset password was successfully.";
 		public static string ResetPasswordSendMailMessage = "A password change request has been sent on your email. Please open your email to continue verify.";
 
-		public static string RequestBecomeChefNotFound = "Request Become Chef Not Found";
+		public static string RequestBecomeChefNotFound = "Request Become Chef Not Found!";
 		public static string UpdateRequestBecomeChefSuccessMessage = "Change Infomation Request Successfully.";
-		public static string InvalidId = "Invalid format for requestId";
+		public static string InvalidId = "Invalid format for requestId!";
 		public static string DeleteRequestSuccessMessage = "Delete request become a chef successfully.";
 		public static string CreateRequestSuccessMessage = "Create request become a chef successfully.";
-		public static string RequestNotFoundMessage = "Request Become Chef not found";
+		public static string RequestNotFoundMessage = "Request Become Chef not found!";
 		public static string BecomeChefRequestInternalServerErrorMessage = "Failed to create request to become chef.";
 		public static string InvalidFormatErrorMessage = "Invalid format";
 		public static string InternalServerErrorMessage = "Internal Server Error.";
-		public static string InvalidReportTypeErrorMessage = "Invalid Report Type";
-		public static string ReportNotFoundErrorMessage = "Report Not Found";
-		public static string ReportAlreadyHandledErrorMessage = "Report has already been handled";
-		public static string RequestAlreadyHandledErrorMessage = "Request has already been handled";
-		public static string RequestExistedErrorMessage = "Request has already existed";
-		public static string CategoryNotFoundErrorMessage = "Category not found. ";
-		public static string IngredientTipNotFoundErrorMessage = "Ingredient tip not found. ";
+		public static string InvalidReportTypeErrorMessage = "Invalid Report Type!";
+		public static string ReportNotFoundErrorMessage = "Report Not Found!";
+		public static string ReportAlreadyHandledErrorMessage = "Report has already been handled!";
+		public static string RequestAlreadyHandledErrorMessage = "Request has already been handled!";
+		public static string RequestExistedErrorMessage = "Request has already existed!";
+		public static string CategoryNotFoundErrorMessage = "Category not found.";
+		public static string IngredientTipNotFoundErrorMessage = "Ingredient tip not found.";
 		public static string RecipeNotFoundErrorMessage = "Recipe not found. ";
 
-		public static string NoResultsFoundErrorMessage = "No result found matching the specified criteria";
+		public static string NoResultsFoundErrorMessage = "No result found matching the specified criteria!";
 		public static string InvalidVideoErrorMessage = "Please choose a valid video file to upload.";
+
+		public static string RequestCommentNotFound = "Comment Not Found!";
+		public static string UpdateCommentSuccessMassage = "Change Content Comment Successfully.";
+		public static string DeleteCommentSuccessMessage = "Delete Comment successfully.";
+		public static string CreateCommentSuccessMessage = "Create Comment successfully.";
+		public static string CreateCommentInternalServerErrorMessage = "Failed to create comment.";
+		public static string TypeCommentNull = "Type of comment not null!";
+		public static string CreateCommentInValidType = "Invalid Comment Type!";
+		public static string DeleteCommentNotOwner = "You must be the owner of this comment.";
+		public static string CommentFail = "You are comment as ChildComment.";
 	}
 }

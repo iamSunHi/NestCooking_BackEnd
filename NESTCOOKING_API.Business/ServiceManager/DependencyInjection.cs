@@ -45,6 +45,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<IOAuthRepository, OAuthRepository>();
             service.AddScoped<IReportRepository, ReportRepository>();
             service.AddScoped<IReactionRepository, ReactionRepository>();
+			service.AddScoped<ICommentRepository, CommentRepository>();
 
             // Add services to the container.
             service.AddScoped<IJwtUtils, JwtUtils>();
@@ -61,9 +62,9 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<ICloudinaryService, CloudinaryService>();
             service.AddScoped<ISearchService, SearchService>();
             service.AddScoped<IReactionService, ReactionService>();
+			service.AddScoped<ICommentService, CommentService>();
 
-
-            service.AddHttpClient();
+			service.AddHttpClient();
 
             service.AddCors(options =>
             {
@@ -80,6 +81,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
 
             // Configure for email
             service.Configure<IdentityOptions>(options => options.SignIn.RequireConfirmedEmail = true);
+
             // Set time Token for Email Confirm
             service.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromMinutes(20));
 
@@ -92,29 +94,17 @@ namespace NESTCOOKING_API.Business.ServiceManager
                 options.UseSqlServer(configurationRoot.GetConnectionString("Default"));
             });
 
-            service
-                .AddIdentityCore<User>(options =>
-                {
-                    options.Lockout.AllowedForNewUsers = true;
-                    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
-                    options.Lockout.MaxFailedAccessAttempts = 3;
-                })
-                .AddRoles<IdentityRole>()
-                .AddSignInManager<SignInManager<User>>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
-            service.AddAutoMapper(typeof(AutoMapperProfile));
-            service
-                .AddIdentityCore<User>(options =>
-                {
-                    options.Lockout.AllowedForNewUsers = true;
-                    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
-                    options.Lockout.MaxFailedAccessAttempts = 3;
-                })
-                .AddRoles<IdentityRole>()
-                .AddSignInManager<SignInManager<User>>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
+            service.AddIdentityCore<User>(options =>
+            {
+                options.Lockout.AllowedForNewUsers = true;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+                options.Lockout.MaxFailedAccessAttempts = 3;
+            })
+            .AddRoles<IdentityRole>()
+            .AddSignInManager<SignInManager<User>>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
+
             service.AddAutoMapper(typeof(AutoMapperProfile));
 
             service.AddAuthentication(options =>
@@ -147,8 +137,6 @@ namespace NESTCOOKING_API.Business.ServiceManager
                 options.AppId = configurationRoot["Authentication:Facebook:AppId"];
                 options.AppSecret = configurationRoot["Authentication:Facebook:AppSecret"];
             });
-
-
         }
     }
 }

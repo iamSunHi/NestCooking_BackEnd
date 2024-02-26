@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NESTCOOKING_API.DataAccess.Data;
 
@@ -11,9 +12,11 @@ using NESTCOOKING_API.DataAccess.Data;
 namespace NESTCOOKING_API.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240222145139_Add_Comment")]
+    partial class Add_Comment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -342,52 +345,21 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ImageUrls")
+                    b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("InstructorOrder")
-                        .HasColumnType("int");
 
                     b.Property<string>("RecipeId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("StepNumber")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("RecipeId");
 
                     b.ToTable("Instructors");
-                });
-
-            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Reaction", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Emoji")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Reaction");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "292bc520-b323-4bf2-8fe5-c77d8d57bf83",
-                            Emoji = "like"
-                        },
-                        new
-                        {
-                            Id = "5b7cacbd-4076-48cb-a3a7-b7b734d3acdc",
-                            Emoji = "favorite"
-                        },
-                        new
-                        {
-                            Id = "0da3fad8-2932-4212-b7b7-44e1418154c1",
-                            Emoji = "haha"
-                        });
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Recipe", b =>
@@ -842,29 +814,6 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.RecipeReaction", b =>
-                {
-                    b.HasOne("NESTCOOKING_API.DataAccess.Models.Reaction", "Reaction")
-                        .WithMany()
-                        .HasForeignKey("ReactionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("NESTCOOKING_API.DataAccess.Models.Recipe", "Recipe")
-                        .WithMany()
-                        .HasForeignKey("RecipeId");
-
-                    b.HasOne("NESTCOOKING_API.DataAccess.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("Reaction");
-
-                    b.Navigation("Recipe");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Report", b =>
