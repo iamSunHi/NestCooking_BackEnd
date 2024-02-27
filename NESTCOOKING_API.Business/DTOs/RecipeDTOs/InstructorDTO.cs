@@ -4,7 +4,7 @@
 	{
 		public int Id { get; set; }
 		public string Description { get; set; } = null!;
-		public string? ImageUrl { get; set; }
+		public List<string>? ImageUrls { get; set; }
 		public int InstructorOrder { get; set; }
 	}
 }
