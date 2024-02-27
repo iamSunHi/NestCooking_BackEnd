@@ -94,7 +94,14 @@ namespace NESTCOOKING_API.DataAccess.Data
                 favoriteRecipe.HasOne(fr => fr.Recipe).WithMany().HasForeignKey(fr => fr.RecipeId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
             });
 
-			this.SeedDataForReaction(modelBuilder);
+			modelBuilder.Entity<Reaction>(reaction =>
+			{
+				reaction.HasData(new Reaction { Id = "2c01c25c-11b6-40df-a60e-d8bf59beb411", Emoji = "like" });
+
+				reaction.HasData(new Reaction { Id = "e3fd7581-60e2-40aa-960b-e006586e63b5", Emoji = "favorite" });
+
+				reaction.HasData(new Reaction { Id = "42996687-e4a0-4168-b03d-bd09a7534773", Emoji = "haha" });
+			});
 
 			modelBuilder.Entity<Comment>(comment =>
             {
@@ -110,14 +117,5 @@ namespace NESTCOOKING_API.DataAccess.Data
                     .IsRequired();
             });
 		}
-
-        private void SeedDataForReaction(ModelBuilder modelBuilder)
-        {       
-                modelBuilder.Entity<Reaction>().HasData(new Reaction { Id = Guid.NewGuid().ToString(), Emoji = "like"});
-                 
-                modelBuilder.Entity<Reaction>().HasData(new Reaction { Id = Guid.NewGuid().ToString(), Emoji = "favorite"});
-                      
-                modelBuilder.Entity<Reaction>().HasData(new Reaction {Id = Guid.NewGuid().ToString(), Emoji = "haha"});
-        }
     }
 }

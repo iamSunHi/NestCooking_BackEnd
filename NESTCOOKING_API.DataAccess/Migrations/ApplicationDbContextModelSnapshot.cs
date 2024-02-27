@@ -172,7 +172,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.CategoryRecipe", b =>
@@ -187,7 +187,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasIndex("RecipeId");
 
-                    b.ToTable("CategoryRecipe");
+                    b.ToTable("CategoryRecipe", (string)null);
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Comment", b =>
@@ -265,7 +265,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("CommentReaction");
+                    b.ToTable("CommentReaction", (string)null);
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.FavoriteRecipe", b =>
@@ -280,7 +280,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasIndex("RecipeId");
 
-                    b.ToTable("FavoriteRecipes");
+                    b.ToTable("FavoriteRecipes", (string)null);
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Ingredient", b =>
@@ -312,7 +312,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasIndex("RecipeId");
 
-                    b.ToTable("Ingredients");
+                    b.ToTable("Ingredients", (string)null);
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.IngredientTip", b =>
@@ -338,7 +338,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("IngredientTips");
+                    b.ToTable("IngredientTips", (string)null);
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.IngredientTipContent", b =>
@@ -364,7 +364,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasIndex("IngredientTipId");
 
-                    b.ToTable("IngredientTipContents");
+                    b.ToTable("IngredientTipContents", (string)null);
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Instructor", b =>
@@ -393,7 +393,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasIndex("RecipeId");
 
-                    b.ToTable("Instructors");
+                    b.ToTable("Instructors", (string)null);
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Reaction", b =>
@@ -407,7 +407,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Reactions");
+                    b.ToTable("Reactions", (string)null);
 
                     b.HasData(
                         new
@@ -472,7 +472,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Recipes");
+                    b.ToTable("Recipes", (string)null);
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.RecipeReaction", b =>
@@ -509,7 +509,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RecipeReaction");
+                    b.ToTable("RecipeReaction", (string)null);
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Report", b =>
@@ -555,7 +555,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reports");
+                    b.ToTable("Reports", (string)null);
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.RequestToBecomeChef", b =>
@@ -652,7 +652,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Responses");
+                    b.ToTable("Responses", (string)null);
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.User", b =>
