@@ -51,7 +51,8 @@ namespace NESTCOOKING_API.Business.Services
 			{
 				Category category = new()
 				{
-					Name = categoryDTO.Name
+					Name = categoryDTO.Name,
+					ImageUrl = categoryDTO.ImageUrl
 				};
 				await _categoryRepository.CreateAsync(category);
 
