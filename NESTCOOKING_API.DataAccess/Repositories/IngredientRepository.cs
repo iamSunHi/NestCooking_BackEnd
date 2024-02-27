@@ -24,6 +24,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 				}
 				ingredientFromDb.Name = ingredient.Name;
 				ingredientFromDb.Amount = ingredient.Amount;
+				ingredientFromDb.IngredientTipId = ingredient.IngredientTipId;
 
 				await _context.SaveChangesAsync();
 			}

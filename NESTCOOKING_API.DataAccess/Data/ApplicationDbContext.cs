@@ -27,8 +27,10 @@ namespace NESTCOOKING_API.DataAccess.Data
 
         public DbSet<Report> Reports { get; set; }
         public DbSet<Response> Responses { get; set; }
+
         public DbSet<RecipeReaction> RecipeReaction { get; set; }
-        public DbSet<Reaction> Reaction { get; set; }
+        public DbSet<CommentReaction> CommentReaction { get; set; }
+        public DbSet<Reaction> Reactions { get; set; }
 
         public DbSet<Comment> Comments { get; set; }
 

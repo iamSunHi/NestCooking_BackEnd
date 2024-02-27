@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using NESTCOOKING_API.Business.DTOs;
+using NESTCOOKING_API.Business.DTOs.CommentDTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
 using NESTCOOKING_API.Business.DTOs.UserDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
@@ -22,12 +23,14 @@ namespace NESTCOOKING_API.Business.Services
 		private readonly ICategoryRepository _categoryRepository;
 		private readonly UserManager<User> _userManager;
 		private readonly IIngredientTipService _ingredientTipService;
+		private readonly IReactionRepository _reactionRepository;
+		private readonly ICommentRepository _commentRepository;
 
 		public RecipeService(IMapper mapper,
 			IUserRepository userRepository, IRecipeRepository recipeRepository, ICategoryRecipeRepository categoryRecipeRepository, IIngredientRepository ingredientRepository, IInstructorRepository instructorRepository, IFavoriteRecipeRepository favoriteRecipeRepository,
 			UserManager<User> userManager,
 			IIngredientTipService ingredientTipService,
-			ICategoryRepository categoryRepository)
+			ICategoryRepository categoryRepository, IReactionRepository reactionRepository, ICommentRepository commentRepository)
 		{
 			_mapper = mapper;
 			_userRepository = userRepository;
@@ -39,6 +42,8 @@ namespace NESTCOOKING_API.Business.Services
 			_userManager = userManager;
 			_ingredientTipService = ingredientTipService;
 			_categoryRepository = categoryRepository;
+			_reactionRepository = reactionRepository;
+			_commentRepository = commentRepository;
 		}
 
 		public async Task<IEnumerable<RecipeDTO>> GetAllRecipesAsync()
@@ -94,6 +99,11 @@ namespace NESTCOOKING_API.Business.Services
 			var instructorList = await _instructorRepository.GetAllAsync(i => i.RecipeId == id);
 			instructorList = instructorList.OrderBy(i => i.InstructorOrder);
 			recipe.Instructors = _mapper.Map<IEnumerable<InstructorDTO>>(instructorList);
+
+			var reactionList = await _reactionRepository.GetReactionsByIdAsync(id, "recipe");
+			recipe.Reactions = reactionList;
+			var commentList = await _commentRepository.GetAllCommentsOfRecipeByRecipeId(id);
+			recipe.Comments = _mapper.Map<IEnumerable<RequestCommentDTO>>(commentList);
 
 			return recipe;
 		}
@@ -192,6 +202,22 @@ namespace NESTCOOKING_API.Business.Services
 				{
 					await _instructorRepository.RemoveAsync(instructor);
 				}
+				var reactionList = await _reactionRepository.GetReactionsByIdAsync(id, "recipe");
+				foreach (var reaction in reactionList)
+				{
+					await _reactionRepository.DeleteAsync(id, "recipe");
+				}
+				var commentList = await _commentRepository.GetAllCommentsOfRecipeByRecipeId(id);
+				foreach (var comment in commentList)
+				{
+					await _reactionRepository.DeleteAsync(comment.CommentId, "comment");
+					await _commentRepository.RemoveAsync(comment);
+				}
+				var favoriteRecipeList = await _favoriteRecipeRepository.GetAllAsync(fr => fr.RecipeId == id);
+				foreach (var favoriteRecipe in favoriteRecipeList)
+				{
+					await _favoriteRecipeRepository.RemoveAsync(favoriteRecipe);
+				}
 
 				await _recipeRepository.RemoveAsync(recipeFromDb);
 			}
@@ -199,7 +225,6 @@ namespace NESTCOOKING_API.Business.Services
 			{
 				throw new Exception(AppString.RecipeNotFoundErrorMessage);
 			}
-
 		}
 
 		public async Task<IEnumerable<RecipeDTO>> GetAllFavoriteRecipeAsync(string userId)

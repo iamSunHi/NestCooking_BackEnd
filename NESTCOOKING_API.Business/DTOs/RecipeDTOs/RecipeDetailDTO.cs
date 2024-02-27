@@ -1,4 +1,6 @@
-﻿using NESTCOOKING_API.Business.DTOs.UserDTOs;
+﻿using NESTCOOKING_API.Business.DTOs.CommentDTOs;
+using NESTCOOKING_API.Business.DTOs.ReactionDTOs;
+using NESTCOOKING_API.Business.DTOs.UserDTOs;
 
 namespace NESTCOOKING_API.Business.DTOs.RecipeDTOs
 {
@@ -19,5 +21,8 @@ namespace NESTCOOKING_API.Business.DTOs.RecipeDTOs
 		public IEnumerable<InstructorDTO> Instructors { get; set; }
 		public DateTime CreatedAt { get; set; }
 		public DateTime UpdatedAt { get; set; }
+
+		public Dictionary<string, int> Reactions { get; set; }
+		public IEnumerable<RequestCommentDTO> Comments { get; set; }
 	}
 }

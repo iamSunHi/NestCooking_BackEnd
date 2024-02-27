@@ -231,6 +231,43 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.ToTable("Comments", (string)null);
                 });
 
+            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.CommentReaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CommentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReactionId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommentId");
+
+                    b.HasIndex("ReactionId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CommentReaction");
+                });
+
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.FavoriteRecipe", b =>
                 {
                     b.Property<string>("UserId")
@@ -370,22 +407,22 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Reaction");
+                    b.ToTable("Reactions");
 
                     b.HasData(
                         new
                         {
-                            Id = "292bc520-b323-4bf2-8fe5-c77d8d57bf83",
+                            Id = "2c01c25c-11b6-40df-a60e-d8bf59beb411",
                             Emoji = "like"
                         },
                         new
                         {
-                            Id = "5b7cacbd-4076-48cb-a3a7-b7b734d3acdc",
+                            Id = "e3fd7581-60e2-40aa-960b-e006586e63b5",
                             Emoji = "favorite"
                         },
                         new
                         {
-                            Id = "0da3fad8-2932-4212-b7b7-44e1418154c1",
+                            Id = "42996687-e4a0-4168-b03d-bd09a7534773",
                             Emoji = "haha"
                         });
                 });
@@ -436,6 +473,43 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Recipes");
+                });
+
+            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.RecipeReaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReactionId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RecipeId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReactionId");
+
+                    b.HasIndex("RecipeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RecipeReaction");
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Report", b =>
@@ -776,6 +850,33 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.CommentReaction", b =>
+                {
+                    b.HasOne("NESTCOOKING_API.DataAccess.Models.Comment", "Comment")
+                        .WithMany()
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NESTCOOKING_API.DataAccess.Models.Reaction", "Reaction")
+                        .WithMany()
+                        .HasForeignKey("ReactionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NESTCOOKING_API.DataAccess.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Comment");
+
+                    b.Navigation("Reaction");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.FavoriteRecipe", b =>
                 {
                     b.HasOne("NESTCOOKING_API.DataAccess.Models.Recipe", "Recipe")
@@ -854,11 +955,15 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasOne("NESTCOOKING_API.DataAccess.Models.Recipe", "Recipe")
                         .WithMany()
-                        .HasForeignKey("RecipeId");
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("NESTCOOKING_API.DataAccess.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Reaction");
 
