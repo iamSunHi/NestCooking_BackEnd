@@ -39,8 +39,8 @@ namespace NESTCOOKING_API.Business.Services
             {
                 throw new Exception(ex.Message);
             }
-        }
-        public async Task<bool> UpdateReactionAsync(ReactionDTO reactionDTO, string userId)
+		}
+		public async Task<bool> UpdateReactionAsync(ReactionDTO reactionDTO, string userId)
         {
             try {
                 await _reactionRepository.UpdateReactionAsync(reactionDTO.TargetID, reactionDTO.Reaction, reactionDTO.Type, userId);

@@ -83,6 +83,41 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 				}
 			}
 		}
+		public async Task DeleteAsync(string targetId, string type)
+		{
+			if (string.Equals(type, "recipe"))
+			{
+				var reactionsToDelete = await _context.RecipeReaction
+					.Where(r => r.Recipe.Id == targetId)
+					.ToListAsync();
+				if (reactionsToDelete.Any())
+				{
+					foreach (var reaction in reactionsToDelete)
+					{
+						_context.RecipeReaction.Remove(reaction);
+						await _context.SaveChangesAsync();
+					}
+				}
+			}
+			else if (string.Equals(type, "comment"))
+			{
+				var reactionsToDelete = await _context.CommentReaction
+					.Where(r => r.Comment.CommentId == targetId)
+					.ToListAsync();
+				if (reactionsToDelete.Any())
+				{
+					foreach (var reaction in reactionsToDelete)
+					{
+						_context.CommentReaction.Remove(reaction);
+						await _context.SaveChangesAsync();
+					}
+				}
+			}
+			else
+			{
+				throw new Exception("Type is not valid!");
+			}
+		}
 		public async Task UpdateReactionAsync(string targetID, StaticDetails.ReactionType reaction, string type, string userId)
 		{
 			try
