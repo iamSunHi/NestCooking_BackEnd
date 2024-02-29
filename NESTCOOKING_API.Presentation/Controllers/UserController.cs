@@ -9,14 +9,15 @@ using System.Security.Claims;
 namespace NESTCOOKING_API.Presentation.Controllers
 {
 	[Route("api/user")]
-	[ApiController]
 	public class UserController : ControllerBase
 	{
 		private readonly IUserService _userService;
+		private readonly IUserConnectionService _userConnectionService;
 
-		public UserController(IUserService userService)
+		public UserController(IUserService userService, IUserConnectionService userConnectionService)
 		{
 			_userService = userService;
+			_userConnectionService = userConnectionService;
 		}
 
 		[HttpGet("{userId}")]
@@ -90,7 +91,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			return Unauthorized();
 		}
 
-		[HttpPatch("")]
+		[HttpPatch]
 		[Authorize]
 		public async Task<IActionResult> EditProfile([FromBody] UpdateUserDTO updateUserDTO)
 		{
@@ -111,6 +112,112 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			}
 
 			return Unauthorized();
+		}
+
+		// [HttpGet("following")]
+		// public async Task<IActionResult> GetAllFollowingUsersAsync()
+		// {
+		// 	try
+		// 	{
+		// 		var userId = GetUserIdFromContext(HttpContext);
+		// 		var followedUserList = await _userConnectionService.GetAllFollowingUsersByUserIdAsync(userId);
+
+		// 		return Ok(ResponseDTO.Accept(result: followedUserList));
+		// 	}
+		// 	catch (Exception ex)
+		// 	{
+		// 		return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+		// 	}
+		// }
+
+		// [HttpGet("followers")]
+		// [Authorize]
+		// public async Task<IActionResult> GetAllFollowersAsync()
+		// {
+		// 	try
+		// 	{
+		// 		var userId = GetUserIdFromContext(HttpContext);
+		// 		var followedUserList = await _userConnectionService.GetAllFollowersByUserIdAsync(userId);
+
+		// 		return Ok(ResponseDTO.Accept(result: followedUserList));
+		// 	}
+		// 	catch (Exception ex)
+		// 	{
+		// 		return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+		// 	}
+		// }
+
+		[HttpGet("following/{userId}")]
+		public async Task<IActionResult> GetAllFollowingUsersByUserIdAsync([FromRoute] string userId)
+		{
+			try
+			{
+				var followedUserList = await _userConnectionService.GetAllFollowingUsersByUserIdAsync(userId);
+
+				return Ok(ResponseDTO.Accept(result: followedUserList));
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+		}
+
+		[HttpGet("followers/{userId}")]
+		public async Task<IActionResult> GetAllFollowersByUserIdAsync([FromRoute] string userId)
+		{
+			try
+			{
+				var followedUserList = await _userConnectionService.GetAllFollowersByUserIdAsync(userId);
+
+				return Ok(ResponseDTO.Accept(result: followedUserList));
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+		}
+
+		[HttpPost("follow/{followingUserId}")]
+		[Authorize]
+		public async Task<IActionResult> CreateUserConnectionAsync(string followingUserId)
+		{
+			try
+			{
+				var userId = GetUserIdFromContext(HttpContext);
+				if (userId == followingUserId)
+				{
+					return BadRequest(ResponseDTO.BadRequest(message: AppString.UserCannotFollowSelf));
+				}
+				await _userConnectionService.CreateUserConnectionAsync(userId, followingUserId);
+
+				return Created();
+			}
+			catch
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: AppString.UserAlreadyFollowed));
+			}
+		}
+
+		[HttpDelete("follow/{followingUserId}")]
+		[Authorize]
+		public async Task<IActionResult> RemoveUserConnectionAsync(string followingUserId)
+		{
+			try
+			{
+				var userId = GetUserIdFromContext(HttpContext);
+				await _userConnectionService.RemoveUserConnectionAsync(userId, followingUserId);
+
+				return NoContent();
+			}
+			catch
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: AppString.UserNotFollowed));
+			}
+		}
+
+		private string GetUserIdFromContext(HttpContext context)
+		{
+			return context.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
 		}
 	}
 }

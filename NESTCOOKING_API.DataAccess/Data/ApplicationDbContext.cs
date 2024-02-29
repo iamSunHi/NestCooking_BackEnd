@@ -34,6 +34,8 @@ namespace NESTCOOKING_API.DataAccess.Data
 
         public DbSet<Comment> Comments { get; set; }
 
+        public DbSet<UserConnection> UserConnections { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -116,6 +118,13 @@ namespace NESTCOOKING_API.DataAccess.Data
                     .HasForeignKey(c => c.UserId)
                     .IsRequired();
             });
+
+            modelBuilder.Entity<UserConnection>(connection =>
+            {
+                connection.HasKey(uc => new { uc.UserId, uc.FollowingUserId });
+                connection.HasOne<User>().WithMany().HasForeignKey(uc => uc.UserId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
+				connection.HasOne<User>().WithMany().HasForeignKey(uc => uc.FollowingUserId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
+			});
 		}
     }
 }

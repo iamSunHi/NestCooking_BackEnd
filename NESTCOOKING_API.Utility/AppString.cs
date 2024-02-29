@@ -81,5 +81,13 @@
 		public static string CreateCommentInValidType = "Invalid Comment Type!";
 		public static string DeleteCommentNotOwner = "You must be the owner of this comment.";
 		public static string CommentFail = "You are comment as ChildComment.";
+
+		// For UserConnection
+		public static string UserNotHaveAnyConnection = "You haven't followed anyone yet.";
+		public static string UserNotFollowAnyone = "This user hasn't followed anyone yet.";
+		public static string UserNotHaveAnyFollower = "You don't have anyone following you yet.";
+		public static string UserCannotFollowSelf = "You cannot follow yourself.";
+		public static string UserAlreadyFollowed = "You already follow this user.";
+		public static string UserNotFollowed = "You haven't follow this user yet.";
 	}
 }
