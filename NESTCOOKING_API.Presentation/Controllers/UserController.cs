@@ -10,7 +10,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
 {
 	[Route("api/user")]
 	[ApiController]
-	[Authorize]
 	public class UserController : ControllerBase
 	{
 		private readonly IUserService _userService;
@@ -20,7 +19,26 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			_userService = userService;
 		}
 
+		[HttpGet("{userId}")]
+		public async Task<IActionResult> GetUserById(string userId)
+		{
+			try
+			{
+				if (userId == null)
+				{
+					return BadRequest(ResponseDTO.BadRequest("UserId is required"));
+				}
+				var user = await _userService.GetUserById(userId);
+
+				return Ok(ResponseDTO.Accept(result: user));
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(ex.Message));
+			}
+		}
 		[HttpGet]
+		[Authorize]
 		public async Task<IActionResult> GetInfo()
 		{
 			var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -40,6 +58,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpPatch("password")]
+		[Authorize]
 		public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO changePasswordDTO)
 		{
 			if (changePasswordDTO.ConfirmPassword != changePasswordDTO.NewPassword)
@@ -72,6 +91,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpPatch("")]
+		[Authorize]
 		public async Task<IActionResult> EditProfile([FromBody] UpdateUserDTO updateUserDTO)
 		{
 			var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
