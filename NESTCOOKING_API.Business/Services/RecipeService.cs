@@ -49,15 +49,7 @@ namespace NESTCOOKING_API.Business.Services
 		public async Task<IEnumerable<RecipeDTO>> GetAllRecipesAsync()
 		{
 			var recipesFromDb = await _recipeRepository.GetAllAsync();
-			var recipeList = _mapper.Map<IEnumerable<RecipeDTO>>(recipesFromDb);
-
-			for (int i = 0; i < recipesFromDb.Count(); i++)
-			{
-				var user = await _userRepository.GetAsync(u => u.Id == recipesFromDb.ToList()[i].UserId);
-				recipeList.ToList()[i].User = _mapper.Map<UserShortInfoDTO>(user);
-			}
-
-			return recipeList;
+			return await ConvertRecipesToListRecipeDTO(recipesFromDb);
 		}
 
 		public async Task<(int, int, IEnumerable<RecipeDTO>)> GetRecipesAsync(PaginationInfoDTO paginationInfo)
@@ -70,8 +62,8 @@ namespace NESTCOOKING_API.Business.Services
 				return (totalItems, totalPages, null);
 			}
 
-			var recipeList = _mapper.Map<IEnumerable<RecipeDTO>>(recipesFromDb);
-			return (totalItems, totalPages, recipeList);
+			var mappedListRecipe = await ConvertRecipesToListRecipeDTO(recipesFromDb);
+			return (totalItems, totalPages, mappedListRecipe);
 		}
 
 		public async Task<RecipeDetailDTO> GetRecipeByIdAsync(string id)
@@ -111,27 +103,15 @@ namespace NESTCOOKING_API.Business.Services
 		public async Task<IEnumerable<RecipeDTO>> GetRecipesByCategoryIdAsync(int categoryId)
 		{
 			var recipesFromDb = await _categoryRecipeRepository.GetRecipesByCategoryIdAsync(categoryId);
-			var recipeList = _mapper.Map<IEnumerable<RecipeDTO>>(recipesFromDb);
+			return await ConvertRecipesToListRecipeDTO(recipesFromDb);
 
-			for (int i = 0; i < recipesFromDb.Count(); i++)
-			{
-				var user = await _userRepository.GetAsync(u => u.Id == recipesFromDb.ToList()[i].UserId);
-				recipeList.ToList()[i].User = _mapper.Map<UserShortInfoDTO>(user);
-			}
-			return recipeList;
 		}
 
 		public async Task<IEnumerable<RecipeDTO>> GetRecipesByUserIdAsync(string userId)
 		{
 			var recipesFromDb = await _recipeRepository.GetAllAsync(r => r.UserId == userId);
-			var recipeList = _mapper.Map<IEnumerable<RecipeDTO>>(recipesFromDb);
+			return await ConvertRecipesToListRecipeDTO(recipesFromDb);
 
-			for (int i = 0; i < recipesFromDb.Count(); i++)
-			{
-				var user = await _userRepository.GetAsync(u => u.Id == recipesFromDb.ToList()[i].UserId);
-				recipeList.ToList()[i].User = _mapper.Map<UserShortInfoDTO>(user);
-			}
-			return recipeList;
 		}
 
 		public async Task<RecipeDetailDTO> CreateRecipeAsync(string userId, CreateRecipeDTO createRecipeDTO)
@@ -272,14 +252,23 @@ namespace NESTCOOKING_API.Business.Services
 			}
 			return true;
 		}
-		private async Task<RecipeDTO> ConvertRecipeFromDatabaseToRecipeDTO(Recipe recipe)
-		{
-			var mappedResult = _mapper.Map<RecipeDTO>(recipe);
-			var user = await _userRepository.GetAsync(u => u.Id == recipe.UserId);
-			mappedResult.User = _mapper.Map<UserShortInfoDTO>(user);
-			return mappedResult;
-		}
 
+		private async Task<IEnumerable<RecipeDTO>> ConvertRecipesToListRecipeDTO(IEnumerable<Recipe> recipesFromDb)
+		{
+			var recipeList = new List<RecipeDTO>();
+
+			foreach (var recipe in recipesFromDb)
+			{
+				var mappedResult = _mapper.Map<RecipeDTO>(recipe);
+				mappedResult.CreatedAt = recipe.CreatedAt;
+				mappedResult.UpdatedAt = recipe.UpdatedAt;
+				var user = await _userRepository.GetAsync(u => u.Id == recipe.UserId);
+				mappedResult.User = _mapper.Map<UserShortInfoDTO>(user);
+				recipeList.Add(mappedResult);
+			}
+
+			return recipeList;
+		}
 		private async Task AddCategories(string recipeId, IEnumerable<int> categories)
 		{
 			foreach (var category in categories)

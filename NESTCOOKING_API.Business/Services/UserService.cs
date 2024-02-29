@@ -53,7 +53,7 @@ namespace NESTCOOKING_API.Business.Services
 
             if (user == null)
             {
-                return null;
+                throw new UserNotFoundException();
             }
             var userDTO = _mapper.Map<UserInfoDTO>(user);
             userDTO.Role = await _roleRepository.GetRoleNameByIdAsync(user.RoleId);
