@@ -9,7 +9,6 @@ using System.Security.Claims;
 namespace NESTCOOKING_API.Presentation.Controllers
 {
 	[Route("api/user")]
-	[ApiController]
 	public class UserController : ControllerBase
 	{
 		private readonly IUserService _userService;
@@ -115,42 +114,40 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			return Unauthorized();
 		}
 
-		[HttpGet("following")]
-		[Authorize]
-		public async Task<IActionResult> GetAllFollowingUsersAsync()
-		{
-			try
-			{
-				var userId = GetUserIdFromContext(HttpContext);
-				var followedUserList = await _userConnectionService.GetAllFollowingUsersByUserIdAsync(userId);
+		// [HttpGet("following")]
+		// public async Task<IActionResult> GetAllFollowingUsersAsync()
+		// {
+		// 	try
+		// 	{
+		// 		var userId = GetUserIdFromContext(HttpContext);
+		// 		var followedUserList = await _userConnectionService.GetAllFollowingUsersByUserIdAsync(userId);
 
-				return Ok(ResponseDTO.Accept(result: followedUserList));
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
-			}
-		}
+		// 		return Ok(ResponseDTO.Accept(result: followedUserList));
+		// 	}
+		// 	catch (Exception ex)
+		// 	{
+		// 		return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+		// 	}
+		// }
 
-		[HttpGet("followers")]
-		[Authorize]
-		public async Task<IActionResult> GetAllFollowersAsync()
-		{
-			try
-			{
-				var userId = GetUserIdFromContext(HttpContext);
-				var followedUserList = await _userConnectionService.GetAllFollowersByUserIdAsync(userId);
+		// [HttpGet("followers")]
+		// [Authorize]
+		// public async Task<IActionResult> GetAllFollowersAsync()
+		// {
+		// 	try
+		// 	{
+		// 		var userId = GetUserIdFromContext(HttpContext);
+		// 		var followedUserList = await _userConnectionService.GetAllFollowersByUserIdAsync(userId);
 
-				return Ok(ResponseDTO.Accept(result: followedUserList));
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
-			}
-		}
+		// 		return Ok(ResponseDTO.Accept(result: followedUserList));
+		// 	}
+		// 	catch (Exception ex)
+		// 	{
+		// 		return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+		// 	}
+		// }
 
 		[HttpGet("following/{userId}")]
-		[Authorize]
 		public async Task<IActionResult> GetAllFollowingUsersByUserIdAsync([FromRoute] string userId)
 		{
 			try
@@ -166,7 +163,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpGet("followers/{userId}")]
-		[Authorize]
 		public async Task<IActionResult> GetAllFollowersByUserIdAsync([FromRoute] string userId)
 		{
 			try

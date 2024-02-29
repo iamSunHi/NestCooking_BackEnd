@@ -24,12 +24,12 @@ namespace NESTCOOKING_API.Business.Services
 		{
 			var userConnectionListFromDb = await _userConnectionRepository.GetAllAsync(uc => uc.UserId == userId);
 
+			var followingUserList = new List<UserShortInfoDTO>();
 			if (!userConnectionListFromDb.Any())
 			{
-				throw new Exception(AppString.UserNotHaveAnyConnection);
+				return followingUserList;
 			}
 
-			var followingUserList = new List<UserShortInfoDTO>();
 			foreach (var userConnection in userConnectionListFromDb)
 			{
 				var user = await _userRepository.GetAsync(u => u.Id == userConnection.FollowingUserId);
@@ -42,12 +42,13 @@ namespace NESTCOOKING_API.Business.Services
 		{
 			var userConnectionListFromDb = await _userConnectionRepository.GetAllAsync(uc => uc.FollowingUserId == userId);
 
+			var followerList = new List<UserShortInfoDTO>();
+
 			if (!userConnectionListFromDb.Any())
 			{
-				throw new Exception(AppString.UserNotHaveAnyFollower);
+				return followerList;
 			}
 
-			var followerList = new List<UserShortInfoDTO>();
 			foreach (var userConnection in userConnectionListFromDb)
 			{
 				var user = await _userRepository.GetAsync(u => u.Id == userConnection.UserId);
