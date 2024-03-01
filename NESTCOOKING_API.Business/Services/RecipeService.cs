@@ -151,6 +151,7 @@ namespace NESTCOOKING_API.Business.Services
 			}
 
 			var recipe = _mapper.Map<Recipe>(updateRecipeDTO);
+			recipe.Id = recipeId;
 			recipe.UserId = userId;
 			recipe.UpdatedAt = DateTime.UtcNow;
 			await _recipeRepository.UpdateAsync(recipe);
