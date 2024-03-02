@@ -28,7 +28,7 @@ namespace NESTCOOKING_API.Business.Services
             {
                 var timeZoneById = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
                 var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneById);;
-                var urlCallBack = "http://localhost:5080/api/transaction/callback";
+                var urlCallBack = "https://nest-cooking.onrender.com/payment/transaction";
 
                 _vnPayLibrary.AddRequestData("vnp_Version", "2.1.0");
                 _vnPayLibrary.AddRequestData("vnp_Command", "pay");
