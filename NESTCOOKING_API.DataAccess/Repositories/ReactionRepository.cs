@@ -173,5 +173,29 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 			}
 			return reactions;
 		}
-	}
+
+        public async Task<List<string>> GetReactionUserById(string targetId, string type)
+        {
+			try
+			{
+                List<string> userIdList = null;
+                if (String.Equals(type, "recipe")) {
+                    userIdList = await _context.RecipeReaction
+                .Where(rr => rr.RecipeId == targetId)
+                .Select(rr => rr.UserId).Distinct()
+                .ToListAsync();
+                }
+                else {
+                    userIdList = await _context.CommentReaction
+               .Where(rr => rr.CommentId == targetId)
+               .Select(rr => rr.UserId).Distinct()
+               .ToListAsync();
+                }
+                return userIdList;
+            }catch(Exception ex)
+			{
+				throw new Exception(ex.Message);
+			}
+        }
+    }
 }

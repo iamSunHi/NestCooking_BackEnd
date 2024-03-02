@@ -1,4 +1,5 @@
-﻿using NESTCOOKING_API.Utility;
+﻿using NESTCOOKING_API.DataAccess.Models;
+using NESTCOOKING_API.Utility;
 
 namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
 {
@@ -9,5 +10,6 @@ namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
 		Task DeleteAsync(string targetId, string type);
 		Task UpdateReactionAsync(string targetID, StaticDetails.ReactionType reaction, string type, string userId);
         Task<Dictionary<string, int>> GetReactionsByIdAsync(string targetId, string type);
+        Task<List<string>> GetReactionUserById(string targetId, string type);
     }
 }

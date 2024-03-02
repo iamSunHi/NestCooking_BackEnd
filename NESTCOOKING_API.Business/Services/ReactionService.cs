@@ -59,5 +59,18 @@ namespace NESTCOOKING_API.Business.Services
                 throw new Exception(ex.Message);
             }          
         }
+
+        public async Task<List<string>> GetReactionUserById(string targetId, string type)
+        {
+            try
+            {
+                var userIdList = await _reactionRepository.GetReactionUserById(targetId,type);
+                return userIdList;
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

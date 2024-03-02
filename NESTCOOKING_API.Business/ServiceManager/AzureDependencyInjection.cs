@@ -65,6 +65,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			service.AddScoped<IRecipeService, RecipeService>();
 			service.AddScoped<ICloudinaryService, CloudinaryService>();
 			service.AddScoped<ISearchService, SearchService>();
+			service.AddScoped<IPaymentService, PaymentService>();
 
 			service.AddHttpClient();
 

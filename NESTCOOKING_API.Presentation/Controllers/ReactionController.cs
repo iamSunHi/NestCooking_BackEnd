@@ -131,5 +131,30 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
             }
         }
+        [HttpGet("user/{type}")]
+        public async Task<IActionResult> GetReactionUserById(string type, [FromQuery] string targetId)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(type))
+                {
+                    return BadRequest(ResponseDTO.BadRequest(message: "Type is required"));
+                }
+                if (!String.Equals(type, "recipe") && !String.Equals(type, "comment"))
+                {
+                    return BadRequest(ResponseDTO.BadRequest(message: "Type is not valid"));
+                }
+                if (string.IsNullOrEmpty(targetId))
+                {
+                    return BadRequest(ResponseDTO.BadRequest(message: "Target is required"));
+                }
+                var result = await _reactionService.GetReactionUserById(targetId, type);
+                return Ok(ResponseDTO.Accept(result: result));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+            }
+        }
     }
 }
