@@ -21,8 +21,8 @@ namespace NESTCOOKING_API.Presentation.Controllers
             _paymentService = paymentService;
             _transactionService = transactionService;
         }
-        [Authorize]
         [HttpPost("create")]
+        [Authorize]
         public async Task<IActionResult> CreatePaymentUrl([FromBody] PaymentInfor model)
         {
             try
@@ -58,31 +58,15 @@ namespace NESTCOOKING_API.Presentation.Controllers
             {
                 return BadRequest(ResponseDTO.BadRequest(ex.Message));
             }
-        }
-        [HttpGet("{userId}")]
-        public async Task<ActionResult<List<TransactionDTO>>> GetTransactionsByUserId(string userId)
-        {
-            try
-            {
-                var result = await _transactionService.GetTransactionsByUserId(userId);
-                if (result == null)
-                {
-                    return BadRequest(ResponseDTO.BadRequest(message: "Not found transaction by user"));
-                }
-                return Ok(ResponseDTO.Accept(result: result));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
-            }
-        }
-        [Authorize(Role_Admin)]
+        }     
         [HttpGet]
-        public async Task<ActionResult<List<TransactionDTO>>> GetAllTransactions()
+        [Authorize]
+        public async Task<ActionResult<List<TransactionDTO>>> GetTransactionsByUserId()
         {
             try
             {
-                var result = await _transactionService.GetAllTransactions();
+                var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var result = await _transactionService.GetTransactionsByUserId(userId);
                 if (result == null)
                 {
                     return BadRequest(ResponseDTO.BadRequest(message: "Not found transaction by user"));
