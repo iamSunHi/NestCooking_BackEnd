@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.AuthDTOs;
+using NESTCOOKING_API.Business.DTOs.BookingDTOs;
 using NESTCOOKING_API.Business.DTOs.ChefRequestDTOs;
 using NESTCOOKING_API.Business.DTOs.CommentDTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
@@ -53,6 +54,9 @@ namespace NESTCOOKING_API.Business.Mapping
 			CreateMap<Comment, CreatedCommentDTO>().ReverseMap();
 			CreateMap<Comment, RequestCommentDTO>().ReverseMap();
 			CreateMap<Comment, UpdateCommentDTO>().ReverseMap();
+
+			// Booking
+			CreateMap<ChefDish, ChefDishDTO>().ReverseMap();
 		}
 	}
 }

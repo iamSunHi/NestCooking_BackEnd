@@ -89,5 +89,9 @@
 		public static string UserCannotFollowSelf = "You cannot follow yourself.";
 		public static string UserAlreadyFollowed = "You already follow this user.";
 		public static string UserNotFollowed = "You haven't follow this user yet.";
+
+		// For ChefDish
+		public static string DishExisted = "This dish already exists. Please try another dish.";
+		public static string DishNotExisted = "This dish doesn't exist. Please try another dish.";
 	}
 }

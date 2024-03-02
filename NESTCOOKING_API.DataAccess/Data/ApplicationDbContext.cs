@@ -36,6 +36,10 @@ namespace NESTCOOKING_API.DataAccess.Data
 
         public DbSet<UserConnection> UserConnections { get; set; }
 
+
+        // Entities for Booking
+        public DbSet<ChefDish> ChefDishes { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -125,6 +129,11 @@ namespace NESTCOOKING_API.DataAccess.Data
                 connection.HasOne<User>().WithMany().HasForeignKey(uc => uc.UserId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
 				connection.HasOne<User>().WithMany().HasForeignKey(uc => uc.FollowingUserId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
 			});
+
+            modelBuilder.Entity<ChefDish>(dish =>
+            {
+                dish.HasOne<User>().WithMany().HasForeignKey(cd => cd.ChefId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
+            });
 		}
     }
 }

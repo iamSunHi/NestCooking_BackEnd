@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
 
-namespace NESTCOOKING_API.Business.DTOs.UserDTOs
+namespace NESTCOOKING_API.Business.DTOs.UploadFileDTOs
 {
     public class UploadImageDTO
     {
