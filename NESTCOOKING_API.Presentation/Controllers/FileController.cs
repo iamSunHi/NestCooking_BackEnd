@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
+using NESTCOOKING_API.Business.DTOs.UploadFileDTOs;
 using NESTCOOKING_API.Utility;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
-	[Route("api/upload")]
+    [Route("api/upload")]
     [ApiController]
     [Authorize]
     public class FileController : ControllerBase
@@ -18,7 +19,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
         }
 
         [HttpPost("image")]
-        public async Task<IActionResult> UploadImage([FromForm] Business.DTOs.UserDTOs.UploadImageDTO uploadImageDTO)
+        public async Task<IActionResult> UploadImage([FromForm] UploadImageDTO uploadImageDTO)
         {
             if (string.IsNullOrEmpty(uploadImageDTO.Path))
             {

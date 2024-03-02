@@ -100,5 +100,9 @@
 		public static string NotificationApproveReport = "We have approved your report and removed the violation. Thank you for your help in building a positive community.";
 		public static string NotificationApproveReportForViolentUser = "You were reported due to violent behavior. After checking carefully, we confirm that is true, so we deleted that violent content. If you think this is a mistake, please send us a reply.";
 		public static string NotificationRejectReport = "We have seen your report, but we haven't seen any violations. If you think this is a mistake, please send us another report.";
+
+		// For ChefDish
+		public static string DishExisted = "This dish already exists. Please try another dish.";
+		public static string DishNotExisted = "This dish doesn't exist. Please try another dish.";
 	}
 }

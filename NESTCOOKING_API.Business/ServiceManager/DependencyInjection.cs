@@ -49,6 +49,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<IReactionRepository, ReactionRepository>();
 			service.AddScoped<ICommentRepository, CommentRepository>();
             service.AddScoped<IUserConnectionRepository, UserConnectionRepository>();
+            service.AddScoped<IChefDishRepository, ChefDishRepository>();
             service.AddScoped<ITransactionRepository, TransactionRepository>();
             service.AddScoped<INotificationRepository, NotificationRepository>();
 
