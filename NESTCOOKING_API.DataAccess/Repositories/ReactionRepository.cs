@@ -152,50 +152,93 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 				throw new Exception(ex.Message);
 			}
 		}
-		public async Task<Dictionary<string, int>> GetReactionsByIdAsync(string targetId, string type)
+		public async Task<Dictionary<string, List<string>>> GetReactionsByIdAsync(string targetId, string type)
 		{
-			Dictionary<string, int>? reactions = null;
-			if (String.Equals(type, "recipe"))
+			Dictionary<string, List<string>> reactions = new Dictionary<string, List<string>>(); // Initialize the dictionary
+
+			IEnumerable<string> allReactionIds;
+
+			allReactionIds = await _context.Reactions.Select(r => r.Id)
+				.ToListAsync();
+
+
+			foreach (string reactionId in allReactionIds)
 			{
-				reactions = await _context.RecipeReaction
-				.Where(rr => rr.Recipe.Id == targetId)
-				.GroupBy(rr => rr.Reaction.Emoji)
-				.Select(g => new { Reaction = g.Key, Count = g.Count() })
-				.ToDictionaryAsync(x => x.Reaction, x => x.Count);
+				List<string> userIds;
+				if (String.Equals(type, "recipe"))
+				{
+					userIds = await _context.RecipeReaction
+						.Where(rr => rr.RecipeId == targetId && rr.ReactionId == reactionId)
+						.Select(rr => rr.UserId)
+						.Distinct()
+						.ToListAsync();
+				}
+				else
+				{
+					userIds = await _context.CommentReaction
+						.Where(rr => rr.CommentId == targetId && rr.ReactionId == reactionId)
+						.Select(rr => rr.UserId)
+						.Distinct()
+						.ToListAsync();
+				}
+				string reactionEmoji = await _context.Reactions
+							.Where(r => r.Id == reactionId)
+							.Select(r => r.Emoji)
+							.FirstOrDefaultAsync();
+
+				reactions[reactionEmoji] = userIds;
 			}
-			else
-			{
-				reactions = await _context.CommentReaction
-				.Where(rr => rr.Comment.CommentId == targetId)
-				.GroupBy(rr => rr.Reaction.Emoji)
-				.Select(g => new { Reaction = g.Key, Count = g.Count() })
-				.ToDictionaryAsync(x => x.Reaction, x => x.Count);
-			}
+
 			return reactions;
 		}
 
-        public async Task<List<string>> GetReactionUserById(string targetId, string type)
-        {
+		public async Task<Dictionary<string, List<string>>> GetUserReaction(string userId, string type)
+		{
+			Dictionary<string, List<string>> userReactions = new Dictionary<string, List<string>>();
+
+			IEnumerable<string> allReactionIds;
+
+			allReactionIds = await _context.Reactions
+								.Select(r => r.Id)
+								.ToListAsync();
+
 			try
 			{
-                List<string> userIdList = null;
-                if (String.Equals(type, "recipe")) {
-                    userIdList = await _context.RecipeReaction
-                .Where(rr => rr.RecipeId == targetId)
-                .Select(rr => rr.UserId).Distinct()
-                .ToListAsync();
-                }
-                else {
-                    userIdList = await _context.CommentReaction
-               .Where(rr => rr.CommentId == targetId)
-               .Select(rr => rr.UserId).Distinct()
-               .ToListAsync();
-                }
-                return userIdList;
-            }catch(Exception ex)
+				foreach (string reactionId in allReactionIds)
+				{
+					List<string> targetIds = null;
+
+					if (String.Equals(type, StaticDetails.TargetType_RECIPE))
+					{
+						targetIds = await _context.RecipeReaction
+							.Where(rr => rr.UserId == userId && rr.ReactionId == reactionId)
+							.Select(rr => rr.RecipeId)
+							.Distinct()
+							.ToListAsync();
+					}
+					else
+					{
+						targetIds = await _context.CommentReaction
+							.Where(rr => rr.UserId == userId && rr.ReactionId == reactionId)
+							.Select(rr => rr.CommentId)
+							.Distinct()
+							.ToListAsync();
+					}
+					string reactionEmoji = await _context.Reactions
+												.Where(r => r.Id == reactionId)
+												.Select(r => r.Emoji)
+												.FirstOrDefaultAsync();
+					// Add the reactionId and corresponding targetIds to the dictionary
+					userReactions[reactionEmoji] = targetIds;
+				}
+
+				return userReactions;
+			}
+			catch (Exception ex)
 			{
 				throw new Exception(ex.Message);
 			}
-        }
-    }
+		}
+
+	}
 }

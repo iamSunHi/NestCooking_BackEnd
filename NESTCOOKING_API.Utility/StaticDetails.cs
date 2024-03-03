@@ -73,6 +73,8 @@
 			Rejected,
 			Completed
 		}
-		
+
+		public const string TargetType_RECIPE = "recipe";
+		public const string TargetType_COMMENT = "comment";
 	}
 }

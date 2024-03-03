@@ -13,7 +13,7 @@ namespace NESTCOOKING_API.Business.Services.IServices
         Task<bool> AddReactionAsync(ReactionDTO reactionDTO, string userId);
         Task<bool> DeleteReactionAsync(string targetId, string userId, string type);
         Task<bool> UpdateReactionAsync(ReactionDTO reactionDTO, string userId);
-        Task<Dictionary<string, int>> GetReactionsByIdAsync(string targetId, string type);
-        Task<List<string>> GetReactionUserById(string targetId, string type);
+        Task<Dictionary<string, List<string>>> GetUserReaction(string userId, string type);
+        Task<Dictionary<string, List<string>>> GetReactionsByIdAsync(string targetId, string type);
     }
 }
