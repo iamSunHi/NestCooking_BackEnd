@@ -17,7 +17,7 @@ namespace NESTCOOKING_API.DataAccess.Models
         public string Title { get; set; } = null!;
         public string Type { get; set; } = null!;
         public string Content { get; set; } = null!;
-        public string? ImageUrl { get; set; }
+        public List<string>? ImageUrls { get; set; }
         public string? Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public Response? Response { get; set; }

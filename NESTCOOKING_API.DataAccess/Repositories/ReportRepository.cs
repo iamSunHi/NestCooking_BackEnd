@@ -31,7 +31,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 					{
 						reportEntity.Title = reportToDb.Title;
 						reportEntity.Content = reportToDb.Content;
-						reportEntity.ImageUrl = reportToDb.ImageUrl;
+						reportEntity.ImageUrls = reportToDb.ImageUrls;
 						reportEntity.CreatedAt = DateTime.UtcNow;
 
 						await _context.SaveChangesAsync();
