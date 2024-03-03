@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NESTCOOKING_API.Business.Authentication;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.ReactionDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
+using NESTCOOKING_API.Utility;
 using System.Security.Claims;
 
 namespace NESTCOOKING_API.Presentation.Controllers
@@ -26,8 +28,8 @@ namespace NESTCOOKING_API.Presentation.Controllers
         {
             try
             {
-                var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;              
-                if (!String.Equals(reactionDTO.Type, "recipe") && !String.Equals(reactionDTO.Type, "comment"))
+                var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (!String.Equals(reactionDTO.Type, StaticDetails.TargetType_RECIPE) && !String.Equals(reactionDTO.Type, StaticDetails.TargetType_COMMENT))
                 {
                     return BadRequest(ResponseDTO.BadRequest(message: "Type is not valid"));
                 }
@@ -57,7 +59,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 {
                     return BadRequest(ResponseDTO.BadRequest(message: "Type is required"));
                 }
-                if (!String.Equals(type, "recipe") && !String.Equals(type, "comment"))
+                if (!String.Equals(type, StaticDetails.TargetType_RECIPE) && !String.Equals(type, StaticDetails.TargetType_COMMENT))
                 {
                     return BadRequest(ResponseDTO.BadRequest(message: "Type is not valid"));
                 }
@@ -83,22 +85,23 @@ namespace NESTCOOKING_API.Presentation.Controllers
         [HttpPut]
         [Authorize]
         public async Task<IActionResult> UpdateReaction([FromBody] ReactionDTO reactionDTO)
-        {        
+        {
             try
             {
                 var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
-                if (!String.Equals(reactionDTO.Type, "recipe") && !String.Equals(reactionDTO.Type, "comment"))
+                if (!String.Equals(reactionDTO.Type, StaticDetails.TargetType_RECIPE) && !String.Equals(reactionDTO.Type, StaticDetails.TargetType_COMMENT))
+
                 {
                     return BadRequest(ResponseDTO.BadRequest(message: "Type is not valid"));
                 }
                 var result = await _reactionService.UpdateReactionAsync(reactionDTO, userId);
                 if (result)
                 {
-                    return Ok(ResponseDTO.Accept(message:"Update Reaction Success"));
+                    return Ok(ResponseDTO.Accept(message: "Update Reaction Success"));
                 }
                 else
                 {
-                    return BadRequest(ResponseDTO.BadRequest(message:"Update Reaction Fail"));
+                    return BadRequest(ResponseDTO.BadRequest(message: "Update Reaction Fail"));
                 }
             }
             catch (Exception ex)
@@ -107,15 +110,15 @@ namespace NESTCOOKING_API.Presentation.Controllers
             }
         }
         [HttpGet("{type}")]
-        public async Task<IActionResult> GetReactionsById(string type, [FromQuery] string targetId)
+        public async Task<IActionResult> GetReactionsByTargetId(string type, [FromQuery] string targetId)
         {
             try
-            {           
+            {
                 if (string.IsNullOrEmpty(type))
                 {
                     return BadRequest(ResponseDTO.BadRequest(message: "Type is required"));
                 }
-                if (!String.Equals(type, "recipe") && !String.Equals(type, "comment"))
+                if (!String.Equals(type, StaticDetails.TargetType_RECIPE) && !String.Equals(type, StaticDetails.TargetType_COMMENT))
                 {
                     return BadRequest(ResponseDTO.BadRequest(message: "Type is not valid"));
                 }
@@ -123,7 +126,30 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 {
                     return BadRequest(ResponseDTO.BadRequest(message: "Target is required"));
                 }
-                var result = await _reactionService.GetReactionsByIdAsync(targetId,type);
+                var result = await _reactionService.GetReactionsByIdAsync(targetId, type);
+                return Ok(ResponseDTO.Accept(result: result));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+            }
+        }
+        [HttpGet("user/{type}")]
+        [Authorize]
+        public async Task<IActionResult> GetReactionUserById(string type)
+        {
+            try
+            {
+                var userId = AuthenticationHelper.GetUserIdFromContext(HttpContext);
+                if (string.IsNullOrEmpty(type))
+                {
+                    return BadRequest(ResponseDTO.BadRequest(message: "Type is required"));
+                }
+                if (!String.Equals(type, StaticDetails.TargetType_RECIPE) && !String.Equals(type, StaticDetails.TargetType_COMMENT))
+                {
+                    return BadRequest(ResponseDTO.BadRequest(message: "Type is not valid"));
+                }
+                var result = await _reactionService.GetUserReaction(userId, type);
                 return Ok(ResponseDTO.Accept(result: result));
             }
             catch (Exception ex)

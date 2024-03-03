@@ -19,5 +19,6 @@ namespace NESTCOOKING_API.DataAccess.Models
 		[JsonIgnore]
 		public List<RequestToBecomeChef> RequestsToBecomeChefs { get; set; }
 		public ICollection<Comment> Comments { get; set; }
-	}
+        public ICollection<Transaction> Transactions { get; set; }
+    }
 }

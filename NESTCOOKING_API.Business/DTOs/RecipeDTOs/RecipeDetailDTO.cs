@@ -22,7 +22,7 @@ namespace NESTCOOKING_API.Business.DTOs.RecipeDTOs
 		public DateTime CreatedAt { get; set; }
 		public DateTime UpdatedAt { get; set; }
 
-		public Dictionary<string, int> Reactions { get; set; }
+		public Dictionary<string, List<string>> Reactions { get; set; }
 		public IEnumerable<RequestCommentDTO> Comments { get; set; }
 	}
 }

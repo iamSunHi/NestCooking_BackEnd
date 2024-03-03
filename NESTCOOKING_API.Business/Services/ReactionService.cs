@@ -24,10 +24,11 @@ namespace NESTCOOKING_API.Business.Services
             {
                 await _reactionRepository.AddAsync(reactionDTO.TargetID, reactionDTO.Reaction, reactionDTO.Type, userId);
                 return true;
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
-            }          
+            }
         }
         public async Task<bool> DeleteReactionAsync(string targetId, string userId, string type)
         {
@@ -35,29 +36,47 @@ namespace NESTCOOKING_API.Business.Services
             {
                 await _reactionRepository.DeleteAsync(targetId, userId, type);
                 return true;
-            } catch(Exception ex) 
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
-		}
-		public async Task<bool> UpdateReactionAsync(ReactionDTO reactionDTO, string userId)
+        }
+        public async Task<bool> UpdateReactionAsync(ReactionDTO reactionDTO, string userId)
         {
-            try {
+            try
+            {
                 await _reactionRepository.UpdateReactionAsync(reactionDTO.TargetID, reactionDTO.Reaction, reactionDTO.Type, userId);
                 return true;
-            } catch(Exception ex) 
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
-            }          
+            }
         }
-        public async Task<Dictionary<string, int>> GetReactionsByIdAsync(string targetId, string type)
+        public async Task<Dictionary<string, List<string>>> GetReactionsByIdAsync(string targetId, string type)
         {
-            try { 
-                return await _reactionRepository.GetReactionsByIdAsync(targetId, type); 
-            } catch(Exception ex)
+            try
+            {
+                return await _reactionRepository.GetReactionsByIdAsync(targetId, type);
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
-            }          
+            }
+        }
+
+        public async Task<Dictionary<string, List<string>>> GetUserReaction(string userId, string type)
+        {
+            try
+            {
+                var userIdList = await _reactionRepository.GetUserReaction(userId, type);
+                return userIdList;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

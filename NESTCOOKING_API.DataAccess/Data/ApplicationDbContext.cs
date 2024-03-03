@@ -35,6 +35,7 @@ namespace NESTCOOKING_API.DataAccess.Data
         public DbSet<Comment> Comments { get; set; }
 
         public DbSet<UserConnection> UserConnections { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

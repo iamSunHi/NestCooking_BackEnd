@@ -10,7 +10,7 @@ namespace NESTCOOKING_API.DataAccess.Models
 		public User Chef { get; set; }
 		public string? Status { get; set; }
 		public double Price { get; set; }
-		public Payment Payment { get; set; }
+		public Transaction Payment { get; set; }
 		public DateTime CreatedAt { get; set; }
 	}
 }

@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using NESTCOOKING_API.Business.Authorization;
 using NESTCOOKING_API.Business.DTOs.EmailDTOs;
+using NESTCOOKING_API.Business.Libraries;
 using NESTCOOKING_API.Business.Mapping;
 using NESTCOOKING_API.Business.Services;
 using NESTCOOKING_API.Business.Services.IServices;
@@ -47,7 +48,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<IReactionRepository, ReactionRepository>();
 			service.AddScoped<ICommentRepository, CommentRepository>();
             service.AddScoped<IUserConnectionRepository, UserConnectionRepository>();
-
+            service.AddScoped<ITransactionRepository, TransactionRepository>();
             // Add services to the container.
             service.AddScoped<IJwtUtils, JwtUtils>();
             service.AddScoped<IAuthService, AuthService>();
@@ -65,8 +66,11 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<IReactionService, ReactionService>();
 			service.AddScoped<ICommentService, CommentService>();
             service.AddScoped<IUserConnectionService, UserConnectionService>();
+            service.AddScoped<IPaymentService, PaymentService>();
+            service.AddScoped<VnPayLibrary>();
+            service.AddScoped<ITransactionService, TransactionService>();
 
-			service.AddHttpClient();
+            service.AddHttpClient();
 
             service.AddCors(options =>
             {
