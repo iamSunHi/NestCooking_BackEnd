@@ -30,7 +30,8 @@
 		public const string CommentType_RECIPE = "Recipe";
 		public const string CommentType_COMMENTCHILD = "Comment";
 
-		public enum ProviderLogin {
+		public enum ProviderLogin
+		{
 			FACEBOOK, GOOGLE
 		}
 
@@ -49,16 +50,18 @@
 		public const string Currency_VND = "VND";
 		public const string Currency_USD = "USD";
 
+		public const string NotificationType_RECIPE = "RECIPE";
 		public const string NotificationType_REACTION = "REACTION";
 		public const string NotificationType_COMMENT = "COMMENT";
 		public const string NotificationType_REPORT = "REPORT";
 		public const string NotificationType_REQUEST = "REQUEST";
+		public const string NotificationType_RESPONSE = "RESPONSE";
 
-		public const string TransactionFe_URL= "https://nest-cooking.onrender.com/payment/transaction";
+		public const string TransactionFe_URL = "https://nest-cooking.onrender.com/payment/transaction";
 		public const string IpAddress = "127.0.0.1";
 
 
-        public const string AvatarFolderPath = "images/avatar";
+		public const string AvatarFolderPath = "images/avatar";
 		public static readonly Dictionary<string, string> FolderPath = new Dictionary<string, string>
 		{
 			{ "avatar", "images/avatar" }

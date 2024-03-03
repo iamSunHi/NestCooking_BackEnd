@@ -58,8 +58,8 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				{
 					result.totalItems,
 					result.totalPages,
-					pageNumber,
-					pageSize
+					_paginationInfo.PageNumber,
+					_paginationInfo.PageSize
 				},
 				ingredientTips = result.ingredientTipList
 			}));

@@ -3,6 +3,7 @@ using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.AuthDTOs;
 using NESTCOOKING_API.Business.DTOs.ChefRequestDTOs;
 using NESTCOOKING_API.Business.DTOs.CommentDTOs;
+using NESTCOOKING_API.Business.DTOs.NotificationDTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
 using NESTCOOKING_API.Business.DTOs.ReportDTOs;
 using NESTCOOKING_API.Business.DTOs.ResponseDTOs;
@@ -56,6 +57,10 @@ namespace NESTCOOKING_API.Business.Mapping
 
 			// Transaction
 			CreateMap<Transaction,TransactionDTO>().ReverseMap();
+
+			// Notification
+			CreateMap<Notification, NotificationCreateDTO>().ReverseMap();
+			CreateMap<Notification, NotificationReadDTO>().ReverseMap();
 		}
 	}
 }

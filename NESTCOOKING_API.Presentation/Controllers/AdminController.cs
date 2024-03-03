@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.AdminDTOs;
+using NESTCOOKING_API.Business.DTOs.NotificationDTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.Utility;
@@ -12,19 +13,21 @@ namespace NESTCOOKING_API.Presentation.Controllers
 	[ApiController]
 	[Authorize(StaticDetails.Role_Admin)]
 	public class AdminController : ControllerBase
-
 	{
+		private PaginationInfoDTO _paginationInfo = new PaginationInfoDTO();
 		private ICategoryService _categoryService;
 		private readonly IResponseService _responseService;
 		private readonly IReportService _reportService;
 		private readonly ITransactionService _transactionService;
+		private readonly INotificationService _notificationService;
 
-		public AdminController(ICategoryService categoryService, IResponseService responseService, IReportService reportService, ITransactionService transactionService)
+		public AdminController(ICategoryService categoryService, IResponseService responseService, IReportService reportService, ITransactionService transactionService, INotificationService notificationService)
 		{
 			_categoryService = categoryService;
 			_responseService = responseService;
 			_reportService = reportService;
 			_transactionService = transactionService;
+			_notificationService = notificationService;
 		}
 
 		#region Category
@@ -201,5 +204,89 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		#endregion Transaction
+
+		#region Notification
+
+		[HttpGet("notifications")]
+		public async Task<IActionResult> GetAllNotificationsWithPaginationAsync([FromQuery] int pageNumber, [FromQuery] int pageSize)
+		{
+			try
+			{
+				if (pageNumber != 0)
+				{
+					_paginationInfo.PageNumber = pageNumber;
+				}
+				if (pageSize != 0)
+				{
+					_paginationInfo.PageSize = pageSize;
+				}
+				else if (pageSize > 100)
+				{
+					_paginationInfo.PageSize = 100;
+				}
+				(int totalItems, int totalPages, IEnumerable<NotificationReadDTO> notificationList) result = await _notificationService.GetAllNotificationsWithPaginationAsync(_paginationInfo);
+
+				if (result.notificationList == null)
+				{
+					return BadRequest(ResponseDTO.BadRequest(message: "Page number is not valid!"));
+				}
+				return Ok(ResponseDTO.Accept(result: new
+				{
+					metadata = new
+					{
+						result.totalItems,
+						result.totalPages,
+						_paginationInfo.PageNumber,
+						_paginationInfo.PageSize
+					},
+					notifications = result.notificationList
+				}));
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+		}
+
+		[HttpPost("notifications/create")]
+		public async Task<IActionResult> CreateNotificationAsync([FromBody] NotificationCreateDTO notificationCreateDTO)
+		{
+			try
+			{
+				notificationCreateDTO.NotificationType = notificationCreateDTO.NotificationType.ToUpper();
+				if (notificationCreateDTO.NotificationType != StaticDetails.NotificationType_RECIPE &&
+					notificationCreateDTO.NotificationType != StaticDetails.NotificationType_REACTION &&
+					notificationCreateDTO.NotificationType != StaticDetails.NotificationType_COMMENT &&
+					notificationCreateDTO.NotificationType != StaticDetails.NotificationType_REPORT &&
+					notificationCreateDTO.NotificationType != StaticDetails.NotificationType_REQUEST &&
+					notificationCreateDTO.NotificationType != StaticDetails.NotificationType_RESPONSE)
+				{
+					return BadRequest(ResponseDTO.BadRequest(message: "Invalid notification type. Please try again."));
+				}
+
+				await _notificationService.CreateNotificationAsync(notificationCreateDTO);
+				return Created();
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+		}
+
+		[HttpDelete("notifications/delete/{notificationId}")]
+		public async Task<IActionResult> DeleteNotificationAsync([FromRoute] string notificationId)
+		{
+			try
+			{
+				await _notificationService.RemoveNotificationAsync(notificationId);
+				return NoContent();
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(ex.Message));
+			}
+		}
+
+		#endregion Notification
 	}
 }

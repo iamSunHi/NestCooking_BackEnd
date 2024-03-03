@@ -50,6 +50,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			service.AddScoped<ICommentRepository, CommentRepository>();
             service.AddScoped<IUserConnectionRepository, UserConnectionRepository>();
             service.AddScoped<ITransactionRepository, TransactionRepository>();
+            service.AddScoped<INotificationRepository, NotificationRepository>();
 
 			#endregion Repositories
 
@@ -74,6 +75,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<IPaymentService, PaymentService>();
             service.AddScoped<VnPayLibrary>();
             service.AddScoped<ITransactionService, TransactionService>();
+            service.AddScoped<INotificationService, NotificationService>();
 
 			#endregion Services
 
