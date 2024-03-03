@@ -7,9 +7,9 @@ namespace NESTCOOKING_API.Business.Services.IServices
 {
 	public interface IUserService
 	{
-		Task<UserInfoDTO> GetUserById(string id);
+		Task<UserDetailInfoDTO> GetUserById(string id);
 		Task<bool> ChangePassword(string userId, string currentPassword, string newPassword, string confirPassword);
-		Task<UserInfoDTO> EditProfile(string userId, UpdateUserDTO updateUserDTO);
+		Task<UserDetailInfoDTO> EditProfile(string userId, UpdateUserDTO updateUserDTO);
 		bool IsUniqueEmail(string email);
 		Task<User> GetUserByEmail(string email);
 		Task<User> GetUserByUsername(string username);

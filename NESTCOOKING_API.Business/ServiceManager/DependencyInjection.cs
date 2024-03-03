@@ -30,8 +30,9 @@ namespace NESTCOOKING_API.Business.ServiceManager
                        .AddJsonFile("appsettings.json");
             var configurationRoot = configBuilder.Build();
 
-            // Add repositories to the container.
-            service.AddScoped<IUserRepository, UserRepository>();
+			#region Repositories
+
+			service.AddScoped<IUserRepository, UserRepository>();
             service.AddScoped<IRoleRepository, RoleRepository>();
             service.AddScoped<IResponseRepository, ResponseRepository>();
             service.AddScoped<IRequestBecomeChefRepository, RequestBecomeChefRepository>();
@@ -49,8 +50,12 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			service.AddScoped<ICommentRepository, CommentRepository>();
             service.AddScoped<IUserConnectionRepository, UserConnectionRepository>();
             service.AddScoped<ITransactionRepository, TransactionRepository>();
-            // Add services to the container.
-            service.AddScoped<IJwtUtils, JwtUtils>();
+
+			#endregion Repositories
+
+			#region Services
+
+			service.AddScoped<IJwtUtils, JwtUtils>();
             service.AddScoped<IAuthService, AuthService>();
             service.AddScoped<IUserService, UserService>();
             service.AddScoped<IEmailService, EmailService>();
@@ -70,7 +75,9 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<VnPayLibrary>();
             service.AddScoped<ITransactionService, TransactionService>();
 
-            service.AddHttpClient();
+			#endregion Services
+
+			service.AddHttpClient();
 
             service.AddCors(options =>
             {

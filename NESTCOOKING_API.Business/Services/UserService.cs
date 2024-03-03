@@ -47,7 +47,7 @@ namespace NESTCOOKING_API.Business.Services
             return this._userRepository.IsUniqueEmail(email);
         }
 
-        public async Task<UserInfoDTO> GetUserById(string id)
+        public async Task<UserDetailInfoDTO> GetUserById(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
 
@@ -55,7 +55,7 @@ namespace NESTCOOKING_API.Business.Services
             {
                 throw new UserNotFoundException();
             }
-            var userDTO = _mapper.Map<UserInfoDTO>(user);
+            var userDTO = _mapper.Map<UserDetailInfoDTO>(user);
             userDTO.Role = await _roleRepository.GetRoleNameByIdAsync(user.RoleId);
             return userDTO;
         }
@@ -78,7 +78,7 @@ namespace NESTCOOKING_API.Business.Services
             return true;
         }
 
-        public async Task<UserInfoDTO> EditProfile(string userId, UpdateUserDTO updateUserDTO)
+        public async Task<UserDetailInfoDTO> EditProfile(string userId, UpdateUserDTO updateUserDTO)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)

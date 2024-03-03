@@ -7,23 +7,17 @@
 
 		// For Production
 		public const string FE_URL = "https://nest-cooking.onrender.com";
+
 		public enum ApiType
 		{
 			GET, POST, PUT, DELETE
 		}
-		public enum ActionStatus
-		{
-			PENDING, ACCEPTED, REJECTED
-		}
+
 		public enum AdminAction
 		{
-			Accept, Reject
+			ACCEPT, REJECT
 		}
-		public enum ReportType
-		{
-			user, comment, recipe
 
-		}
 		public enum ReactionType
 		{
 			haha, favorite, like
@@ -35,9 +29,11 @@
 
 		public const string CommentType_RECIPE = "Recipe";
 		public const string CommentType_COMMENTCHILD = "Comment";
+
 		public enum ProviderLogin {
 			FACEBOOK, GOOGLE
 		}
+
 		public const string Role_Admin = "admin";
 		public const string Role_User = "user";
 		public const string Role_Chef = "chef";
@@ -45,6 +41,7 @@
 		public const string ActionStatus_PENDING = "PENDING";
 		public const string ActionStatus_ACCEPTED = "ACCEPTED";
 		public const string ActionStatus_REJECTED = "REJECTED";
+		public const string ActionStatus_COMPLETED = "COMPLETED";
 
 		public const string PaymentType_DEPOSIT = "DEPOSIT";
 		public const string PaymentType_WITHDRAW = "WITHDRAW";
@@ -66,13 +63,6 @@
 		{
 			{ "avatar", "images/avatar" }
 		};
-		public enum RequestStatus
-		{
-			Pending,
-			Approved,
-			Rejected,
-			Completed
-		}
 
 		public const string TargetType_RECIPE = "recipe";
 		public const string TargetType_COMMENT = "comment";
