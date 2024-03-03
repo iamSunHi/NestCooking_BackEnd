@@ -13,7 +13,7 @@ namespace NESTCOOKING_API.DataAccess.Models
 		public string Description { get; set; } = null!;
 		public string Currency { get; set; } = null!;
 		public string Payment { get; set; } = null!;
-		public bool isSuccess { get; set; }
+		public bool IsSuccess { get; set; }
 		public DateTime CreatedAt { get; set; }
 	}
 }

@@ -23,7 +23,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
             try
             {
                 var transaction = _context.Transactions.FirstOrDefault(t => t.Id == transactionId);
-                transaction.isSuccess = true;
+                transaction.IsSuccess = true;
                 _context.SaveChanges();
             }catch(Exception ex)
             {

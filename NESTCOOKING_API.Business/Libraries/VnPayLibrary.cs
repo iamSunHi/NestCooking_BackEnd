@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using NESTCOOKING_API.Business.DTOs.PaymentDTOs;
+using NESTCOOKING_API.Utility;
 
 namespace NESTCOOKING_API.Business.Libraries
 {
@@ -82,7 +83,7 @@ namespace NESTCOOKING_API.Business.Libraries
                 return ex.Message;
             }
 
-            return "127.0.0.1";
+            return StaticDetails.IpAddress;
         }
         public void AddRequestData(string key, string value)
         {

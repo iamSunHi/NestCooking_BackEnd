@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using NESTCOOKING_API.Business.DTOs.PaymentDTOs;
 using NESTCOOKING_API.Business.Libraries;
 using NESTCOOKING_API.Business.Services.IServices;
+using NESTCOOKING_API.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,7 +29,7 @@ namespace NESTCOOKING_API.Business.Services
             {
                 var timeZoneById = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
                 var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneById);;
-                var urlCallBack = "https://nest-cooking.onrender.com/payment/transaction";
+                var urlCallBack = StaticDetails.TransactionFe_URL;
 
                 _vnPayLibrary.AddRequestData("vnp_Version", "2.1.0");
                 _vnPayLibrary.AddRequestData("vnp_Command", "pay");

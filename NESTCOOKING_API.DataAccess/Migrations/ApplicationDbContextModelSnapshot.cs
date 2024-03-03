@@ -674,6 +674,9 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsSuccess")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Payment")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -685,9 +688,6 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool>("isSuccess")
-                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 

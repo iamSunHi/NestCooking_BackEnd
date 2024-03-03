@@ -61,7 +61,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
         }     
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<List<TransactionDTO>>> GetTransactionsByUserId()
+        public async Task<IActionResult> GetTransactionsByUserId()
         {
             try
             {

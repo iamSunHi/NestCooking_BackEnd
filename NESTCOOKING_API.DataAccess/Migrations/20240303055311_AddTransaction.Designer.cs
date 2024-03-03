@@ -12,7 +12,7 @@ using NESTCOOKING_API.DataAccess.Data;
 namespace NESTCOOKING_API.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240302094733_AddTransaction")]
+    [Migration("20240303055311_AddTransaction")]
     partial class AddTransaction
     {
         /// <inheritdoc />
@@ -677,6 +677,9 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsSuccess")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Payment")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -688,9 +691,6 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool>("isSuccess")
-                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 

@@ -41,7 +41,7 @@ namespace NESTCOOKING_API.Business.Services
                     Description = paymentInfor.OrderDescription,
                     Currency = StaticDetails.Currency_VND,
                     Payment = "VnPay",
-                    isSuccess = false,
+                    IsSuccess = false,
                     CreatedAt = DateTime.Now
                 };
                 await _transactionRepository.CreateAsync(transaction);

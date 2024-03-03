@@ -57,7 +57,11 @@
 		public const string NotificationType_REPORT = "REPORT";
 		public const string NotificationType_REQUEST = "REQUEST";
 
-		public const string AvatarFolderPath = "images/avatar";
+		public const string TransactionFe_URL= "https://nest-cooking.onrender.com/payment/transaction";
+		public const string IpAddress = "127.0.0.1";
+
+
+        public const string AvatarFolderPath = "images/avatar";
 		public static readonly Dictionary<string, string> FolderPath = new Dictionary<string, string>
 		{
 			{ "avatar", "images/avatar" }
@@ -69,5 +73,6 @@
 			Rejected,
 			Completed
 		}
+		
 	}
 }
