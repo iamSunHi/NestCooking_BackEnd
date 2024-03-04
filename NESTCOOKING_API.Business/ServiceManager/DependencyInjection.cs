@@ -49,6 +49,8 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			service.AddScoped<ICommentRepository, CommentRepository>();
             service.AddScoped<IUserConnectionRepository, UserConnectionRepository>();
             service.AddScoped<ITransactionRepository, TransactionRepository>();
+            service.AddScoped<IPurchasedRecipesRepository, PurchasedRecipesRepository>();
+
             // Add services to the container.
             service.AddScoped<IJwtUtils, JwtUtils>();
             service.AddScoped<IAuthService, AuthService>();
@@ -69,6 +71,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<IPaymentService, PaymentService>();
             service.AddScoped<VnPayLibrary>();
             service.AddScoped<ITransactionService, TransactionService>();
+            service.AddScoped<IPurchasedRecipesService, PurchasedRecipesService>(); 
 
             service.AddHttpClient();
 

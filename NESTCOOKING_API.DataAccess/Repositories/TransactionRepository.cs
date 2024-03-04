@@ -18,7 +18,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
         public TransactionRepository(ApplicationDbContext context) : base(context)
         {
         }
-        public async Task UpdateAsync(string transactionId)
+        public async Task UpdateTransactionSuccessAsync(string transactionId)
         {
             try
             {

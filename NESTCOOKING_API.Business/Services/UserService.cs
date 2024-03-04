@@ -22,13 +22,15 @@ namespace NESTCOOKING_API.Business.Services
         private readonly IRoleRepository _roleRepository;
         private readonly UserManager<User> _userManager;
         private readonly IMapper _mapper;
+        private readonly ITransactionRepository _transactionRepository;
 
-        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, UserManager<User> userManager, IMapper mapper)
+        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, UserManager<User> userManager, IMapper mapper, ITransactionRepository transactionRepository)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
             _userManager = userManager;
             _mapper = mapper;
+            _transactionRepository = transactionRepository;
 
         }
 
@@ -107,6 +109,50 @@ namespace NESTCOOKING_API.Business.Services
             var userInfoDTO = await this.GetUserById(userId);
 
             return userInfoDTO;
+        }
+
+        public async Task UpUserBalance(string id, double amount)
+        {
+            try
+            {
+                var transaction = await _transactionRepository.GetAsync(t => t.Id == id);
+                var user = await _userManager.FindByIdAsync(transaction.UserId);
+                user.Balance += amount;
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    throw new Exception();
+                }
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<bool> DownUserBalance(string id, double amount)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(id);
+                if (user.Balance < amount)
+                {
+                    return false;
+                }
+                else
+                {
+                    user.Balance -= amount;
+                    var result = await _userManager.UpdateAsync(user);
+                    if (!result.Succeeded)
+                    {
+                        return false;
+                    }
+                    return true;
+                }
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
         }
     }
 }

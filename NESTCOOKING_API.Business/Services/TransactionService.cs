@@ -4,7 +4,6 @@ using CloudinaryDotNet;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs.AdminDTOs;
-using NESTCOOKING_API.Business.DTOs.PaymentDTOs;
 using NESTCOOKING_API.Business.DTOs.TransactionDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
@@ -28,20 +27,20 @@ namespace NESTCOOKING_API.Business.Services
             _transactionRepository = transactionRepository;
             _mapper = mapper;
         }
-        public async Task<string> CreateTransaction(PaymentInfor paymentInfor, string userId)
+        public async Task<string> CreateTransaction(TransactionInfor transactionInfor, string userId, bool isSuccess, string payMent)
         {
             try
             {
                 var transaction = new Transaction
                 {
-                    Id = DateTime.Now.Ticks.ToString(),
+                    Id = Guid.NewGuid().ToString(),
                     UserId = userId,
-                    Type = paymentInfor.OrderType,
-                    Amount = paymentInfor.Amount,
-                    Description = paymentInfor.OrderDescription,
+                    Type = transactionInfor.OrderType,
+                    Amount = transactionInfor.Amount,
+                    Description = transactionInfor.OrderDescription,
                     Currency = StaticDetails.Currency_VND,
-                    Payment = "VnPay",
-                    IsSuccess = false,
+                    Payment = payMent,
+                    IsSuccess = isSuccess,
                     CreatedAt = DateTime.Now
                 };
                 await _transactionRepository.CreateAsync(transaction);
@@ -88,7 +87,7 @@ namespace NESTCOOKING_API.Business.Services
         {
             try
             {
-                var transaction = _transactionRepository.UpdateAsync(transactionId);
+                var transaction = _transactionRepository.UpdateTransactionSuccessAsync(transactionId);
                 
             }catch(Exception ex)
             {

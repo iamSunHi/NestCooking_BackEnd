@@ -13,5 +13,7 @@ namespace NESTCOOKING_API.Business.Services.IServices
 		bool IsUniqueEmail(string email);
 		Task<User> GetUserByEmail(string email);
 		Task<User> GetUserByUsername(string username);
-	}
+		Task UpUserBalance(string id, double amount);
+        Task<bool> DownUserBalance(string id, double amount);
+    }
 }

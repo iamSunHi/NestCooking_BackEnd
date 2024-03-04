@@ -30,7 +30,7 @@ namespace NESTCOOKING_API.Business.Libraries
                 }
             }
             var amount = Convert.ToDouble(vnPay.GetResponseData("vnp_Amount"));
-            var orderId = Convert.ToInt64(vnPay.GetResponseData("vnp_TxnRef"));
+            var orderId = vnPay.GetResponseData("vnp_TxnRef");
             var vnPayTranId = Convert.ToInt64(vnPay.GetResponseData("vnp_TransactionNo"));
             var vnpResponseCode = vnPay.GetResponseData("vnp_ResponseCode");
             var vnpSecureHash = collection.FirstOrDefault(k => k.Key == "vnp_SecureHash").Value; //hash của dữ liệu trả về

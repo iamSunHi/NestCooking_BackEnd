@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NESTCOOKING_API.Business.DTOs.PaymentDTOs
+namespace NESTCOOKING_API.Business.DTOs.TransactionDTOs
 {
-    public class PaymentInfor
+    public class TransactionInfor
     {
         public string OrderType { get; set; } = null!;
         public double Amount { get; set; }

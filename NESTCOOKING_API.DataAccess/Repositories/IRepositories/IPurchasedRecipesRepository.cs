@@ -5,11 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
 namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
 {
-    public interface ITransactionRepository : IRepository<Transaction>
+    public interface IPurchasedRecipesRepository : IRepository<PurchasedRecipe>
     {
-       public Task UpdateTransactionSuccessAsync(string transaction);
+        List<string> GetPurchasedRecipesByUserId(string userId);
     }
 }
