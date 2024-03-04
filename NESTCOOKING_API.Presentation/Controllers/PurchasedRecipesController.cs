@@ -38,8 +38,8 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 }
                 var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var transactionId = await _transactionService.CreateTransaction(transactionInfor, userId, false, StaticDetails.Payment_Wallet);
-                var downBlanceIsSuccess=await _userService.DownUserBalance(userId,transactionInfor.Amount);
-                if(downBlanceIsSuccess) {
+                var changeBlanceIsSuccess=await _userService.ChangeUserBalanceByTranPurchased(userId,transactionInfor.Amount,recipeId);
+                if(changeBlanceIsSuccess) {
                     await _purchasedRecipesService.CreatePurchasedRecipe(recipeId, transactionId, userId);
                     await _transactionService.TransactionSuccessById(transactionId);
                     return Ok(ResponseDTO.Accept(message: "Purchase Recipe Success"));

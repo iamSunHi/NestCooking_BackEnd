@@ -53,7 +53,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 if (paymentResponse.Success)
                 {
                     await _transactionService.TransactionSuccessById(paymentResponse.OrderId);
-                    await _userService.UpUserBalance(paymentResponse.OrderId, paymentResponse.Amount);
+                    await _userService.ChangeUserBalanceByTranDeposit(paymentResponse.OrderId, paymentResponse.Amount);
                 }
                 return Ok(ResponseDTO.Accept(result: paymentResponse));
             }   
