@@ -17,5 +17,7 @@ namespace NESTCOOKING_API.Business.DTOs.RecipeDTOs
 
 		public bool IsPrivate { get; set; }
 		public double? RecipePrice { get; set; }
+		public bool IsAvailableForBooking { get; set; }
+		public double? BookingPrice { get; set; }
 	}
 }

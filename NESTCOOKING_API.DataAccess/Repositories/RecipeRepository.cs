@@ -40,6 +40,8 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 				recipeFromDb.ThumbnailUrl = recipe.ThumbnailUrl;
 				recipeFromDb.IsPrivate = recipe.IsPrivate;
 				recipeFromDb.RecipePrice = recipe.RecipePrice;
+				recipeFromDb.IsAvailableForBooking = recipe.IsAvailableForBooking;
+				recipeFromDb.BookingPrice = recipe.BookingPrice;
 				recipeFromDb.Difficult = recipe.Difficult;
 				recipeFromDb.CookingTime = recipe.CookingTime;
 				recipeFromDb.Portion = recipe.Portion;
