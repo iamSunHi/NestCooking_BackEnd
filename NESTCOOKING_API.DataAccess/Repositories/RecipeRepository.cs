@@ -39,7 +39,9 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 				recipeFromDb.Description = recipe.Description;
 				recipeFromDb.ThumbnailUrl = recipe.ThumbnailUrl;
 				recipeFromDb.IsPrivate = recipe.IsPrivate;
-				recipeFromDb.Price = recipe.Price;
+				recipeFromDb.RecipePrice = recipe.RecipePrice;
+				recipeFromDb.IsAvailableForBooking = recipe.IsAvailableForBooking;
+				recipeFromDb.BookingPrice = recipe.BookingPrice;
 				recipeFromDb.Difficult = recipe.Difficult;
 				recipeFromDb.CookingTime = recipe.CookingTime;
 				recipeFromDb.Portion = recipe.Portion;
@@ -63,6 +65,24 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 			var result = await query.ToListAsync();
 
 			return result;
+		}
+
+		public async Task UpdateRecipeForBookingAsync(Recipe recipe)
+		{
+			var recipeFromDb = await this.GetAsync(r => r.Id == recipe.Id);
+
+			if (recipeFromDb != null)
+			{
+				if (_context.Entry(recipeFromDb).State == EntityState.Detached)
+				{
+					_context.Attach(recipeFromDb);
+				}
+
+				recipeFromDb.IsAvailableForBooking = recipe.IsAvailableForBooking;
+				recipeFromDb.BookingPrice = recipe.BookingPrice;
+
+				await _context.SaveChangesAsync();
+			}
 		}
 	}
 }
