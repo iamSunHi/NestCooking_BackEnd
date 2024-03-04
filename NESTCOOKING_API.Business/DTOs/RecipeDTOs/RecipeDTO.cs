@@ -10,7 +10,7 @@ namespace NESTCOOKING_API.Business.DTOs.RecipeDTOs
 		public string Description { get; set; } = null!;
 		public string? ThumbnailUrl { get; set; }
 		public bool IsPrivate { get; set; }
-		public double? Price { get; set; }
+		public double? RecipePrice { get; set; }
 		public double Difficult { get; set; }
 		public DateTime CreatedAt { get; set; }
 		public DateTime UpdatedAt { get; set; }

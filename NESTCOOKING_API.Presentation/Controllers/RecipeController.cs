@@ -131,7 +131,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				var result = await _recipeService.UpdateRecipeAsync(userId, recipeId, updateRecipeDTO);
 				if (result == null)
 				{
-					return StatusCode((int)HttpStatusCode.InternalServerError, ResponseDTO.Create(statusCode: HttpStatusCode.InternalServerError, message: "Couldn't update recipe"));
+					return StatusCode((int)HttpStatusCode.InternalServerError, ResponseDTO.Create(statusCode: HttpStatusCode.InternalServerError, message: "Couldn't update recipe."));
 				}
 				return Ok(ResponseDTO.Accept(result: result));
 			}
@@ -213,6 +213,40 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				var userId = GetUserIdFromContext(HttpContext);
 				await _recipeService.RemoveFavoriteRecipeAsync(userId, recipeId);
 				return Ok(ResponseDTO.Create(HttpStatusCode.NoContent, message: "Remove successfully"));
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+		}
+
+		[HttpGet("booking")]
+		public async Task<IActionResult> GetRecipesForBookingByChefIdAsync([FromQuery] string chefId)
+		{
+			try
+			{
+				var recipeList = await _recipeService.GetRecipesForBookingByChefIdAsync(chefId);
+				return Ok(ResponseDTO.Accept(result: recipeList));
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(ex.Message));
+			}
+		}
+
+		[HttpPatch("booking/update")]
+		[Authorize(Roles = StaticDetails.Role_Chef)]
+		public async Task<IActionResult> UpdateRecipeForBookingAsync([FromBody] RecipeForBookingDTO recipeForBookingDTO)
+		{
+			try
+			{
+				var userId = GetUserIdFromContext(HttpContext);
+				var result = await _recipeService.UpdateRecipeForBookingAsync(userId, recipeForBookingDTO);
+				if (result == null)
+				{
+					return StatusCode((int)HttpStatusCode.InternalServerError, ResponseDTO.Create(statusCode: HttpStatusCode.InternalServerError, message: "Couldn't update recipe."));
+				}
+				return Ok(ResponseDTO.Accept(result: result));
 			}
 			catch (Exception ex)
 			{
