@@ -117,5 +117,17 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 			var result = await userListFromDb.ToListAsync();
 			return result;
 		}
-	}
+
+        public async Task<User> FindUserByRoleIdAndUserName(string roleId, string userName)
+        {
+			try
+			{
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.RoleId == roleId && u.UserName == userName);
+                return user;
+            }catch(Exception ex)
+			{
+				throw new Exception(ex.Message);
+			}
+        }
+    }
 }

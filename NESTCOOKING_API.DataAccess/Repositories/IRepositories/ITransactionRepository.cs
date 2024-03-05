@@ -10,6 +10,6 @@ namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
 {
     public interface ITransactionRepository : IRepository<Transaction>
     {
-       public Task UpdateTransactionSuccessAsync(string transaction);
+       public Task UpdateTransactionSuccessAsync(string transaction,bool isSuccess);
     }
 }

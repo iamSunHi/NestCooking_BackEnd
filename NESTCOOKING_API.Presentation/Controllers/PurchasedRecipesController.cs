@@ -41,7 +41,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 var changeBlanceIsSuccess=await _userService.ChangeUserBalanceByTranPurchased(userId,transactionInfor.Amount,recipeId);
                 if(changeBlanceIsSuccess) {
                     await _purchasedRecipesService.CreatePurchasedRecipe(recipeId, transactionId, userId);
-                    await _transactionService.TransactionSuccessById(transactionId);
+                    await _transactionService.TransactionSuccessById(transactionId,true);
                     return Ok(ResponseDTO.Accept(message: "Purchase Recipe Success"));
                 }
                 else

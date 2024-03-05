@@ -18,12 +18,12 @@ namespace NESTCOOKING_API.DataAccess.Repositories
         public TransactionRepository(ApplicationDbContext context) : base(context)
         {
         }
-        public async Task UpdateTransactionSuccessAsync(string transactionId)
+        public async Task UpdateTransactionSuccessAsync(string transactionId, bool isSuccess)
         {
             try
             {
                 var transaction = _context.Transactions.FirstOrDefault(t => t.Id == transactionId);
-                transaction.IsSuccess = true;
+                transaction.IsSuccess = isSuccess;
                 _context.SaveChanges();
             }catch(Exception ex)
             {

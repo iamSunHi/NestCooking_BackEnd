@@ -16,5 +16,6 @@ namespace NESTCOOKING_API.Business.Services.IServices
 		Task<User> GetUserByUsername(string username);
 		Task ChangeUserBalanceByTranDeposit(string id, double amount);
         Task<bool> ChangeUserBalanceByTranPurchased(string userId, double amount, string recipeId);
+		Task<bool> ChangeUserBalanceByWithdraw(string userId, double amount);
     }
 }

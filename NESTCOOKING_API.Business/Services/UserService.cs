@@ -5,6 +5,7 @@ using NESTCOOKING_API.Business.Exceptions;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
+using NESTCOOKING_API.Utility;
 
 namespace NESTCOOKING_API.Business.Services
 {
@@ -110,12 +111,7 @@ namespace NESTCOOKING_API.Business.Services
             {
                 var transaction = await _transactionRepository.GetAsync(t => t.Id == id);
                 var user = await _userManager.FindByIdAsync(transaction.UserId);
-                var updateSuccessful = await UpdateUserBalance(user, amount);
-
-                if (updateSuccessful)
-                {
-                    await ChangeAdminBalance(amount);
-                }
+                await UpdateUserBalance(user, amount);
             }
             catch (Exception ex)
             {
@@ -157,6 +153,26 @@ namespace NESTCOOKING_API.Business.Services
                 throw new Exception("Error changing user balance.", ex);
             }
         }
+        public async Task<bool> ChangeUserBalanceByWithdraw(string userId, double amount)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+
+                if (user.Balance < amount)
+                {
+                    throw new Exception("The amount of money in the wallet is not enough to make the transaction");
+                }
+
+                if (!await UpdateUserBalance(user, -amount))
+                    return false;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
         private async Task<bool> UpdateUserBalance(User user, double amount)
         {
             try
@@ -174,7 +190,8 @@ namespace NESTCOOKING_API.Business.Services
         {
             try
             {
-                var adminUser = await _userManager.FindByNameAsync("admin");
+                var roleAdminId = await _roleRepository.GetRoleIdByNameAsync(StaticDetails.Role_Admin);
+                var adminUser = await _userRepository.FindUserByRoleIdAndUserName(roleAdminId, "admin");
                 if (adminUser == null)
                     return false;
 
