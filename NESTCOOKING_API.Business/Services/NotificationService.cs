@@ -15,15 +15,18 @@ namespace NESTCOOKING_API.Business.Services
 		private readonly IUserRepository _userRepository;
 		private readonly IRecipeRepository _recipeRepository;
 		private readonly ICommentRepository _commentRepository;
+		private readonly IReportRepository _reportRepository;
 		private readonly IMapper _mapper;
 
-		public NotificationService(INotificationRepository notificationRepository, IUserRepository userRepository, IRecipeRepository recipeRepository, ICommentRepository commentRepository,
+		public NotificationService(INotificationRepository notificationRepository, IUserRepository userRepository,
+			IRecipeRepository recipeRepository, ICommentRepository commentRepository, IReportRepository reportRepository,
 			IMapper mapper)
 		{
 			_notificationRepository = notificationRepository;
 			_userRepository = userRepository;
 			_recipeRepository = recipeRepository;
 			_commentRepository = commentRepository;
+			_reportRepository = reportRepository;
 			_mapper = mapper;
 		}
 
@@ -78,8 +81,6 @@ namespace NESTCOOKING_API.Business.Services
 			notificationToDb.Id = Guid.NewGuid().ToString();
 			notificationToDb.CreatedAt = DateTime.UtcNow;
 
-			var sender = await _userRepository.GetAsync(u => u.Id == notificationToDb.SenderId);
-
 			switch (notificationCreateDTO.NotificationType)
 			{
 				case StaticDetails.NotificationType_REACTION:
@@ -88,7 +89,7 @@ namespace NESTCOOKING_API.Business.Services
 						{
 							case StaticDetails.TargetType_RECIPE:
 								{
-									var target = (await _recipeRepository.GetAsync(r => r.Id == notificationToDb.ReceiverId));
+									var target = await _recipeRepository.GetAsync(r => r.Id == notificationToDb.ReceiverId);
 									notificationToDb.ReceiverId = target.UserId;
 									break;
 								}
@@ -103,17 +104,19 @@ namespace NESTCOOKING_API.Business.Services
 						if (notificationToDb.SenderId == notificationToDb.ReceiverId)
 							return;
 
+						var sender = await _userRepository.GetAsync(u => u.Id == notificationToDb.SenderId);
 						notificationToDb.Content = sender.FirstName + " " + sender.LastName + AppString.NotificationReaction + notificationCreateDTO.TargetType + ".";
 						break;
 					}
 				case StaticDetails.NotificationType_COMMENT:
 					{
-						var target = (await _commentRepository.GetAsync(r => r.CommentId == notificationToDb.ReceiverId));
+						var target = await _commentRepository.GetAsync(r => r.CommentId == notificationToDb.ReceiverId);
 						notificationToDb.ReceiverId = target.UserId;
 
 						if (notificationToDb.SenderId == notificationToDb.ReceiverId)
 							return;
 
+						var sender = await _userRepository.GetAsync(u => u.Id == notificationToDb.SenderId);
 						if (notificationCreateDTO.TargetType == StaticDetails.CommentType_RECIPE)
 						{
 							notificationToDb.Content = sender.FirstName + " " + sender.LastName + AppString.NotificationCommentInRecipe;
@@ -121,6 +124,49 @@ namespace NESTCOOKING_API.Business.Services
 						else
 						{
 							notificationToDb.Content = sender.FirstName + " " + sender.LastName + AppString.NotificationCommentReply;
+						}
+						break;
+					}
+				case StaticDetails.NotificationType_RESPONSE:
+					{
+						var target = await _reportRepository.GetAsync(r => r.Id == notificationCreateDTO.ReceiverId);
+
+						if (target.Status == StaticDetails.ActionStatus_ACCEPTED)
+						{
+							// Send notification for violent user
+							switch (target.Type)
+							{
+								case StaticDetails.ReportType_USER:
+									{
+										notificationToDb.ReceiverId = target.TargetId;
+										break;
+									}
+								case StaticDetails.ReportType_RECIPE:
+									{
+										var recipeFromDb = await _recipeRepository.GetAsync(r => r.Id == target.TargetId);
+										notificationToDb.ReceiverId = recipeFromDb.UserId;
+										break;
+									}
+								case StaticDetails.ReportType_COMMENT:
+									{
+										var commentFromDb = await _commentRepository.GetAsync(c => c.CommentId == target.TargetId);
+										notificationToDb.ReceiverId = commentFromDb.UserId;
+										break;
+									}
+							}
+							notificationToDb.Content = AppString.NotificationApproveReportForViolentUser;
+							await _notificationRepository.CreateAsync(notificationToDb);
+
+							// Send notification for reporter
+							notificationToDb.ReceiverId = target.UserId;
+							notificationToDb.Id = Guid.NewGuid().ToString();
+							notificationToDb.ReceiverId = target.UserId;
+							notificationToDb.Content = AppString.NotificationApproveReport;
+						}
+						else
+						{
+							notificationToDb.ReceiverId = target.UserId;
+							notificationToDb.Content = AppString.NotificationRejectReport;
 						}
 						break;
 					}

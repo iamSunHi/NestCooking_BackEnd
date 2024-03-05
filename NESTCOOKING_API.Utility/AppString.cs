@@ -97,5 +97,8 @@
 		public static string NotificationReaction = " has reacted to your ";
 		public static string NotificationCommentInRecipe = " has commented to your recipe.";
 		public static string NotificationCommentReply = " has replied your comment.";
+		public static string NotificationApproveReport = "We have approved your report and removed the violation. Thank you for your help in building a positive community.";
+		public static string NotificationApproveReportForViolentUser = "You were reported due to violent behavior. After checking carefully, we confirm that is true, so we deleted that violent content. If you think this is a mistake, please send us a reply.";
+		public static string NotificationRejectReport = "We have seen your report, but we haven't seen any violations. If you think this is a mistake, please send us another report.";
 	}
 }

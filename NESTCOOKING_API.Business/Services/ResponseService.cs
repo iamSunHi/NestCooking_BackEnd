@@ -7,6 +7,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.AdminDTOs;
+using NESTCOOKING_API.Business.DTOs.NotificationDTOs;
 using NESTCOOKING_API.Business.DTOs.ResponseDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
@@ -25,11 +26,12 @@ namespace NESTCOOKING_API.Business.Services
 		private readonly ICommentRepository _commentRepository;
 		private readonly IRecipeService _recipeService;
 		private readonly ICommentService _commentService;
+		private readonly INotificationService _notificationService;
 		private readonly IMapper _mapper;
 
 		public ResponseService(UserManager<User> userManager,
 			IResponseRepository responseRepository, IReportRepository reportRepository, IRecipeRepository recipeRepository, IUserRepository userRepository, ICommentRepository commentRepository,
-			IRecipeService recipeService, ICommentService commentService,
+			IRecipeService recipeService, ICommentService commentService, INotificationService notificationService,
 			IMapper mapper)
 		{
 			_userManager = userManager;
@@ -40,6 +42,7 @@ namespace NESTCOOKING_API.Business.Services
 			_commentRepository = commentRepository;
 			_recipeService = recipeService;
 			_commentService = commentService;
+			_notificationService = notificationService;
 			_mapper = mapper;
 		}
 
@@ -55,6 +58,17 @@ namespace NESTCOOKING_API.Business.Services
 			{
 				throw new Exception(AppString.ReportAlreadyHandledErrorMessage);
 			}
+
+			var response = await _responseRepository.AdminHandleReportAsync(report, adminRequestDTO.AdminAction, adminRequestDTO.Title, adminRequestDTO.Content);
+			AdminResponseDTO adminResponseDTO = _mapper.Map<AdminResponseDTO>(response);
+
+			var notificationCreateDTO = new NotificationCreateDTO()
+			{
+				SenderId = null,
+				ReceiverId = adminRequestDTO.ReportId,
+				NotificationType = StaticDetails.NotificationType_RESPONSE
+			};
+			await _notificationService.CreateNotificationAsync(notificationCreateDTO);
 
 			var violentUserId = string.Empty;
 			switch (report.Type)
@@ -82,9 +96,6 @@ namespace NESTCOOKING_API.Business.Services
 						break;
 					}
 			}
-
-			var response = await _responseRepository.AdminHandleReportAsync(report, adminRequestDTO.AdminAction, adminRequestDTO.Title, adminRequestDTO.Content);
-			AdminResponseDTO adminResponseDTO = _mapper.Map<AdminResponseDTO>(response);
 			return adminResponseDTO;
 		}
 	}
