@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NESTCOOKING_API.Business.Authentication;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 
@@ -18,11 +19,12 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 		[HttpGet]
 		[Authorize]
-		public async Task<IActionResult> GetAllNotificationsByReceiverIdAsync(string receiverId)
+		public async Task<IActionResult> GetAllNotificationsByReceiverIdAsync()
 		{
 			try
 			{
-				var notificationList = await _notificationService.GetAllNotificationsByReceiverIdAsync(receiverId);
+				var userId = AuthenticationHelper.GetUserIdFromContext(HttpContext);
+				var notificationList = await _notificationService.GetAllNotificationsByReceiverIdAsync(userId);
 				return Ok(ResponseDTO.Accept(result: notificationList));
 			}
 			catch (Exception ex)
