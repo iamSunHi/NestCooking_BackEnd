@@ -13,7 +13,7 @@ namespace NESTCOOKING_API.Business.Services.IServices
         public Task<string> CreateTransaction(TransactionInfor transactionInfor, string userId,bool isSuccess,string payMent);
         public Task<List<TransactionDTO>> GetTransactionsByUserId(string userId);
         public Task<List<TransactionDTO>> GetAllTransactions();
-        public Task TransactionSuccessById(string transactionId);
+        public Task TransactionSuccessById(string transactionId,bool isSuccess);
     }
 }
 

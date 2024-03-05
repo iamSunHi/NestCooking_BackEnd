@@ -10,5 +10,6 @@ namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
         Task<User> Login(string username, string password);
         Task<bool> Register(User newUser, string password);
         Task<IEnumerable<User>> GetUsersByCriteriaAsync(string criteria, string? userId = null);
+        Task<User> FindUserByRoleIdAndUserName(string roleId,string userName);
 	}
 }

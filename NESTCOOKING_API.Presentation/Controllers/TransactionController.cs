@@ -52,7 +52,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 var paymentResponse = _paymentService.ProcessPaymentCallback(Request.Query);
                 if (paymentResponse.Success)
                 {
-                    await _transactionService.TransactionSuccessById(paymentResponse.OrderId);
+                    await _transactionService.TransactionSuccessById(paymentResponse.OrderId,true);
                     await _userService.ChangeUserBalanceByTranDeposit(paymentResponse.OrderId, paymentResponse.Amount);
                 }
                 return Ok(ResponseDTO.Accept(result: paymentResponse));
@@ -79,6 +79,38 @@ namespace NESTCOOKING_API.Presentation.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+            }
+        }
+        [HttpPost("withdraw")]
+        [Authorize]
+        public async Task<IActionResult> WithDrawByUser(string description,double amount)
+        {
+            try
+            {
+                var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var transactionInfor = new TransactionInfor {
+                OrderType = PaymentType_WITHDRAW,
+                Amount = amount,
+                OrderDescription = description,
+                };
+                var transactionId = await _transactionService.CreateTransaction(transactionInfor, userId, false, Payment_Wallet);
+                if(transactionId == null) {
+                    return BadRequest(ResponseDTO.BadRequest(message:"Withdraw Fail"));
+                }
+                if(await _userService.ChangeUserBalanceByWithdraw(userId, amount))
+                {
+                    await _transactionService.TransactionSuccessById(transactionId, true);
+                }
+                else
+                {
+                    return BadRequest(ResponseDTO.BadRequest(message: "Withdraw Fail"));
+                }
+
+                return Ok(ResponseDTO.Accept(result:"Withdraw Success"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ResponseDTO.BadRequest(ex.Message));
             }
         }
     }

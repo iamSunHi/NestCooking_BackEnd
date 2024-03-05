@@ -83,11 +83,11 @@ namespace NESTCOOKING_API.Business.Services
             }
         }
 
-        public async Task TransactionSuccessById(string transactionId)
+        public async Task TransactionSuccessById(string transactionId, bool isSuccess)
         {
             try
             {
-                var transaction = _transactionRepository.UpdateTransactionSuccessAsync(transactionId);
+                var transaction = _transactionRepository.UpdateTransactionSuccessAsync(transactionId, isSuccess);
                 
             }catch(Exception ex)
             {
