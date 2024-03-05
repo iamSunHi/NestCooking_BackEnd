@@ -133,5 +133,34 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
 			}
 		}
+		[HttpPut("admin/approval/{requestId}")]
+		public async Task<IActionResult> ApprovalRequest(string requestId, [FromBody] ApprovalRequestDTO approvalRequestDTO)
+		{
+			try
+			{
+				var userId = GetUserIdFromContext(HttpContext);
+				var Approvaled = await _userRequestService.ApprovalRequestByAdmin(requestId,userId,approvalRequestDTO);
+				if(Approvaled != null)
+				{
+					return Ok(ResponseDTO.Accept(AppString.ApprovalRequestBecomeChefSuccessMessage, result: Approvaled));
+
+				}
+				else
+				{
+					return NotFound(AppString.RequestBecomeChefNotFound);
+				}
+			}
+			catch (Exception ex )
+			{
+
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+			
+
+		}
+		private string GetUserIdFromContext(HttpContext context)
+		{
+			return context.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+		}
 	}
 }

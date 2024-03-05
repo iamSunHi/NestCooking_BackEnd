@@ -9,7 +9,6 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 		public RequestBecomeChefRepository(ApplicationDbContext context) : base(context)
 		{
 		}
-
 		public async Task<RequestToBecomeChef> CreateRequestToBecomeChef(RequestToBecomeChef requestToBecomeChef)
 		{
 			_context.RequestToBecomeChefs.Add(requestToBecomeChef);

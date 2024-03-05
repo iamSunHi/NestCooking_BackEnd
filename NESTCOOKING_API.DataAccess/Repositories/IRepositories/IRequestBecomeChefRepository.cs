@@ -6,5 +6,6 @@ namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
 	{
 		Task<RequestToBecomeChef> CreateRequestToBecomeChef(RequestToBecomeChef requestToBecomeChef);
 		Task<RequestToBecomeChef> UpdateRequestToBecomeChef(RequestToBecomeChef updatedRequest);
+		
 	}
 }
