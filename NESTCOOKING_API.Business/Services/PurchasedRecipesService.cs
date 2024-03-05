@@ -39,11 +39,39 @@ namespace NESTCOOKING_API.Business.Services
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task DeletePurchaseByTransactionId(string transactionId)
+        {
+            try
+            {
+                var purchaseRecipe = await _purchasedRecipesRepository.GetAsync(p => p.TransactionId == transactionId);
+                await _purchasedRecipesRepository.RemoveAsync(purchaseRecipe);
+                await _purchasedRecipesRepository.SaveAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<string> FindIdRecipeByTransactionId(string transactionId)
+        {
+            try
+            {
+                var purchaseRecipe = await _purchasedRecipesRepository.GetAsync(p => p.TransactionId == transactionId);
+                return purchaseRecipe.RecipeId;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<List<string>> GetPurchasedRecipesByUserId(string userId)
         {
             try
             {
-                var recipeIdList =  _purchasedRecipesRepository.GetPurchasedRecipesByUserId(userId);
+                var recipeIdList = _purchasedRecipesRepository.GetPurchasedRecipesByUserId(userId);
                 return recipeIdList;
             }
             catch (Exception ex)

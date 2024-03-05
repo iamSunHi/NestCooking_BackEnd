@@ -14,6 +14,7 @@ namespace NESTCOOKING_API.Business.Services.IServices
         public Task<List<TransactionDTO>> GetTransactionsByUserId(string userId);
         public Task<List<TransactionDTO>> GetAllTransactions();
         public Task TransactionSuccessById(string transactionId,bool isSuccess);
+        public Task<string> GetTransactionTypeByIdAsync(string transactionId);
     }
 }
 

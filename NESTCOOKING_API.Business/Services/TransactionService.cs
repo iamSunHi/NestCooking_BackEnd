@@ -77,7 +77,8 @@ namespace NESTCOOKING_API.Business.Services
             {
                 var transactionList = await _transactionRepository.GetAllAsync(includeProperties: "User");
                 return _mapper.Map<List<TransactionDTO>>(transactionList);
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
@@ -88,8 +89,26 @@ namespace NESTCOOKING_API.Business.Services
             try
             {
                 var transaction = _transactionRepository.UpdateTransactionSuccessAsync(transactionId, isSuccess);
-                
-            }catch(Exception ex)
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<string> GetTransactionTypeByIdAsync(string transactionId)
+        {
+            try
+            {
+                var transaction = await _transactionRepository.GetAsync(r => r.Id == transactionId);
+                if (transaction == null)
+                {
+                    throw new Exception("Not found Transaction");
+                }
+                return transaction.Type;
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }

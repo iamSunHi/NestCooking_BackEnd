@@ -118,6 +118,14 @@ namespace NESTCOOKING_API.Business.Services
                 throw new Exception("Error updating user balance.", ex);
             }
         }
+        public async Task ChangeUserBalanceByTranVnPayPurchased(double amount, string recipeId)
+        {
+            var recipe = await _recipeRepository.GetAsync(t => t.Id == recipeId);
+            var userRecipe = await _userManager.FindByIdAsync(recipe.UserId);
+            await UpdateUserBalance(userRecipe, amount * 0.9);
+            await ChangeAdminBalance(amount * 0.1);
+        }
+
         public async Task<bool> ChangeUserBalanceByTranPurchased(string userId, double amount, string recipeId)
         {
             try
@@ -131,8 +139,6 @@ namespace NESTCOOKING_API.Business.Services
 
                 if (!await UpdateUserBalance(user, -amount))
                     return false;
-
-                userRecipe.Balance += (amount * 0.9);
                 if (!await UpdateUserBalance(userRecipe, amount * 0.9))
                 {
                     await UpdateUserBalance(user, amount);

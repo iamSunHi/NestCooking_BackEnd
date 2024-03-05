@@ -60,8 +60,10 @@
 		public const string NotificationType_REQUEST = "REQUEST";
 		public const string NotificationType_RESPONSE = "RESPONSE";
 
-		public const string TransactionFe_URL = "https://nest-cooking.onrender.com/payment/transaction";
-		public const string IpAddress = "127.0.0.1";
+		public const string TransactionFe_URL = "http://localhost:5080/api/transaction/callback";
+        //https://nest-cooking.onrender.com/payment/transaction
+        //http://localhost:5080/api/transaction/callback
+        public const string IpAddress = "127.0.0.1";
 		public const string Payment_VnPay = "VnPay";
         public const string Payment_Wallet = "Wallet";
 
