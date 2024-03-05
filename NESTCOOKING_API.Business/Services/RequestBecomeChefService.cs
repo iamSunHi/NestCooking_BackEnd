@@ -10,105 +10,144 @@ using static NESTCOOKING_API.Utility.StaticDetails;
 
 namespace NESTCOOKING_API.Business.Services
 {
-    public class RequestBecomeChefService : IRequestBecomeChefService
-    {
-        private readonly IRequestBecomeChefRepository _chefRequestRepository;
-        private readonly UserManager<User> _userManager;
-        private readonly IMapper _mapper;
+	public class RequestBecomeChefService : IRequestBecomeChefService
+	{
+		private readonly IRequestBecomeChefRepository _chefRequestRepository;
+		private readonly IRoleRepository _roleRepository;
+		private readonly UserManager<User> _userManager;
+		private readonly IMapper _mapper;
 
-        public RequestBecomeChefService(IRequestBecomeChefRepository chefRequestRepository, UserManager<User> userManager, IMapper mapper)
-        {
-            _chefRequestRepository = chefRequestRepository;
-            _userManager = userManager;
-            _mapper = mapper;
-        }
 
-        public async Task<RequestToBecomeChefDTO> CreateRequestToBecomeChef(string userId, CreatedRequestToBecomeChefDTO requestToBecomeChefDTO)
-        {
-            try
-            {
-                var user = await _userManager.FindByIdAsync(userId);
+		public RequestBecomeChefService(IRequestBecomeChefRepository chefRequestRepository, UserManager<User> userManager, IRoleRepository roleRepository, IMapper mapper)
+		{
+			_chefRequestRepository = chefRequestRepository;
+			_userManager = userManager;
+			_roleRepository = roleRepository;
+			_mapper = mapper;
+		}
 
-                if (user == null)
-                {
-                    throw new UserNotFoundException();
-                }
+		public async Task<RequestToBecomeChefDTO> CreateRequestToBecomeChef(string userId, CreatedRequestToBecomeChefDTO requestToBecomeChefDTO)
+		{
+			try
+			{
+				var user = await _userManager.FindByIdAsync(userId);
 
-                var existedRequest = await this.GetRequestToBecomeChefByUserId(userId);
+				if (user == null)
+				{
+					throw new UserNotFoundException();
+				}
 
-                if (existedRequest != null && existedRequest.Status.Equals(ActionStatus_ACCEPTED))
-                {
-                    throw new Exception(AppString.RequestExistedErrorMessage);
-                }
+				var existedRequest = await this.GetRequestToBecomeChefByUserId(userId);
 
-                if (existedRequest != null && existedRequest.Status.Equals(ActionStatus_PENDING))
-                {
-                    throw new Exception(AppString.RequestAlreadyHandledErrorMessage);
-                }
+				if (existedRequest != null && existedRequest.Status.Equals(ActionStatus_ACCEPTED))
+				{
+					throw new Exception(AppString.RequestExistedErrorMessage);
+				}
 
-                var requestToBecomeChef = _mapper.Map<RequestToBecomeChef>(requestToBecomeChefDTO);
-                requestToBecomeChef.RequestChefId = Guid.NewGuid().ToString();
-                requestToBecomeChef.UserID = userId;
-                requestToBecomeChef.Status = ActionStatus_PENDING;
-                requestToBecomeChef.ResponseId = null;
-                requestToBecomeChef.CreatedAt = DateTime.Now;
+				if (existedRequest != null && existedRequest.Status.Equals(ActionStatus_PENDING))
+				{
+					throw new Exception(AppString.RequestAlreadyHandledErrorMessage);
+				}
 
-                var result = this._mapper.Map<RequestToBecomeChefDTO>(await _chefRequestRepository.CreateRequestToBecomeChef(requestToBecomeChef));
+				var requestToBecomeChef = _mapper.Map<RequestToBecomeChef>(requestToBecomeChefDTO);
+				requestToBecomeChef.RequestChefId = Guid.NewGuid().ToString();
+				requestToBecomeChef.UserID = userId;
+				requestToBecomeChef.Status = ActionStatus_PENDING;
+				requestToBecomeChef.ResponseId = null;
+				requestToBecomeChef.CreatedAt = DateTime.Now;
 
-                return result;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
+				var result = this._mapper.Map<RequestToBecomeChefDTO>(await _chefRequestRepository.CreateRequestToBecomeChef(requestToBecomeChef));
 
-        public async Task<RequestToBecomeChefDTO> UpdateRequestToBecomeChef(string requestId, CreatedRequestToBecomeChefDTO requestToBecomeChefDTO)
-        {
-            var existingRequest = await _chefRequestRepository.GetAsync(request => request.RequestChefId == requestId);
+				return result;
+			}
+			catch (Exception ex)
+			{
+				throw new Exception(ex.Message);
+			}
+		}
 
-            if (existingRequest != null)
-            {
-                existingRequest.CreatedAt = DateTime.Now;
-                _mapper.Map(requestToBecomeChefDTO, existingRequest);
-                await _chefRequestRepository.UpdateRequestToBecomeChef(existingRequest);
-                var updatedDto = _mapper.Map<RequestToBecomeChefDTO>(existingRequest);
-                return updatedDto;
-            }
-            return null;
-        }
+		public async Task<RequestToBecomeChefDTO> UpdateRequestToBecomeChef(string requestId, CreatedRequestToBecomeChefDTO requestToBecomeChefDTO)
+		{
+			var existingRequest = await _chefRequestRepository.GetAsync(request => request.RequestChefId == requestId);
 
-        public async Task DeleteRequestToBecomeChef(string requestId)
-        {
-            var requestFromDb = await _chefRequestRepository.GetAsync(request => request.RequestChefId == requestId);
-            if (requestFromDb == null)
-            {
-                throw new Exception(AppString.RequestBecomeChefNotFound);
-            }
-            await _chefRequestRepository.RemoveAsync(requestFromDb);
-        }
+			if (existingRequest != null)
+			{
+				existingRequest.CreatedAt = DateTime.Now;
+				_mapper.Map(requestToBecomeChefDTO, existingRequest);
+				await _chefRequestRepository.UpdateRequestToBecomeChef(existingRequest);
+				var updatedDto = _mapper.Map<RequestToBecomeChefDTO>(existingRequest);
+				return updatedDto;
+			}
+			return null;
+		}
 
-        public async Task<IEnumerable<RequestToBecomeChefDTO>> GetAllRequestsToBecomeChef()
-        {
-            var listRequests = await _chefRequestRepository.GetAllAsync();
-            var result = _mapper.Map<IEnumerable<RequestToBecomeChefDTO>>(listRequests);
-            return result;
-        }
+		public async Task DeleteRequestToBecomeChef(string requestId)
+		{
+			var requestFromDb = await _chefRequestRepository.GetAsync(request => request.RequestChefId == requestId);
+			if (requestFromDb == null)
+			{
+				throw new Exception(AppString.RequestBecomeChefNotFound);
+			}
+			await _chefRequestRepository.RemoveAsync(requestFromDb);
+		}
 
-        public async Task<RequestToBecomeChefDTO> GetRequestToBecomeChefById(string requestId)
-        {
-            var requestBecomeChef = await _chefRequestRepository.GetAsync(request => request.RequestChefId == requestId);
+		public async Task<IEnumerable<RequestToBecomeChefDTO>> GetAllRequestsToBecomeChef()
+		{
+			var listRequests = await _chefRequestRepository.GetAllAsync();
+			var result = _mapper.Map<IEnumerable<RequestToBecomeChefDTO>>(listRequests);
+			return result;
+		}
 
-            var result = _mapper.Map<RequestToBecomeChefDTO>(requestBecomeChef);
-            return result;
-        }
+		public async Task<RequestToBecomeChefDTO> GetRequestToBecomeChefById(string requestId)
+		{
+			var requestBecomeChef = await _chefRequestRepository.GetAsync(request => request.RequestChefId == requestId);
 
-        public async Task<RequestToBecomeChefDTO> GetRequestToBecomeChefByUserId(string userId)
-        {
-            var requestBecomeChef = await _chefRequestRepository.GetAsync(x => x.UserID == userId);
+			var result = _mapper.Map<RequestToBecomeChefDTO>(requestBecomeChef);
+			return result;
+		}
 
-            var result = _mapper.Map<RequestToBecomeChefDTO>(requestBecomeChef);
-            return result;
-        }
-    }
+		public async Task<RequestToBecomeChefDTO> GetRequestToBecomeChefByUserId(string userId)
+		{
+			var requestBecomeChef = await _chefRequestRepository.GetAsync(x => x.UserID == userId);
+
+			var result = _mapper.Map<RequestToBecomeChefDTO>(requestBecomeChef);
+			return result;
+		}
+
+		public async Task<RequestToBecomeChefDTO> ApprovalRequestByAdmin(string requestId, string userId, ApprovalRequestDTO approvalRequestDTO)
+		{
+			try
+			{
+				var user = await _userManager.FindByIdAsync(userId);
+				var adminRole = await _roleRepository.GetRoleNameByIdAsync(user.RoleId);
+
+				if (adminRole.Equals("admin"))
+				{
+					var existingRequest = await _chefRequestRepository.GetAsync(request => request.RequestChefId == requestId);
+
+					if (existingRequest == null)
+					{
+						throw new InvalidOperationException();
+					}
+
+					if (approvalRequestDTO.Status != ActionStatus_ACCEPTED && approvalRequestDTO.Status != ActionStatus_REJECTED)
+					{
+						throw new InvalidOperationException("Invalid status. Only Accepted or Rejected is allowed.");
+					}
+					_mapper.Map(approvalRequestDTO, existingRequest);
+					await _chefRequestRepository.UpdateRequestToBecomeChef(existingRequest);
+					return _mapper.Map<RequestToBecomeChefDTO>(existingRequest);
+				}
+				else
+				{
+					throw new UnauthorizedAccessException("Only admin users can perform this action.");
+				}
+			}
+			catch (Exception ex)
+			{
+				throw new Exception(ex.Message, ex);
+			}
+		}
+
+	}
 }
