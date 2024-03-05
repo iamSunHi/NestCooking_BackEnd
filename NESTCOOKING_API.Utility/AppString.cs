@@ -92,5 +92,9 @@
 		public static string UserCannotFollowSelf = "You cannot follow yourself.";
 		public static string UserAlreadyFollowed = "You already follow this user.";
 		public static string UserNotFollowed = "You haven't follow this user yet.";
+
+		// For Notification
+		public static string NotificationReaction = " has reacted to your ";
+		public static string NotificationComment = " has commented to your ";
 	}
 }

@@ -9,6 +9,9 @@ namespace NESTCOOKING_API.Business.DTOs.NotificationDTOs
 		[DefaultValue(null)]
 		public string? ReceiverId { get; set; }
 		public string NotificationType { get; set; } = null!;
-		public string Content { get; set; } = null!;
+		[DefaultValue(null)]
+		public string? TargetType { get; set; }
+		[DefaultValue(null)]
+		public string? Content { get; set; }
 	}
 }

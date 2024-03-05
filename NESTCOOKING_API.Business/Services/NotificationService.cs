@@ -6,6 +6,7 @@ using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
+using NESTCOOKING_API.Utility;
 using System.Drawing.Printing;
 
 namespace NESTCOOKING_API.Business.Services
@@ -14,13 +15,19 @@ namespace NESTCOOKING_API.Business.Services
 	{
 		private readonly INotificationRepository _notificationRepository;
 		private readonly IUserRepository _userRepository;
+		private readonly IRecipeRepository _recipeRepository;
+		private readonly IReactionRepository _reactionRepository;
+		private readonly ICommentRepository _commentRepository;
 		private readonly IMapper _mapper;
 
-		public NotificationService(INotificationRepository notificationRepository, IUserRepository userRepository,
+		public NotificationService(INotificationRepository notificationRepository, IUserRepository userRepository, IRecipeRepository recipeRepository, IReactionRepository reactionRepository, ICommentRepository commentRepository,
 			IMapper mapper)
 		{
 			_notificationRepository = notificationRepository;
 			_userRepository = userRepository;
+			_recipeRepository = recipeRepository;
+			_reactionRepository = reactionRepository;
+			_commentRepository = commentRepository;
 			_mapper = mapper;
 		}
 
@@ -74,6 +81,26 @@ namespace NESTCOOKING_API.Business.Services
 			var notificationToDb = _mapper.Map<Notification>(notificationCreateDTO);
 			notificationToDb.Id = Guid.NewGuid().ToString();
 			notificationToDb.CreatedAt = DateTime.UtcNow;
+
+			var sender = await _userRepository.GetAsync(u => u.Id == notificationToDb.SenderId);
+
+			switch (notificationCreateDTO.NotificationType)
+			{
+				case StaticDetails.NotificationType_REACTION:
+					{
+						var receiverId = (await _recipeRepository.GetAsync(r => r.Id == notificationToDb.ReceiverId)).UserId;
+						var receiver = await _userRepository.GetAsync(u => u.Id == receiverId);
+						notificationToDb.ReceiverId = receiverId;
+						notificationToDb.Content = sender.FirstName + " " + sender.LastName + AppString.NotificationReaction + notificationCreateDTO.TargetType + ".";
+						break;
+					}
+				case StaticDetails.NotificationType_COMMENT:
+					{
+
+						break;
+					}
+			}
+
 			await _notificationRepository.CreateAsync(notificationToDb);
 		}
 
