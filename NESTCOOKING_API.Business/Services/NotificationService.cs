@@ -4,10 +4,8 @@ using NESTCOOKING_API.Business.DTOs.NotificationDTOs;
 using NESTCOOKING_API.Business.DTOs.UserDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
-using NESTCOOKING_API.DataAccess.Repositories;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using NESTCOOKING_API.Utility;
-using System.Drawing.Printing;
 
 namespace NESTCOOKING_API.Business.Services
 {
@@ -16,17 +14,15 @@ namespace NESTCOOKING_API.Business.Services
 		private readonly INotificationRepository _notificationRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly IRecipeRepository _recipeRepository;
-		private readonly IReactionRepository _reactionRepository;
 		private readonly ICommentRepository _commentRepository;
 		private readonly IMapper _mapper;
 
-		public NotificationService(INotificationRepository notificationRepository, IUserRepository userRepository, IRecipeRepository recipeRepository, IReactionRepository reactionRepository, ICommentRepository commentRepository,
+		public NotificationService(INotificationRepository notificationRepository, IUserRepository userRepository, IRecipeRepository recipeRepository, ICommentRepository commentRepository,
 			IMapper mapper)
 		{
 			_notificationRepository = notificationRepository;
 			_userRepository = userRepository;
 			_recipeRepository = recipeRepository;
-			_reactionRepository = reactionRepository;
 			_commentRepository = commentRepository;
 			_mapper = mapper;
 		}
@@ -88,15 +84,44 @@ namespace NESTCOOKING_API.Business.Services
 			{
 				case StaticDetails.NotificationType_REACTION:
 					{
-						var receiverId = (await _recipeRepository.GetAsync(r => r.Id == notificationToDb.ReceiverId)).UserId;
-						var receiver = await _userRepository.GetAsync(u => u.Id == receiverId);
-						notificationToDb.ReceiverId = receiverId;
+						switch (notificationCreateDTO.TargetType)
+						{
+							case StaticDetails.TargetType_RECIPE:
+								{
+									var target = (await _recipeRepository.GetAsync(r => r.Id == notificationToDb.ReceiverId));
+									notificationToDb.ReceiverId = target.UserId;
+									break;
+								}
+							case StaticDetails.TargetType_COMMENT:
+								{
+									var target = (await _commentRepository.GetAsync(r => r.CommentId == notificationToDb.ReceiverId));
+									notificationToDb.ReceiverId = target.UserId;
+									break;
+								}
+						}
+
+						if (notificationToDb.SenderId == notificationToDb.ReceiverId)
+							return;
+
 						notificationToDb.Content = sender.FirstName + " " + sender.LastName + AppString.NotificationReaction + notificationCreateDTO.TargetType + ".";
 						break;
 					}
 				case StaticDetails.NotificationType_COMMENT:
 					{
+						var target = (await _commentRepository.GetAsync(r => r.CommentId == notificationToDb.ReceiverId));
+						notificationToDb.ReceiverId = target.UserId;
 
+						if (notificationToDb.SenderId == notificationToDb.ReceiverId)
+							return;
+
+						if (notificationCreateDTO.TargetType == StaticDetails.CommentType_RECIPE)
+						{
+							notificationToDb.Content = sender.FirstName + " " + sender.LastName + AppString.NotificationCommentInRecipe;
+						}
+						else
+						{
+							notificationToDb.Content = sender.FirstName + " " + sender.LastName + AppString.NotificationCommentReply;
+						}
 						break;
 					}
 			}

@@ -16,13 +16,11 @@ namespace NESTCOOKING_API.Presentation.Controllers
 	{
 		private readonly IReactionService _reactionService;
 		private readonly INotificationService _notificationService;
-		private readonly IUserService _userService;
 
-		public ReactionController(IReactionService reactionService, INotificationService notificationService, IUserService userService)
+		public ReactionController(IReactionService reactionService, INotificationService notificationService)
 		{
 			_reactionService = reactionService;
 			_notificationService = notificationService;
-			_userService = userService;
 		}
 
 		[HttpPost]
@@ -48,11 +46,11 @@ namespace NESTCOOKING_API.Presentation.Controllers
 					};
 					await _notificationService.CreateNotificationAsync(notificationCreateDTO);
 
-					return Ok(ResponseDTO.Accept("Add Reaction Success"));
+					return Ok(ResponseDTO.Accept("Add Reaction Success!"));
 				}
 				else
 				{
-					return BadRequest(ResponseDTO.BadRequest("Add Reaction Fail"));
+					return BadRequest(ResponseDTO.BadRequest("Add Reaction Fail."));
 				}
 			}
 			catch (Exception ex)

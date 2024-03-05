@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using NESTCOOKING_API.Business.DTOs.CommentDTOs;
 using NESTCOOKING_API.Business.DTOs;
+using NESTCOOKING_API.Business.DTOs.CommentDTOs;
+using NESTCOOKING_API.Business.DTOs.NotificationDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.Utility;
 using System.Security.Claims;
@@ -15,11 +15,14 @@ namespace NESTCOOKING_API.Presentation.Controllers
 	public class CommentController : ControllerBase
 	{
 		private readonly ICommentService _commentService;
+		private readonly INotificationService _notificationService;
 
-		public CommentController(ICommentService commentService)
+		public CommentController(ICommentService commentService, INotificationService notificationService)
 		{
 			_commentService = commentService;
+			_notificationService = notificationService;
 		}
+
 		[HttpGet]
 		public async Task<IActionResult> GetAllComments()
 		{
@@ -33,6 +36,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				return BadRequest(ResponseDTO.BadRequest(ex.Message));
 			}
 		}
+
 		[HttpGet("recipe/{recipeId}")]
 		public async Task<IActionResult> GetAllCommentsByRecipeId(string recipeId)
 		{
@@ -46,6 +50,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				return BadRequest(ResponseDTO.BadRequest(ex.Message));
 			}
 		}
+
 		[HttpGet("parent/{parentCommentId}")]
 		public async Task<IActionResult> GetAllCommentsByParentCommentId(string parentCommentId)
 		{
@@ -59,6 +64,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				return BadRequest(ResponseDTO.BadRequest(ex.Message));
 			}
 		}
+
 		[HttpGet("{commentId}")]
 		public async Task<IActionResult> GetCommentById(string commentId)
 		{
@@ -72,6 +78,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
 			}
 		}
+
 		[HttpDelete("{commentId}")]
 		[Authorize]
 		public async Task<IActionResult> DeleteComment(string commentId)
@@ -87,6 +94,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
 			}
 		}
+
 		[HttpPut("{commentId}")]
 		[Authorize]
 		public async Task<IActionResult> UpdateComment(string commentId, [FromBody] UpdateCommentDTO createCommentDTO)
@@ -109,6 +117,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
 			}
 		}
+
 		[HttpPost]
 		[Authorize]
 		public async Task<IActionResult> CreateComment([FromBody] CreatedCommentDTO createCommentDTO)
@@ -123,6 +132,15 @@ namespace NESTCOOKING_API.Presentation.Controllers
 					var result = await _commentService.CreateComment(userId, createCommentDTO);
 					if (result != null)
 					{
+						var notificationCreateDTO = new NotificationCreateDTO()
+						{
+							SenderId = userId,
+							ReceiverId = result.CommentId,
+							NotificationType = StaticDetails.NotificationType_COMMENT,
+							TargetType = createCommentDTO.Type
+						};
+						await _notificationService.CreateNotificationAsync(notificationCreateDTO);
+
 						return Ok(ResponseDTO.Accept(result: result));
 					}
 					else

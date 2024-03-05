@@ -95,6 +95,7 @@
 
 		// For Notification
 		public static string NotificationReaction = " has reacted to your ";
-		public static string NotificationComment = " has commented to your ";
+		public static string NotificationCommentInRecipe = " has commented to your recipe.";
+		public static string NotificationCommentReply = " has replied your comment.";
 	}
 }
