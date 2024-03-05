@@ -190,6 +190,41 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.ToTable("CategoryRecipe");
                 });
 
+            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.ChefDish", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ChefId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrls")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Portion")
+                        .HasColumnType("int");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
+
+                    b.Property<string>("RecipeUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChefId");
+
+                    b.ToTable("ChefDishes");
+                });
+
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Comment", b =>
                 {
                     b.Property<string>("CommentId")
@@ -947,6 +982,15 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("Recipe");
+                });
+
+            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.ChefDish", b =>
+                {
+                    b.HasOne("NESTCOOKING_API.DataAccess.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("ChefId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Comment", b =>

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.AuthDTOs;
+using NESTCOOKING_API.Business.DTOs.BookingDTOs;
 using NESTCOOKING_API.Business.DTOs.ChefRequestDTOs;
 using NESTCOOKING_API.Business.DTOs.CommentDTOs;
 using NESTCOOKING_API.Business.DTOs.NotificationDTOs;
