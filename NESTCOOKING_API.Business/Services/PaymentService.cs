@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NESTCOOKING_API.Business.DTOs.PaymentDTOs;
+using NESTCOOKING_API.Business.DTOs.TransactionDTOs;
 using NESTCOOKING_API.Business.Libraries;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.Utility;
@@ -15,15 +16,13 @@ namespace NESTCOOKING_API.Business.Services
 {
     public class PaymentService : IPaymentService
     {
-        private readonly IConfiguration _configuration;
         private readonly VnPayLibrary _vnPayLibrary;
-        public PaymentService(IConfiguration configuration,VnPayLibrary vnPayLibrary)
+        public PaymentService(VnPayLibrary vnPayLibrary)
         {
-            _configuration = configuration;
             _vnPayLibrary = vnPayLibrary;
         }
 
-        public string CreatePaymentUrl(PaymentInfor model, HttpContext context, string transactionId)
+        public string CreatePaymentUrl(TransactionInfor transactionInfor, HttpContext context, string transactionId)
         {
             try
             {
@@ -34,13 +33,13 @@ namespace NESTCOOKING_API.Business.Services
                 _vnPayLibrary.AddRequestData("vnp_Version", "2.1.0");
                 _vnPayLibrary.AddRequestData("vnp_Command", "pay");
                 _vnPayLibrary.AddRequestData("vnp_TmnCode", "BI93KVHO");
-                _vnPayLibrary.AddRequestData("vnp_Amount", ((int)model.Amount * 100).ToString());
+                _vnPayLibrary.AddRequestData("vnp_Amount", ((int)transactionInfor.Amount * 100).ToString());
                 _vnPayLibrary.AddRequestData("vnp_CreateDate", timeNow.ToString("yyyyMMddHHmmss"));
                 _vnPayLibrary.AddRequestData("vnp_CurrCode", "VND");
                 _vnPayLibrary.AddRequestData("vnp_IpAddr", _vnPayLibrary.GetIpAddress(context));
                 _vnPayLibrary.AddRequestData("vnp_Locale", "vn");
-                _vnPayLibrary.AddRequestData("vnp_OrderInfo", $"{model.Name} {model.OrderDescription} {model.Amount}");
-                _vnPayLibrary.AddRequestData("vnp_OrderType", model.OrderType);
+                _vnPayLibrary.AddRequestData("vnp_OrderInfo", $"{transactionInfor.Name} {transactionInfor.OrderDescription} {transactionInfor.Amount}");
+                _vnPayLibrary.AddRequestData("vnp_OrderType", transactionInfor.OrderType);
                 _vnPayLibrary.AddRequestData("vnp_ReturnUrl", urlCallBack);
                 _vnPayLibrary.AddRequestData("vnp_TxnRef", transactionId);
 

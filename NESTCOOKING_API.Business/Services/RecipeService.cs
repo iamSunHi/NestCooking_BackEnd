@@ -364,5 +364,43 @@ namespace NESTCOOKING_API.Business.Services
 				await _instructorRepository.RemoveAsync(instructor);
 			}
 		}
+
+		public async Task<IEnumerable<RecipeForBookingDTO>> GetRecipesForBookingByChefIdAsync(string chefId)
+		{
+			if (await this.ChefIfUserIsChef(chefId))
+			{
+				var recipeListFromDb = await _recipeRepository.GetAllAsync(r => r.IsAvailableForBooking && r.UserId == chefId);
+				return _mapper.Map<IEnumerable<RecipeForBookingDTO>>(recipeListFromDb);
+			}
+			else
+			{
+				throw new Exception("This user is not a chef. Please try again.");
+			}
+		}
+
+		private async Task<bool> ChefIfUserIsChef(string userId)
+		{
+			var userRole = await _userRepository.GetRoleAsync(userId);
+			return userRole == StaticDetails.Role_Chef;
+		}
+
+		public async Task<RecipeForBookingDTO> UpdateRecipeForBookingAsync(string userId, RecipeForBookingDTO recipeForBookingDTO)
+		{
+			var recipeFromDb = await _recipeRepository.GetAsync(i => i.Id == recipeForBookingDTO.Id);
+			if (recipeFromDb == null)
+			{
+				throw new Exception(AppString.RecipeNotFoundErrorMessage);
+			}
+			if (recipeFromDb.UserId != userId)
+			{
+				throw new Exception("You don't have permission to update this.");
+			}
+
+			var recipe = _mapper.Map<Recipe>(recipeForBookingDTO);
+			await _recipeRepository.UpdateRecipeForBookingAsync(recipe);
+
+			recipeFromDb = await _recipeRepository.GetAsync(i => i.Id == recipeForBookingDTO.Id);
+			return _mapper.Map<RecipeForBookingDTO>(recipeFromDb);
+		}
 	}
 }

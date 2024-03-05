@@ -1,34 +1,30 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NESTCOOKING_API.Business.DTOs.ChefRequestDTOs;
 using NESTCOOKING_API.Business.DTOs.UserDTOs;
 using NESTCOOKING_API.Business.Exceptions;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
-using NESTCOOKING_API.Utility;
-using System.Net.Http;
-using System.Security.Claims;
-using static NESTCOOKING_API.Utility.StaticDetails;
 
 namespace NESTCOOKING_API.Business.Services
 {
-    public class UserService : IUserService
+	public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
         private readonly UserManager<User> _userManager;
         private readonly IMapper _mapper;
+        private readonly ITransactionRepository _transactionRepository;
+        private readonly IRecipeRepository _recipeRepository;
 
-        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, UserManager<User> userManager, IMapper mapper)
+        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, UserManager<User> userManager, IMapper mapper, ITransactionRepository transactionRepository, IRecipeRepository recipeRepository)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
             _userManager = userManager;
             _mapper = mapper;
+            _transactionRepository = transactionRepository;
+            _recipeRepository = recipeRepository;
 
         }
 
@@ -107,6 +103,87 @@ namespace NESTCOOKING_API.Business.Services
             var userInfoDTO = await this.GetUserById(userId);
 
             return userInfoDTO;
+        }
+        public async Task ChangeUserBalanceByTranDeposit(string id, double amount)
+        {
+            try
+            {
+                var transaction = await _transactionRepository.GetAsync(t => t.Id == id);
+                var user = await _userManager.FindByIdAsync(transaction.UserId);
+                var updateSuccessful = await UpdateUserBalance(user, amount);
+
+                if (updateSuccessful)
+                {
+                    await ChangeAdminBalance(amount);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error updating user balance.", ex);
+            }
+        }
+        public async Task<bool> ChangeUserBalanceByTranPurchased(string userId, double amount, string recipeId)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                var recipe = await _recipeRepository.GetAsync(t => t.Id == recipeId);
+                var userRecipe = await _userManager.FindByIdAsync(recipe.UserId);
+
+                if (user.Balance < amount)
+                    return false;
+
+                if (!await UpdateUserBalance(user, -amount))
+                    return false;
+
+                userRecipe.Balance += (amount * 0.9);
+                if (!await UpdateUserBalance(userRecipe, amount * 0.9))
+                {
+                    await UpdateUserBalance(user, amount);
+                    return false;
+                }
+
+                if (!await ChangeAdminBalance(amount * 0.1))
+                {
+                    await UpdateUserBalance(user, amount);
+                    await UpdateUserBalance(userRecipe, -amount * 0.9);
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error changing user balance.", ex);
+            }
+        }
+        private async Task<bool> UpdateUserBalance(User user, double amount)
+        {
+            try
+            {
+                user.Balance += amount;
+                var result = await _userManager.UpdateAsync(user);
+                return result.Succeeded;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        private async Task<bool> ChangeAdminBalance(double amount)
+        {
+            try
+            {
+                var adminUser = await _userManager.FindByNameAsync("admin");
+                if (adminUser == null)
+                    return false;
+
+                return await UpdateUserBalance(adminUser, amount);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }
