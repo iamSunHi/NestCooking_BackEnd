@@ -15,7 +15,6 @@ namespace NESTCOOKING_API.DataAccess.Repositories
     {
         private readonly ApplicationDbContext _dbContext;
 
-
         public ResponseRepository(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -35,14 +34,16 @@ namespace NESTCOOKING_API.DataAccess.Repositories
                 };
                 _dbContext.Responses.Add(newResponse);
                 await _dbContext.SaveChangesAsync();
-                report.Status = adminAction == StaticDetails.AdminAction.Accept ? StaticDetails.ActionStatus_ACCEPTED : StaticDetails.ActionStatus_REJECTED;
+
+                report.Status = adminAction == StaticDetails.AdminAction.ACCEPT ? StaticDetails.ActionStatus_ACCEPTED : StaticDetails.ActionStatus_REJECTED;
                 report.Response = newResponse;
                 await _dbContext.SaveChangesAsync();
+
                 return newResponse;
             }
             catch (Exception ex)
             {
-                return null;
+                throw ex;
             }
         }
     }

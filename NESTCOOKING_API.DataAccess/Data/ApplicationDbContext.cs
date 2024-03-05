@@ -39,6 +39,8 @@ namespace NESTCOOKING_API.DataAccess.Data
 
         public DbSet<PurchasedRecipe> PurchasedRecipes { get; set; }
 
+        public DbSet<Notification> Notifications { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -127,6 +129,12 @@ namespace NESTCOOKING_API.DataAccess.Data
                 connection.HasKey(uc => new { uc.UserId, uc.FollowingUserId });
                 connection.HasOne<User>().WithMany().HasForeignKey(uc => uc.UserId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
 				connection.HasOne<User>().WithMany().HasForeignKey(uc => uc.FollowingUserId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
+			});
+
+            modelBuilder.Entity<Notification>(notification =>
+            {
+                notification.HasOne<User>().WithMany().HasForeignKey(n => n.SenderId).IsRequired(false).OnDelete(DeleteBehavior.NoAction);
+				notification.HasOne<User>().WithMany().HasForeignKey(n => n.ReceiverId).IsRequired(false).OnDelete(DeleteBehavior.NoAction);
 			});
 		}
     }

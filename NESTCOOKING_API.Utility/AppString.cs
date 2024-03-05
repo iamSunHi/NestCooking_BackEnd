@@ -2,6 +2,7 @@
 {
 	public class AppString
 	{
+		public static string MailEmail = "customerservice.nestcooking@gmail.com";
 		public static string NameEmailOwnerDisplay = "NestCooking";
 		public static string ResetPasswordSubjectEmail = "Reset Your Password";
 		public static string ResetPasswordContentEmail(string resetPasswordLink)
@@ -35,7 +36,7 @@
 		public static string SomethingWrongMessage = "Something went wrong!";
 		public static string InvalidTokenErrorMessage = "Wrong token!";
 		public static string NotEmailConfirmedErrorMessage = "Sorry, but you are not confirmed your email. Please check your email again.";
-		public static string LockoutAccountErrorMessage = "Your account has been locked due to multiple failed login attempts. Please try again later.";
+		public static string LockoutAccountErrorMessage = "Your account has been locked due to some violations. If you think this is a mistake, please contact us at the following email: " + MailEmail;
 		public static string ResendEmailConfirmationSubjectEmail = "Re-send email confirmation";
 		public static string ResendEmailConfirmationContentEmail(string emailConfirmationLink)
 		{
@@ -60,11 +61,13 @@
 		public static string BecomeChefRequestInternalServerErrorMessage = "Failed to create request to become chef.";
 		public static string InvalidFormatErrorMessage = "Invalid format";
 		public static string InternalServerErrorMessage = "Internal Server Error.";
+
 		public static string InvalidReportTypeErrorMessage = "Invalid Report Type!";
 		public static string ReportNotFoundErrorMessage = "Report Not Found!";
 		public static string ReportAlreadyHandledErrorMessage = "Report has already been handled!";
 		public static string RequestAlreadyHandledErrorMessage = "Request has already been handled!";
 		public static string RequestExistedErrorMessage = "Request has already existed!";
+
 		public static string CategoryNotFoundErrorMessage = "Category not found.";
 		public static string IngredientTipNotFoundErrorMessage = "Ingredient tip not found.";
 		public static string RecipeNotFoundErrorMessage = "Recipe not found. ";
@@ -89,5 +92,13 @@
 		public static string UserCannotFollowSelf = "You cannot follow yourself.";
 		public static string UserAlreadyFollowed = "You already follow this user.";
 		public static string UserNotFollowed = "You haven't follow this user yet.";
+
+		// For Notification
+		public static string NotificationReaction = " has reacted to your ";
+		public static string NotificationCommentInRecipe = " has commented to your recipe.";
+		public static string NotificationCommentReply = " has replied your comment.";
+		public static string NotificationApproveReport = "We have approved your report and removed the violation. Thank you for your help in building a positive community.";
+		public static string NotificationApproveReportForViolentUser = "You were reported due to violent behavior. After checking carefully, we confirm that is true, so we deleted that violent content. If you think this is a mistake, please send us a reply.";
+		public static string NotificationRejectReport = "We have seen your report, but we haven't seen any violations. If you think this is a mistake, please send us another report.";
 	}
 }

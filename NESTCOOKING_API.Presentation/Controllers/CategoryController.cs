@@ -58,8 +58,8 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				{
 					result.totalItems,
 					result.totalPages,
-					pageNumber,
-					pageSize
+					_paginationInfo.PageNumber,
+					_paginationInfo.PageSize
 				},
 				categories = result.categorieList
 			}));
@@ -75,55 +75,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				return BadRequest(ResponseDTO.BadRequest(message: $"Not found any category with the id: {categoryId}"));
 			}
 			return Ok(ResponseDTO.Accept(result: category));
-		}
-
-		[HttpPost]
-		// [Authorize(Roles = StaticDetails.Role_Admin)]
-		public async Task<IActionResult> CreateCategoryAsync([FromBody] CategoryDTO categoryDTO)
-		{
-			try
-			{
-				var createdCategory = await _categoryService.CreateCategoryAsync(categoryDTO);
-				if (createdCategory == null)
-				{
-					return BadRequest(ResponseDTO.BadRequest(message: "This category already exists!"));
-				}
-				return Created($"api/admin/category/{createdCategory.Id}", createdCategory);
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
-			}
-		}
-
-		[HttpPatch]
-		[Authorize(Roles = StaticDetails.Role_Admin)]
-		public async Task<IActionResult> UpdateCategoryAsync([FromBody] CategoryDTO categoryDTO)
-		{
-			try
-			{
-				await _categoryService.UpdateCategoryAsync(categoryDTO);
-				return Ok(ResponseDTO.Accept(result: categoryDTO));
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
-			}
-		}
-
-		[HttpDelete("delete/{categoryId}")]
-		[Authorize(Roles = StaticDetails.Role_Admin)]
-		public async Task<IActionResult> DeleteCategoryAsync([FromRoute] int categoryId)
-		{
-			try
-			{
-				await _categoryService.DeleteCategoryAsync(categoryId);
-				return NoContent();
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
-			}
 		}
 	}
 }

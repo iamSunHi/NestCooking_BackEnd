@@ -5,7 +5,7 @@ namespace NESTCOOKING_API.Business.DTOs.ReportDTOs
     public class ReportResponseDTO
     {
         public string Id { get; set; } = null!;
-        public UserDTO User { get; set; }
+        public UserShortInfoDTO User { get; set; }
         public string TargetId { get; set; } = null!;
         public string Title { get; set; } = null!;
         public string Type { get; set; } = null!;
