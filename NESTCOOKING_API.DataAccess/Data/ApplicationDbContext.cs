@@ -35,15 +35,15 @@ namespace NESTCOOKING_API.DataAccess.Data
         public DbSet<Comment> Comments { get; set; }
 
         public DbSet<UserConnection> UserConnections { get; set; }
+
         public DbSet<Transaction> Transactions { get; set; }
 
         public DbSet<PurchasedRecipe> PurchasedRecipes { get; set; }
 
         public DbSet<Notification> Notifications { get; set; }
 
-
         // Entities for Booking
-        public DbSet<ChefDish> ChefDishes { get; set; }
+        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -140,11 +140,6 @@ namespace NESTCOOKING_API.DataAccess.Data
                 notification.HasOne<User>().WithMany().HasForeignKey(n => n.SenderId).IsRequired(false).OnDelete(DeleteBehavior.NoAction);
 				notification.HasOne<User>().WithMany().HasForeignKey(n => n.ReceiverId).IsRequired(false).OnDelete(DeleteBehavior.NoAction);
 			});
-
-            modelBuilder.Entity<ChefDish>(dish =>
-            {
-                dish.HasOne<User>().WithMany().HasForeignKey(cd => cd.ChefId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
-            });
 		}
     }
 }
