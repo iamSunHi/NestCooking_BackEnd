@@ -90,6 +90,9 @@ namespace NESTCOOKING_API.Business.Services
 			var recipe = _mapper.Map<RecipeDetailDTO>(recipeFromDb);
 			recipe.User = _mapper.Map<UserShortInfoDTO>(await _userRepository.GetAsync(u => u.Id == recipeFromDb.UserId));
 
+			var categoryList = await _categoryRecipeRepository.GetCategoriesByRecipeIdAsync(recipeFromDb.Id);
+			recipe.Categories = _mapper.Map<IEnumerable<CategoryDTO>>(categoryList);
+			
 			if (recipe.IsPrivate)
 			{
 				var purchaseData = await _purchasedRecipesRepositoryService.GetAsync(p => p.RecipeId == id && p.UserId == recipeFromDb.UserId);
@@ -107,8 +110,7 @@ namespace NESTCOOKING_API.Business.Services
 				}
 			}
 
-			var categoryList = await _categoryRecipeRepository.GetCategoriesByRecipeIdAsync(recipeFromDb.Id);
-			recipe.Categories = _mapper.Map<IEnumerable<CategoryDTO>>(categoryList);
+
 			var ingredientList = await _ingredientRepository.GetAllAsync(i => i.RecipeId == id);
 			recipe.Ingredients = _mapper.Map<IEnumerable<IngredientDTO>>(ingredientList);
 			for (int i = 0; i < recipe.Ingredients.Count(); i++)
