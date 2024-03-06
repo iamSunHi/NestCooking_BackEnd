@@ -139,7 +139,7 @@ namespace NESTCOOKING_API.Business.Services
 
                 // if (!await UpdateUserBalance(user, -amount))
                 //     return false;
-                // if (!await UpdateUserBalance(userRecipe, amount * 0.9))
+                // if (!await UpdateUserBalance(userCreatedRecipe, amount * 0.9))
                 // {
                 //     await UpdateUserBalance(user, amount);
                 //     return false;
@@ -148,18 +148,24 @@ namespace NESTCOOKING_API.Business.Services
                 // if (!await ChangeAdminBalance(amount * 0.1))
                 // {
                 //     await UpdateUserBalance(user, amount);
-                //     await UpdateUserBalance(userRecipe, -amount * 0.9);
+                //     await UpdateUserBalance(userCreatedRecipe, -amount * 0.9);
                 //     return false;
                 // }
 
                 // return true;
-                var updateUserBalanceTask = UpdateUserBalance(user, -amount);
-                var updateUserRecipeBalanceTask = UpdateUserBalance(userCreatedRecipe, amount * 0.9);
-                var changeAdminBalanceTask = ChangeAdminBalance(amount * 0.1);
+                var updateUserBalanceResult = await UpdateUserBalance(user, -amount);
+                var updateUserRecipeBalanceResult = await UpdateUserBalance(userCreatedRecipe, amount * 0.9);
+                var changeAdminBalanceResult = await ChangeAdminBalance(amount * 0.1);
 
-                await Task.WhenAll(updateUserBalanceTask, updateUserRecipeBalanceTask, changeAdminBalanceTask);
-
-                return true;
+                if (updateUserBalanceResult && updateUserRecipeBalanceResult && changeAdminBalanceResult)
+                {
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine("One or more balance update operations failed.");
+                    return false;
+                }
             }
             catch (Exception ex)
             {
@@ -204,7 +210,7 @@ namespace NESTCOOKING_API.Business.Services
             try
             {
                 var roleAdminId = await _roleRepository.GetRoleIdByNameAsync(StaticDetails.Role_Admin);
-                var adminUser = await _userRepository.FindUserByRoleIdAndUserName(roleAdminId, "admin");
+                var adminUser = await _userRepository.GetAsync(r => r.RoleId == roleAdminId);
                 if (adminUser == null)
                     return false;
 

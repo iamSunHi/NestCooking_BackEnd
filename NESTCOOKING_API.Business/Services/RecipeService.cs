@@ -79,7 +79,7 @@ namespace NESTCOOKING_API.Business.Services
 			return (totalItems, totalPages, mappedListRecipe);
 		}
 
-		public async Task<RecipeDetailDTO> GetRecipeByIdAsync(string id)
+		public async Task<RecipeDetailDTO> GetRecipeByIdAsync(string id, string? userId = null)
 		{
 			var recipeFromDb = await _recipeRepository.GetAsync(recipe => recipe.Id == id);
 			if (recipeFromDb == null)
@@ -90,25 +90,54 @@ namespace NESTCOOKING_API.Business.Services
 			var recipe = _mapper.Map<RecipeDetailDTO>(recipeFromDb);
 			recipe.User = _mapper.Map<UserShortInfoDTO>(await _userRepository.GetAsync(u => u.Id == recipeFromDb.UserId));
 
-			if (recipe.IsPrivate)
-			{
-				var purchaseData = await _purchasedRecipesRepositoryService.GetAsync(p => p.RecipeId == id && p.UserId == recipeFromDb.UserId);
-
-				if (purchaseData == null)
-				{
-					return recipe;
-				}
-
-				var transactionData = await _transactionRepository.GetAsync(t => t.Id == purchaseData.TransactionId);
-
-				if (!transactionData.IsSuccess)
-				{
-					return recipe;
-				}
-			}
-
 			var categoryList = await _categoryRecipeRepository.GetCategoriesByRecipeIdAsync(recipeFromDb.Id);
 			recipe.Categories = _mapper.Map<IEnumerable<CategoryDTO>>(categoryList);
+
+			if (recipe.IsPrivate)
+			{
+				if (userId == null)
+				{
+					return recipe;
+				}
+				else
+				{
+					var purchaseData = await _purchasedRecipesRepositoryService.GetAsync(p => p.RecipeId == id && p.UserId == userId);
+					if (purchaseData == null)
+					{
+						return recipe;
+					}
+					var transactionData = await _transactionRepository.GetAsync(t => t.Id == purchaseData.TransactionId);
+					if (!transactionData.IsSuccess)
+					{
+						return recipe;
+					}
+				}
+			}
+			// if (recipe.User.Id != userId)
+			// {
+			// 	if (recipe.IsPrivate)
+			// 	{
+			// 		if (userId == null)
+			// 		{
+			// 			return recipe;
+			// 		}
+			// 		var purchaseData = await _purchasedRecipesRepositoryService.GetAsync(p => p.RecipeId == id && p.UserId == userId);
+
+			// 		if (purchaseData == null)
+			// 		{
+			// 			return recipe;
+			// 		}
+
+			// 		var transactionData = await _transactionRepository.GetAsync(t => t.Id == purchaseData.TransactionId);
+
+			// 		if (!transactionData.IsSuccess)
+			// 		{
+			// 			return recipe;
+			// 		}
+			// 	}
+			// }
+
+
 			var ingredientList = await _ingredientRepository.GetAllAsync(i => i.RecipeId == id);
 			recipe.Ingredients = _mapper.Map<IEnumerable<IngredientDTO>>(ingredientList);
 			for (int i = 0; i < recipe.Ingredients.Count(); i++)
