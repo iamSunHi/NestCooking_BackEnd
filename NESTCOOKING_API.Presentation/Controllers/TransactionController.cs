@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
+using NESTCOOKING_API.Business.DTOs.PaymentDTOs;
 using NESTCOOKING_API.Business.DTOs.TransactionDTOs;
 using NESTCOOKING_API.Business.Services;
 using NESTCOOKING_API.Business.Services.IServices;
@@ -53,30 +54,37 @@ namespace NESTCOOKING_API.Presentation.Controllers
         {
             try
             {
-                var paymentResponse = _paymentService.ProcessPaymentCallback(Request.Query);
-                if (paymentResponse.Success)
+                if (Request.Query.Count>0)
                 {
-                    var typeTransaction = await _transactionService.GetTransactionTypeByIdAsync(paymentResponse.OrderId);
-                    if (String.Equals(typeTransaction, StaticDetails.PaymentType_DEPOSIT, StringComparison.OrdinalIgnoreCase))
+                    return BadRequest(ResponseDTO.BadRequest("Input data required"));
+                }
+                else {
+                    var paymentResponse = _paymentService.ProcessPaymentCallback(Request.Query);
+                    if (paymentResponse.Success)
                     {
-                        await _userService.ChangeUserBalanceByTranDeposit(paymentResponse.OrderId, paymentResponse.Amount);
+                        await _transactionService.TransactionSuccessById(paymentResponse.OrderId, true);
+                        var typeTransaction = await _transactionService.GetTransactionTypeByIdAsync(paymentResponse.OrderId);
+                        if (String.Equals(typeTransaction, StaticDetails.PaymentType_DEPOSIT, StringComparison.OrdinalIgnoreCase))
+                        {
+                            await _userService.ChangeUserBalanceByTranDeposit(paymentResponse.OrderId, paymentResponse.Amount);
+                        }
+                        else
+                        {
+                            var recipeId = await _purchasedRecipesService.FindIdRecipeByTransactionId(paymentResponse.OrderId);
+                            await _userService.ChangeUserBalanceByTranVnPayPurchased(paymentResponse.Amount, recipeId);
+                        }           
                     }
                     else
                     {
-                        var recipeId = await _purchasedRecipesService.FindIdRecipeByTransactionId(paymentResponse.OrderId);
-                        await _userService.ChangeUserBalanceByTranVnPayPurchased(paymentResponse.Amount, recipeId);
+                        var typeTransaction = await _transactionService.GetTransactionTypeByIdAsync(paymentResponse.OrderId);
+                        if (String.Equals(typeTransaction, StaticDetails.PaymentType_PURCHASEDRECIPE, StringComparison.OrdinalIgnoreCase))
+                        {
+                            await _purchasedRecipesService.DeletePurchaseByTransactionId(paymentResponse.OrderId);
+                        }
+                        return BadRequest(ResponseDTO.BadRequest(message: "An error occurred during processing"));
                     }
-                    await _transactionService.TransactionSuccessById(paymentResponse.OrderId, true);
-                }
-                else
-                {
-                    var typeTransaction = await _transactionService.GetTransactionTypeByIdAsync(paymentResponse.OrderId);
-                    if (String.Equals(typeTransaction, StaticDetails.PaymentType_PURCHASEDRECIPE, StringComparison.OrdinalIgnoreCase))
-                    {
-                        await _purchasedRecipesService.DeletePurchaseByTransactionId(paymentResponse.OrderId);
-                    }
-                }
-                return Ok(ResponseDTO.Accept(result: paymentResponse));
+                    return Ok(ResponseDTO.Accept(result: paymentResponse));
+                }   
             }
             catch (Exception ex)
             {

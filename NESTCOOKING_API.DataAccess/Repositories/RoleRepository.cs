@@ -23,7 +23,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 				return null;
 			}
 			return role.Name;
-		}
+			}
 
 		public async Task<string> GetRoleIdByNameAsync(string roleName)
 		{

@@ -29,34 +29,41 @@ namespace NESTCOOKING_API.Business.Libraries
                     vnPay.AddResponseData(key, value);
                 }
             }
-            var amount = Convert.ToDouble(vnPay.GetResponseData("vnp_Amount"));
             var orderId = vnPay.GetResponseData("vnp_TxnRef");
+            var amount = Convert.ToDouble(vnPay.GetResponseData("vnp_Amount"));
             var vnPayTranId = Convert.ToInt64(vnPay.GetResponseData("vnp_TransactionNo"));
             var vnpResponseCode = vnPay.GetResponseData("vnp_ResponseCode");
             var vnpSecureHash = collection.FirstOrDefault(k => k.Key == "vnp_SecureHash").Value; //hash của dữ liệu trả về
             var orderInfo = vnPay.GetResponseData("vnp_OrderInfo");
+            var vnpTransactionStatus = vnPay.GetResponseData("vnp_TransactionStatus");
+            var checkSignature = vnPay.ValidateSignature(vnpSecureHash, hashSecret); //check Signature
 
-            var checkSignature =
-                vnPay.ValidateSignature(vnpSecureHash, hashSecret); //check Signature
-
-            if (!checkSignature)
-                return new PaymentResponse()
-                {
-                    Success = false
-                };
-
-            return new PaymentResponse()
+            if (checkSignature)
             {
-                Amount = amount,
-                Success = true,
-                PaymentMethod = "VnPay",
-                OrderDescription = orderInfo,
-                OrderId = orderId.ToString(),
-                PaymentId = vnPayTranId.ToString(),
-                TransactionId = vnPayTranId.ToString(),
-                Token = vnpSecureHash,
-                VnPayResponseCode = vnpResponseCode
-            };
+                if (vnpResponseCode == "00" && vnpTransactionStatus == "00")
+                {
+                    return new PaymentResponse()
+                    {
+                        Amount = amount,
+                        Success = true,
+                        PaymentMethod = "VnPay",
+                        OrderDescription = orderInfo,
+                        OrderId = orderId.ToString(),
+                        PaymentId = vnPayTranId.ToString(),
+                        TransactionId = vnPayTranId.ToString(),
+                        Token = vnpSecureHash,
+                        VnPayResponseCode = vnpResponseCode
+                    };
+                }
+                else
+                {
+                    throw new Exception("Payment of errors");
+                }
+            }
+            else
+            {
+                throw new Exception("Invalid signature");
+            }  
         }
         public string GetIpAddress(HttpContext context)
         {

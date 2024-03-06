@@ -3,6 +3,7 @@ using Azure;
 using CloudinaryDotNet;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 using NESTCOOKING_API.Business.DTOs.AdminDTOs;
 using NESTCOOKING_API.Business.DTOs.TransactionDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
@@ -88,8 +89,15 @@ namespace NESTCOOKING_API.Business.Services
         {
             try
             {
-                var transaction = _transactionRepository.UpdateTransactionSuccessAsync(transactionId, isSuccess);
-
+                var trannsactioncheck = await _transactionRepository.GetAsync(t =>t.Id==transactionId);
+                if (trannsactioncheck.IsSuccess == true)
+                {
+                    throw new Exception("Duplicated transaction");
+                }
+                else
+                {
+                    var transaction = _transactionRepository.UpdateTransactionSuccessAsync(transactionId, isSuccess);
+                }
             }
             catch (Exception ex)
             {
