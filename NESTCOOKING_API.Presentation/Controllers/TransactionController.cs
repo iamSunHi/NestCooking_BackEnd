@@ -64,15 +64,16 @@ namespace NESTCOOKING_API.Presentation.Controllers
                     var typeTransaction = await _transactionService.GetTransactionTypeByIdAsync(paymentResponse.OrderId);
                     if (paymentResponse.Success)
                     {
+                        var initialAmountTransaction = paymentResponse.Amount / 100;
                         await _transactionService.TransactionSuccessById(paymentResponse.OrderId, true);
                         if (String.Equals(typeTransaction, StaticDetails.PaymentType_DEPOSIT, StringComparison.OrdinalIgnoreCase))
                         {
-                            await _userService.UpdateUserBalanceWithDeposit(paymentResponse.OrderId, paymentResponse.Amount);
+                            await _userService.UpdateUserBalanceWithDeposit(paymentResponse.OrderId, initialAmountTransaction);
                         }
                         else
                         {
                             var recipeId = await _purchasedRecipesService.FindIdRecipeByTransactionId(paymentResponse.OrderId);
-                            await _userService.UpdateUserBalanceWithPurchaseRecipe(paymentResponse.Amount, recipeId);
+                            await _userService.UpdateUserBalanceWithPurchaseRecipe(initialAmountTransaction, recipeId);
                         }
                     }
                     else

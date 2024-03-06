@@ -8,7 +8,7 @@ namespace NESTCOOKING_API.Business.Services.IServices
 	{
 		Task<IEnumerable<RecipeDTO>> GetAllRecipesAsync();
 		Task<(int, int, IEnumerable<RecipeDTO>)> GetRecipesAsync(PaginationInfoDTO paginationInfo);
-		Task<RecipeDetailDTO> GetRecipeByIdAsync(string id);
+		Task<RecipeDetailDTO> GetRecipeByIdAsync(string id, string? userId);
 		Task<IEnumerable<RecipeDTO>> GetRecipesByCategoryIdAsync(int categoryId);
 		Task<IEnumerable<RecipeDTO>> GetRecipesByUserIdAsync(string userId);
 		Task<RecipeDetailDTO> CreateRecipeAsync(string userId, CreateRecipeDTO recipeDTO);
