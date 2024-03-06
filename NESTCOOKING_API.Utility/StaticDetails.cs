@@ -3,10 +3,10 @@
 	public class StaticDetails
 	{
 		// For Local
-		// public const string FE_URL = "http://localhost:3000";
+		public const string FE_URL = "http://localhost:3000";
 
 		// For Production
-		public const string FE_URL = "https://nest-cooking.onrender.com";
+		// public const string FE_URL = "https://nest-cooking.onrender.com";
 
 		public enum ApiType
 		{
@@ -50,7 +50,7 @@
 		public const string PaymentType_PURCHASEDRECIPE = "PURCHASEDRECIPE";
 
 
-        public const string Currency_VND = "VND";
+		public const string Currency_VND = "VND";
 		public const string Currency_USD = "USD";
 
 		public const string NotificationType_RECIPE = "RECIPE";
@@ -60,12 +60,9 @@
 		public const string NotificationType_REQUEST = "REQUEST";
 		public const string NotificationType_RESPONSE = "RESPONSE";
 
-		public const string TransactionFe_URL = "http://localhost:5080/api/transaction/callback";
-        //https://nest-cooking.onrender.com/payment/transaction
-        //http://localhost:5080/api/transaction/callback
-        public const string IpAddress = "127.0.0.1";
+		public const string IpAddress = "127.0.0.1";
 		public const string Payment_VnPay = "VnPay";
-        public const string Payment_Wallet = "Wallet";
+		public const string Payment_Wallet = "Wallet";
 
 
 		public const string AvatarFolderPath = "images/avatar";

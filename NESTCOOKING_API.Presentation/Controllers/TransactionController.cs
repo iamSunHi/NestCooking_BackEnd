@@ -39,7 +39,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
                     return BadRequest(ResponseDTO.BadRequest(message: "Type is not valid"));
                 }
                 var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var transactionId = await _transactionService.CreateTransaction(transactionInfor, userId, false, StaticDetails.Payment_VnPay);
+                var transactionId = await _transactionService.CreateTransaction(transactionInfor, userId, StaticDetails.Payment_VnPay);
                 var paymentUrl = _paymentService.CreatePaymentUrl(transactionInfor, HttpContext, transactionId);
                 return Ok(ResponseDTO.Accept(result: paymentUrl));
             }
@@ -54,29 +54,29 @@ namespace NESTCOOKING_API.Presentation.Controllers
         {
             try
             {
-                if (Request.Query.Count>0)
+                if (Request.Query.Count <= 0)
                 {
                     return BadRequest(ResponseDTO.BadRequest("Input data required"));
                 }
-                else {
+                else
+                {
                     var paymentResponse = _paymentService.ProcessPaymentCallback(Request.Query);
+                    var typeTransaction = await _transactionService.GetTransactionTypeByIdAsync(paymentResponse.OrderId);
                     if (paymentResponse.Success)
                     {
                         await _transactionService.TransactionSuccessById(paymentResponse.OrderId, true);
-                        var typeTransaction = await _transactionService.GetTransactionTypeByIdAsync(paymentResponse.OrderId);
                         if (String.Equals(typeTransaction, StaticDetails.PaymentType_DEPOSIT, StringComparison.OrdinalIgnoreCase))
                         {
-                            await _userService.ChangeUserBalanceByTranDeposit(paymentResponse.OrderId, paymentResponse.Amount);
+                            await _userService.UpdateUserBalanceWithDeposit(paymentResponse.OrderId, paymentResponse.Amount);
                         }
                         else
                         {
                             var recipeId = await _purchasedRecipesService.FindIdRecipeByTransactionId(paymentResponse.OrderId);
-                            await _userService.ChangeUserBalanceByTranVnPayPurchased(paymentResponse.Amount, recipeId);
-                        }           
+                            await _userService.UpdateUserBalanceWithPurchaseRecipe(paymentResponse.Amount, recipeId);
+                        }
                     }
                     else
                     {
-                        var typeTransaction = await _transactionService.GetTransactionTypeByIdAsync(paymentResponse.OrderId);
                         if (String.Equals(typeTransaction, StaticDetails.PaymentType_PURCHASEDRECIPE, StringComparison.OrdinalIgnoreCase))
                         {
                             await _purchasedRecipesService.DeletePurchaseByTransactionId(paymentResponse.OrderId);
@@ -84,7 +84,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
                         return BadRequest(ResponseDTO.BadRequest(message: "An error occurred during processing"));
                     }
                     return Ok(ResponseDTO.Accept(result: paymentResponse));
-                }   
+                }
             }
             catch (Exception ex)
             {
@@ -123,7 +123,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
                     Amount = amount,
                     OrderDescription = description,
                 };
-                var transactionId = await _transactionService.CreateTransaction(transactionInfor, userId, false, Payment_Wallet);
+                var transactionId = await _transactionService.CreateTransaction(transactionInfor, userId, Payment_Wallet);
                 if (transactionId == null)
                 {
                     return BadRequest(ResponseDTO.BadRequest(message: "Withdraw Fail"));

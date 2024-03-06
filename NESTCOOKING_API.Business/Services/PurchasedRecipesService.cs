@@ -17,9 +17,11 @@ namespace NESTCOOKING_API.Business.Services
     public class PurchasedRecipesService : IPurchasedRecipesService
     {
         private readonly IPurchasedRecipesRepository _purchasedRecipesRepository;
-        public PurchasedRecipesService(IPurchasedRecipesRepository purchasedRecipesRepository)
+        private readonly ITransactionRepository _transactionRepository;
+        public PurchasedRecipesService(IPurchasedRecipesRepository purchasedRecipesRepository, ITransactionRepository transactionRepository)
         {
             _purchasedRecipesRepository = purchasedRecipesRepository;
+            _transactionRepository = transactionRepository;
         }
         public async Task CreatePurchasedRecipe(string recipeId, string transactionId, string userId)
         {
@@ -71,8 +73,21 @@ namespace NESTCOOKING_API.Business.Services
         {
             try
             {
-                var recipeIdList = _purchasedRecipesRepository.GetPurchasedRecipesByUserId(userId);
-                return recipeIdList;
+                var listRecipe = await _purchasedRecipesRepository.GetAllAsync(r => r.UserId == userId);
+
+                var listRecipeId = new List<string>();
+
+                foreach (var recipe in listRecipe)
+                {
+                    var transactionId = recipe.TransactionId;
+                    var transaction = await _transactionRepository.GetAsync(t => t.Id == transactionId);
+                    if (transaction.IsSuccess)
+                    {
+                        listRecipeId.Add(recipe.RecipeId);
+                    }
+                }
+
+                return listRecipeId;
             }
             catch (Exception ex)
             {

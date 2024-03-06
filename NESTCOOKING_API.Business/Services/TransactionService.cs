@@ -28,7 +28,7 @@ namespace NESTCOOKING_API.Business.Services
             _transactionRepository = transactionRepository;
             _mapper = mapper;
         }
-        public async Task<string> CreateTransaction(TransactionInfor transactionInfor, string userId, bool isSuccess, string payMent)
+        public async Task<string> CreateTransaction(TransactionInfor transactionInfor, string userId, string payMent)
         {
             try
             {
@@ -41,7 +41,7 @@ namespace NESTCOOKING_API.Business.Services
                     Description = transactionInfor.OrderDescription,
                     Currency = StaticDetails.Currency_VND,
                     Payment = payMent,
-                    IsSuccess = isSuccess,
+                    IsSuccess = false,
                     CreatedAt = DateTime.Now
                 };
                 await _transactionRepository.CreateAsync(transaction);
@@ -89,7 +89,7 @@ namespace NESTCOOKING_API.Business.Services
         {
             try
             {
-                var trannsactioncheck = await _transactionRepository.GetAsync(t =>t.Id==transactionId);
+                var trannsactioncheck = await _transactionRepository.GetAsync(t => t.Id == transactionId);
                 if (trannsactioncheck.IsSuccess == true)
                 {
                     throw new Exception("Duplicated transaction");

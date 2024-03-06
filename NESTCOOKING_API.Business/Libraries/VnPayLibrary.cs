@@ -10,33 +10,43 @@ using System.Text;
 using System.Threading.Tasks;
 using NESTCOOKING_API.Business.DTOs.PaymentDTOs;
 using NESTCOOKING_API.Utility;
+using Microsoft.Extensions.Configuration;
 
 namespace NESTCOOKING_API.Business.Libraries
 {
     public class VnPayLibrary
     {
-        private readonly SortedList<string, string> _requestData = new SortedList<string, string>(new VnPayCompare());
-        private readonly SortedList<string, string> _responseData = new SortedList<string, string>(new VnPayCompare());
+        private readonly IConfiguration _configuration;
+        private readonly SortedList<string, string> _requestData;
+        private readonly SortedList<string, string> _responseData;
+        private readonly string hashSecret;
 
-        public PaymentResponse GetFullResponseData(IQueryCollection collection, string hashSecret)
+        public VnPayLibrary(IConfiguration configuration)
         {
-            var vnPay = new VnPayLibrary();
+            _configuration = configuration;
+            hashSecret = _configuration["VnPay:HashSecret"];
+            _requestData = new SortedList<string, string>(new VnPayCompare());
+            _responseData = new SortedList<string, string>(new VnPayCompare());
+        }
+
+        public PaymentResponse GetFullResponseData(IQueryCollection collection)
+        {
 
             foreach (var (key, value) in collection)
             {
                 if (!string.IsNullOrEmpty(key) && key.StartsWith("vnp_"))
                 {
-                    vnPay.AddResponseData(key, value);
+                    AddResponseData(key, value);
                 }
             }
-            var orderId = vnPay.GetResponseData("vnp_TxnRef");
-            var amount = Convert.ToDouble(vnPay.GetResponseData("vnp_Amount"));
-            var vnPayTranId = Convert.ToInt64(vnPay.GetResponseData("vnp_TransactionNo"));
-            var vnpResponseCode = vnPay.GetResponseData("vnp_ResponseCode");
+            var orderId = GetResponseData("vnp_TxnRef");
+            var amount = Convert.ToDouble(GetResponseData("vnp_Amount"));
+            var vnPayTranId = Convert.ToInt64(GetResponseData("vnp_TransactionNo"));
+            var vnpResponseCode = GetResponseData("vnp_ResponseCode");
             var vnpSecureHash = collection.FirstOrDefault(k => k.Key == "vnp_SecureHash").Value; //hash của dữ liệu trả về
-            var orderInfo = vnPay.GetResponseData("vnp_OrderInfo");
-            var vnpTransactionStatus = vnPay.GetResponseData("vnp_TransactionStatus");
-            var checkSignature = vnPay.ValidateSignature(vnpSecureHash, hashSecret); //check Signature
+            var orderInfo = GetResponseData("vnp_OrderInfo");
+            var vnpTransactionStatus = GetResponseData("vnp_TransactionStatus");
+            var checkSignature = ValidateSignature(vnpSecureHash, hashSecret); //check Signature
 
             if (checkSignature)
             {
@@ -63,7 +73,7 @@ namespace NESTCOOKING_API.Business.Libraries
             else
             {
                 throw new Exception("Invalid signature");
-            }  
+            }
         }
         public string GetIpAddress(HttpContext context)
         {

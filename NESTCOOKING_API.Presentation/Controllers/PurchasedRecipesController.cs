@@ -35,16 +35,23 @@ namespace NESTCOOKING_API.Presentation.Controllers
         {
             try
             {
+                // Validate Order Type
                 if (!String.Equals(transactionInfor.OrderType, StaticDetails.PaymentType_PURCHASEDRECIPE, StringComparison.OrdinalIgnoreCase))
                 {
-                    return BadRequest(ResponseDTO.BadRequest(message: "Type is not valid"));
+                    return BadRequest(ResponseDTO.BadRequest(message: "Transaction type is not valid"));
                 }
-                if (!String.Equals(typeTransaction, StaticDetails.Payment_Wallet, StringComparison.OrdinalIgnoreCase) && !String.Equals(typeTransaction, StaticDetails.Payment_VnPay, StringComparison.OrdinalIgnoreCase))
+
+                // Validate Transaction Type
+                if (!String.Equals(typeTransaction, StaticDetails.Payment_Wallet, StringComparison.OrdinalIgnoreCase) &&
+                    !String.Equals(typeTransaction, StaticDetails.Payment_VnPay, StringComparison.OrdinalIgnoreCase))
                 {
                     return BadRequest(ResponseDTO.BadRequest(message: "Type is not valid"));
                 }
+
                 var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var transactionId = await _transactionService.CreateTransaction(transactionInfor, userId, false, typeTransaction);
+
+                var transactionId = await _transactionService.CreateTransaction(transactionInfor, userId, typeTransaction);
+
                 if (String.Equals(typeTransaction, StaticDetails.Payment_Wallet, StringComparison.OrdinalIgnoreCase))
                 {
                     var changeBlanceIsSuccess = await _userService.ChangeUserBalanceByTranPurchased(userId, transactionInfor.Amount, recipeId);
@@ -73,7 +80,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
         }
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetPurchasedRecipesById()
+        public async Task<IActionResult> GetPurchasedRecipesByUserId()
         {
             try
             {
