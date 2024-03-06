@@ -11,5 +11,7 @@ namespace NESTCOOKING_API.Business.Services.IServices
     {
         public Task CreatePurchasedRecipe(string recipeId, string transactionId, string userId);
         public Task<List<string>> GetPurchasedRecipesByUserId(string userId);
+        public Task DeletePurchaseByTransactionId(string transactionId);
+        public Task<string> FindIdRecipeByTransactionId(string transactionId);
     }
 }

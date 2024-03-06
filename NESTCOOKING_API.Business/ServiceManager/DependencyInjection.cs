@@ -51,12 +51,14 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<IUserConnectionRepository, UserConnectionRepository>();
             service.AddScoped<ITransactionRepository, TransactionRepository>();
             service.AddScoped<INotificationRepository, NotificationRepository>();
+            service.AddScoped<IPurchasedRecipesRepository, PurchasedRecipesRepository>();
 
-			#endregion Repositories
 
-			#region Services
+            #endregion Repositories
 
-			service.AddScoped<IJwtUtils, JwtUtils>();
+            #region Services
+
+            service.AddScoped<IJwtUtils, JwtUtils>();
             service.AddScoped<IAuthService, AuthService>();
             service.AddScoped<IUserService, UserService>();
             service.AddScoped<IEmailService, EmailService>();
@@ -76,10 +78,11 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<VnPayLibrary>();
             service.AddScoped<ITransactionService, TransactionService>();
             service.AddScoped<INotificationService, NotificationService>();
+            service.AddScoped<IPurchasedRecipesService, PurchasedRecipesService>();
 
-			#endregion Services
+            #endregion Services
 
-			service.AddHttpClient();
+            service.AddHttpClient();
 
             service.AddCors(options =>
             {

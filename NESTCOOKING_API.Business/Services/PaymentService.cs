@@ -27,8 +27,8 @@ namespace NESTCOOKING_API.Business.Services
             try
             {
                 var timeZoneById = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-                var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneById);;
-                var urlCallBack = StaticDetails.TransactionFe_URL;
+                var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneById); ;
+                var urlCallBack = StaticDetails.FE_URL + "/payment/callback";
 
                 _vnPayLibrary.AddRequestData("vnp_Version", "2.1.0");
                 _vnPayLibrary.AddRequestData("vnp_Command", "pay");
@@ -36,7 +36,7 @@ namespace NESTCOOKING_API.Business.Services
                 _vnPayLibrary.AddRequestData("vnp_Amount", ((int)transactionInfor.Amount * 100).ToString());
                 _vnPayLibrary.AddRequestData("vnp_CreateDate", timeNow.ToString("yyyyMMddHHmmss"));
                 _vnPayLibrary.AddRequestData("vnp_CurrCode", "VND");
-                _vnPayLibrary.AddRequestData("vnp_IpAddr", _vnPayLibrary.GetIpAddress(context));
+                _vnPayLibrary.AddRequestData("vnp_IpAddr", "123.32.42.53");
                 _vnPayLibrary.AddRequestData("vnp_Locale", "vn");
                 _vnPayLibrary.AddRequestData("vnp_OrderInfo", $"{transactionInfor.Name} {transactionInfor.OrderDescription} {transactionInfor.Amount}");
                 _vnPayLibrary.AddRequestData("vnp_OrderType", transactionInfor.OrderType);
@@ -46,24 +46,26 @@ namespace NESTCOOKING_API.Business.Services
                 var paymentUrl = _vnPayLibrary.CreateRequestUrl("https://sandbox.vnpayment.vn/paymentv2/vpcpay.html", "FJGGVTZYHYLKESPLBSSQLNXYVPUGXFJK");
 
                 return paymentUrl;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
-           
+
         }
         public PaymentResponse ProcessPaymentCallback(IQueryCollection collections)
         {
             try
             {
-                var response = _vnPayLibrary.GetFullResponseData(collections, "FJGGVTZYHYLKESPLBSSQLNXYVPUGXFJK");
+                var response = _vnPayLibrary.GetFullResponseData(collections);
 
                 return response;
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
-            
+
         }
     }
 }
