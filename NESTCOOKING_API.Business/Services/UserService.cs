@@ -9,7 +9,7 @@ using NESTCOOKING_API.Utility;
 
 namespace NESTCOOKING_API.Business.Services
 {
-	public class UserService : IUserService
+    public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
@@ -105,11 +105,11 @@ namespace NESTCOOKING_API.Business.Services
 
             return userInfoDTO;
         }
-        public async Task ChangeUserBalanceByTranDeposit(string id, double amount)
+        public async Task UpdateUserBalanceWithDeposit(string transactionId, double amount)
         {
             try
             {
-                var transaction = await _transactionRepository.GetAsync(t => t.Id == id);
+                var transaction = await _transactionRepository.GetAsync(t => t.Id == transactionId);
                 var user = await _userManager.FindByIdAsync(transaction.UserId);
                 await UpdateUserBalance(user, amount);
             }
@@ -118,35 +118,54 @@ namespace NESTCOOKING_API.Business.Services
                 throw new Exception("Error updating user balance.", ex);
             }
         }
+        public async Task UpdateUserBalanceWithPurchaseRecipe(double amount, string recipeId)
+        {
+            var recipe = await _recipeRepository.GetAsync(t => t.Id == recipeId);
+            var userRecipe = await _userManager.FindByIdAsync(recipe.UserId);
+            await UpdateUserBalance(userRecipe, amount * 0.9);
+            await ChangeAdminBalance(amount * 0.1);
+        }
+
         public async Task<bool> ChangeUserBalanceByTranPurchased(string userId, double amount, string recipeId)
         {
             try
             {
                 var user = await _userManager.FindByIdAsync(userId);
                 var recipe = await _recipeRepository.GetAsync(t => t.Id == recipeId);
-                var userRecipe = await _userManager.FindByIdAsync(recipe.UserId);
+                var userCreatedRecipe = await _userManager.FindByIdAsync(recipe.UserId);
 
-                if (user.Balance < amount)
-                    return false;
+                // if (user.Balance < amount)
+                //     return false;
 
-                if (!await UpdateUserBalance(user, -amount))
-                    return false;
+                // if (!await UpdateUserBalance(user, -amount))
+                //     return false;
+                // if (!await UpdateUserBalance(userCreatedRecipe, amount * 0.9))
+                // {
+                //     await UpdateUserBalance(user, amount);
+                //     return false;
+                // }
 
-                userRecipe.Balance += (amount * 0.9);
-                if (!await UpdateUserBalance(userRecipe, amount * 0.9))
+                // if (!await ChangeAdminBalance(amount * 0.1))
+                // {
+                //     await UpdateUserBalance(user, amount);
+                //     await UpdateUserBalance(userCreatedRecipe, -amount * 0.9);
+                //     return false;
+                // }
+
+                // return true;
+                var updateUserBalanceResult = await UpdateUserBalance(user, -amount);
+                var updateUserRecipeBalanceResult = await UpdateUserBalance(userCreatedRecipe, amount * 0.9);
+                var changeAdminBalanceResult = await ChangeAdminBalance(amount * 0.1);
+
+                if (updateUserBalanceResult && updateUserRecipeBalanceResult && changeAdminBalanceResult)
                 {
-                    await UpdateUserBalance(user, amount);
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine("One or more balance update operations failed.");
                     return false;
                 }
-
-                if (!await ChangeAdminBalance(amount * 0.1))
-                {
-                    await UpdateUserBalance(user, amount);
-                    await UpdateUserBalance(userRecipe, -amount * 0.9);
-                    return false;
-                }
-
-                return true;
             }
             catch (Exception ex)
             {
@@ -191,7 +210,7 @@ namespace NESTCOOKING_API.Business.Services
             try
             {
                 var roleAdminId = await _roleRepository.GetRoleIdByNameAsync(StaticDetails.Role_Admin);
-                var adminUser = await _userRepository.FindUserByRoleIdAndUserName(roleAdminId, "admin");
+                var adminUser = await _userRepository.GetAsync(r => r.RoleId == roleAdminId);
                 if (adminUser == null)
                     return false;
 

@@ -14,8 +14,9 @@ namespace NESTCOOKING_API.Business.Services.IServices
 		bool IsUniqueEmail(string email);
 		Task<User> GetUserByEmail(string email);
 		Task<User> GetUserByUsername(string username);
-		Task ChangeUserBalanceByTranDeposit(string id, double amount);
-        Task<bool> ChangeUserBalanceByTranPurchased(string userId, double amount, string recipeId);
+		Task UpdateUserBalanceWithDeposit(string id, double amount);
+		Task<bool> ChangeUserBalanceByTranPurchased(string userId, double amount, string recipeId);
+		Task UpdateUserBalanceWithPurchaseRecipe(double amount, string recipeId);
 		Task<bool> ChangeUserBalanceByWithdraw(string userId, double amount);
-    }
+	}
 }

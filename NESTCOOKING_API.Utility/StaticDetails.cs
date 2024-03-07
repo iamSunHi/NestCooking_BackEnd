@@ -3,10 +3,10 @@
 	public class StaticDetails
 	{
 		// For Local
-		// public const string FE_URL = "http://localhost:3000";
+		public const string FE_URL = "http://localhost:3000";
 
 		// For Production
-		public const string FE_URL = "https://nest-cooking.onrender.com";
+		// public const string FE_URL = "https://nest-cooking.onrender.com";
 
 		public enum ApiType
 		{
@@ -61,7 +61,6 @@
 		public const string NotificationType_REQUEST = "REQUEST";
 		public const string NotificationType_RESPONSE = "RESPONSE";
 
-		public const string TransactionFe_URL = "https://nest-cooking.onrender.com/payment/transaction";
 		public const string IpAddress = "127.0.0.1";
 		public const string Payment_VnPay = "VnPay";
 		public const string Payment_Wallet = "Wallet";
