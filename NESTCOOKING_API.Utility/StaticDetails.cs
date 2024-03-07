@@ -60,6 +60,7 @@
 		public const string NotificationType_REPORT = "REPORT";
 		public const string NotificationType_REQUEST = "REQUEST";
 		public const string NotificationType_RESPONSE = "RESPONSE";
+		public const string NotificationType_ANNOUNCEMENT = "ANNOUNCEMENT";
 
 		public const string IpAddress = "127.0.0.1";
 		public const string Payment_VnPay = "VnPay";
