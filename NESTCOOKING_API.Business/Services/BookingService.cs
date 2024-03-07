@@ -41,7 +41,7 @@ namespace NESTCOOKING_API.Business.Services
 			{
 				throw new Exception(AppString.InvalidApprovalTypeErrorMessage);
 			}
-			exitsBookingRequest.ApprovalStatusDate = DateTime.Now;
+			exitsBookingRequest.ApprovalStatusDate = DateTime.UtcNow;
 			_mapper.Map(chefApprovalProcessDTO, exitsBookingRequest);
 			await _bookingRepository.ApprovalBooking(exitsBookingRequest);
 			var result = _mapper.Map<RequestBookingDTO>(exitsBookingRequest);
@@ -72,21 +72,28 @@ namespace NESTCOOKING_API.Business.Services
 			try
 			{
 				var user = await _userManager.FindByIdAsync(userId);
+
 				if (user == null)
 				{
 					throw new Exception(AppString.SomethingWrongMessage);
 				}
+
 				if (user.Balance < createBookingDTO.Total)
 				{
 					throw new Exception(AppString.InsufficientBalance);
+				}
+
+				if (!(await this.CheckIfChefIsAvailable(createBookingDTO.ChefId, createBookingDTO.RequiredDate)))
+				{
+					throw new Exception(AppString.ChefIsNotAvailable);
 				}
 
 				var requestBooking = _mapper.Map<Booking>(createBookingDTO);
 				requestBooking.Id = Guid.NewGuid().ToString();
 				requestBooking.UserId = userId;
 				requestBooking.Status = StaticDetails.ActionStatus_PENDING;
-				requestBooking.CreatedAt = DateTime.Now;
-				requestBooking.ApprovalStatusDate = DateTime.Now;
+				requestBooking.CreatedAt = DateTime.UtcNow;
+				requestBooking.ApprovalStatusDate = DateTime.UtcNow;
 				requestBooking.TransactionId = null;
 
 				var result = _mapper.Map<RequestBookingDTO>(_bookingRepository.CreateAsync(requestBooking));
@@ -142,6 +149,12 @@ namespace NESTCOOKING_API.Business.Services
 		{
 			var result = _mapper.Map<RequestBookingDTO>(await _bookingRepository.GetAsync(book => book.Id == bookingId));
 			return result;
+		}
+
+		private async Task<bool> CheckIfChefIsAvailable(string chefId, DateOnly requiredDate)
+		{
+			var bookingFromDb = await _bookingRepository.GetAsync(b => b.ChefId == chefId && b.RequiredDate == requiredDate);
+			return bookingFromDb == null;
 		}
 	}
 }

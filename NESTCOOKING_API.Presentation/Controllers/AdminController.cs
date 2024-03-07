@@ -26,8 +26,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		private readonly IRequestBecomeChefService _requestBecomeChefService;
 		private readonly IStatisticService _statisticService;
 
-		public AdminController(ICategoryService categoryService, IResponseService responseService, IReportService reportService, ITransactionService transactionService, INotificationService notificationService, IRequestBecomeChefService requestBecomeChefService)
-		public AdminController(ICategoryService categoryService, IResponseService responseService, IReportService reportService, ITransactionService transactionService, INotificationService notificationService, IStatisticService statisticService)
+		public AdminController(ICategoryService categoryService, IResponseService responseService, IReportService reportService, ITransactionService transactionService, INotificationService notificationService, IRequestBecomeChefService requestBecomeChefService, IStatisticService statisticService)
 		{
 			_categoryService = categoryService;
 			_responseService = responseService;
@@ -317,8 +316,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		#endregion Request To Become Chef
-
-
 
 		#region Dashboard
 

@@ -45,9 +45,6 @@ namespace NESTCOOKING_API.DataAccess.Data
 		public DbSet<Booking> Bookings { get; set; }
 		public DbSet<BookingLine> BookingLines { get; set; }
 
-		protected override void OnModelCreating(ModelBuilder modelBuilder)
-		{
-			base.OnModelCreating(modelBuilder);
 		// Admin Statistic
 		public DbSet<BookingStatistic> BookingStatistics { get; set; }
 		public DbSet<ChefStatistic> ChefStatistics { get; set; }
@@ -170,7 +167,6 @@ namespace NESTCOOKING_API.DataAccess.Data
 				.HasOne(bl => bl.Booking)
 				.WithMany(b => b.BookingLines)
 				.HasForeignKey(bl => bl.BookingId);
-
 
 			modelBuilder.Entity<UserStatistic>().HasData(new UserStatistic()
 			{
