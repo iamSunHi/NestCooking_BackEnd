@@ -42,7 +42,7 @@ namespace NESTCOOKING_API.Business.Services
                     Currency = StaticDetails.Currency_VND,
                     Payment = payMent,
                     IsSuccess = false,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 };
                 await _transactionRepository.CreateAsync(transaction);
                 return transaction.Id;
