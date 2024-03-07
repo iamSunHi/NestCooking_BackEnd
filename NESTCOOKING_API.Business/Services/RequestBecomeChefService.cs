@@ -110,5 +110,20 @@ namespace NESTCOOKING_API.Business.Services
             var result = _mapper.Map<RequestToBecomeChefDTO>(requestBecomeChef);
             return result;
         }
+
+        public async Task<RequestToBecomeChefDTO> ApprovalRequestByAdmin(string requestId, ApprovalRequestDTO approvalRequestDTO)
+        {
+            var existingRequest = await _chefRequestRepository.GetAsync(req => req.RequestChefId == requestId);
+            if (existingRequest == null) {
+                throw new InvalidDataException();
+            }
+            if (approvalRequestDTO.Status != ActionStatus_ACCEPTED && approvalRequestDTO.Status != ActionStatus_REJECTED)
+            {
+                throw new InvalidOperationException(AppString.InValidStatusType);
+            }
+            _mapper.Map(approvalRequestDTO, existingRequest);
+            await _chefRequestRepository.UpdateRequestToBecomeChef(existingRequest);
+            return _mapper.Map<RequestToBecomeChefDTO>(existingRequest);
+        }
     }
 }

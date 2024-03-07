@@ -20,5 +20,6 @@ namespace NESTCOOKING_API.DataAccess.Models
 		public List<RequestToBecomeChef> RequestsToBecomeChefs { get; set; }
 		public ICollection<Comment> Comments { get; set; }
         public ICollection<Transaction> Transactions { get; set; }
+		public ICollection<Booking>	Bookings { get; set; }
     }
 }

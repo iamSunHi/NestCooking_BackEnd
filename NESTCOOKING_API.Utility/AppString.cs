@@ -57,9 +57,11 @@
 		public static string InvalidId = "Invalid format for requestId!";
 		public static string DeleteRequestSuccessMessage = "Delete request become a chef successfully.";
 		public static string CreateRequestSuccessMessage = "Create request become a chef successfully.";
-		public static string RequestNotFoundMessage = "Request Become Chef not found!";
+        public static string ApprovalRequestBecomeChefSuccessMessage = "Approval Request Successfully";
+        public static string RequestNotFoundMessage = "Request Become Chef not found!";
 		public static string BecomeChefRequestInternalServerErrorMessage = "Failed to create request to become chef.";
-		public static string InvalidFormatErrorMessage = "Invalid format";
+		public static string InValidStatusType = "Invalid status. Only Accepted or Rejected is allowed.";
+        public static string InvalidFormatErrorMessage = "Invalid format";
 		public static string InternalServerErrorMessage = "Internal Server Error.";
 
 		public static string InvalidReportTypeErrorMessage = "Invalid Report Type!";
@@ -85,8 +87,13 @@
 		public static string DeleteCommentNotOwner = "You must be the owner of this comment.";
 		public static string CommentFail = "You are comment as ChildComment.";
 
-		// For UserConnection
-		public static string UserNotHaveAnyConnection = "You haven't followed anyone yet.";
+		public static string RequestBookingNotFound = "Booking Request Not Found";
+        public static string ApprovalBookingSuccessMassage = "Change Status Comment Successfully.";
+        public static string DeleteBookingSuccessMessage = "Delete Booking successfully.";
+        public static string CreateBookingSuccessMessage = "Create Booking successfully.";
+        public static string StatusBookingNull = "Status of booking not null!";
+        // For UserConnection
+        public static string UserNotHaveAnyConnection = "You haven't followed anyone yet.";
 		public static string UserNotFollowAnyone = "This user hasn't followed anyone yet.";
 		public static string UserNotHaveAnyFollower = "You don't have anyone following you yet.";
 		public static string UserCannotFollowSelf = "You cannot follow yourself.";
@@ -100,5 +107,10 @@
 		public static string NotificationApproveReport = "We have approved your report and removed the violation. Thank you for your help in building a positive community.";
 		public static string NotificationApproveReportForViolentUser = "You were reported due to violent behavior. After checking carefully, we confirm that is true, so we deleted that violent content. If you think this is a mistake, please send us a reply.";
 		public static string NotificationRejectReport = "We have seen your report, but we haven't seen any violations. If you think this is a mistake, please send us another report.";
-	}
+
+		// For Booking
+		public static string InsufficientBalance= "Insufficient balance for booking";
+        public static string InvalidApprovalTypeErrorMessage = "Invalid Approval Type!";
+
+    }
 }

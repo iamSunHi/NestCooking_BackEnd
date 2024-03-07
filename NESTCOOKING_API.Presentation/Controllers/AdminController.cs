@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Graph.Models;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.AdminDTOs;
+using NESTCOOKING_API.Business.DTOs.ChefRequestDTOs;
 using NESTCOOKING_API.Business.DTOs.CommentDTOs;
 using NESTCOOKING_API.Business.DTOs.NotificationDTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
@@ -21,14 +23,16 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		private readonly IReportService _reportService;
 		private readonly ITransactionService _transactionService;
 		private readonly INotificationService _notificationService;
+		private readonly IRequestBecomeChefService _requestBecomeChefService;
 
-		public AdminController(ICategoryService categoryService, IResponseService responseService, IReportService reportService, ITransactionService transactionService, INotificationService notificationService)
+		public AdminController(ICategoryService categoryService, IResponseService responseService, IReportService reportService, ITransactionService transactionService, INotificationService notificationService, IRequestBecomeChefService requestBecomeChefService)
 		{
 			_categoryService = categoryService;
 			_responseService = responseService;
 			_reportService = reportService;
 			_transactionService = transactionService;
 			_notificationService = notificationService;
+			_requestBecomeChefService = requestBecomeChefService;
 		}
 
 		#region Category
@@ -289,5 +293,27 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		#endregion Notification
-	}
+
+		#region RequestBecomeChef
+		[HttpPut("requestBecomeChef/Approval/{requestId}")]
+		public async Task<IActionResult> ApprovalRequest(string requestId,[FromBody] ApprovalRequestDTO approvalRequestDTO)
+		{
+			try
+			{
+				var exitsRequest = await _requestBecomeChefService.ApprovalRequestByAdmin(requestId, approvalRequestDTO);
+				 return exitsRequest !=null ? Ok(ResponseDTO.Accept(AppString.ApprovalRequestBecomeChefSuccessMessage, result: exitsRequest)) 
+					: NotFound(AppString.RequestBecomeChefNotFound);
+            }
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+		}
+		
+
+
+        #endregion RequestBecomeChef
+
+
+    }
 }
