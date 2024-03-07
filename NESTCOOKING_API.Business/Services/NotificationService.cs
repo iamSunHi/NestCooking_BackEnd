@@ -180,18 +180,19 @@ namespace NESTCOOKING_API.Business.Services
 					}
 				case StaticDetails.NotificationType_ANNOUNCEMENT:
 					{
-						var roleAdmin = await _roleRepository.GetRoleIdByNameAsync(StaticDetails.Role_Admin);
-						var listAdmin = await _userRepository.GetAllAsync(u => u.RoleId == roleAdmin);
+						var roleAdminId = await _roleRepository.GetRoleIdByNameAsync(StaticDetails.Role_Admin);
+						var adminAccount = await _userRepository.GetAsync(u => u.RoleId == roleAdminId);
 						var listAllUserInSystem = await _userRepository.GetAllAsync();
 
 						foreach (var user in listAllUserInSystem)
 						{
-							if (user.RoleId == roleAdmin)
+							if (user.RoleId == roleAdminId)
 							{
 								continue;
 							}
 							notificationToDb.Id = Guid.NewGuid().ToString();
 							notificationToDb.ReceiverId = user.Id;
+							notificationToDb.SenderId = adminAccount.Id;
 							notificationToDb.Content = notificationCreateDTO.Content;
 							await _notificationRepository.CreateAsync(notificationToDb);
 						}
