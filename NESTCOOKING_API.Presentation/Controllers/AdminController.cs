@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.AdminDTOs;
-using NESTCOOKING_API.Business.DTOs.CommentDTOs;
 using NESTCOOKING_API.Business.DTOs.NotificationDTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
@@ -21,14 +20,16 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		private readonly IReportService _reportService;
 		private readonly ITransactionService _transactionService;
 		private readonly INotificationService _notificationService;
+		private readonly IStatisticService _statisticService;
 
-		public AdminController(ICategoryService categoryService, IResponseService responseService, IReportService reportService, ITransactionService transactionService, INotificationService notificationService)
+		public AdminController(ICategoryService categoryService, IResponseService responseService, IReportService reportService, ITransactionService transactionService, INotificationService notificationService, IStatisticService statisticService)
 		{
 			_categoryService = categoryService;
 			_responseService = responseService;
 			_reportService = reportService;
 			_transactionService = transactionService;
 			_notificationService = notificationService;
+			_statisticService = statisticService;
 		}
 
 		#region Category
@@ -255,7 +256,8 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			try
 			{
 				notificationCreateDTO.NotificationType = notificationCreateDTO.NotificationType.ToUpper();
-				if (notificationCreateDTO.NotificationType != StaticDetails.NotificationType_RECIPE &&
+				if (notificationCreateDTO.NotificationType != StaticDetails.NotificationType_INFO &&
+					notificationCreateDTO.NotificationType != StaticDetails.NotificationType_RECIPE &&
 					notificationCreateDTO.NotificationType != StaticDetails.NotificationType_REACTION &&
 					notificationCreateDTO.NotificationType != StaticDetails.NotificationType_COMMENT &&
 					notificationCreateDTO.NotificationType != StaticDetails.NotificationType_REPORT &&
@@ -289,5 +291,27 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		#endregion Notification
+
+		#region Dashboard
+
+		[HttpGet("statistics")]
+		public async Task<IActionResult> GetAllStatisticsAsync()
+		{
+			try
+			{
+				var result = await _statisticService.GetAllStatisticsAsync();
+				return Ok(ResponseDTO.Accept(result: result));
+			}
+			catch (Exception ex)
+			{
+				if (ex.InnerException != null)
+				{
+					return BadRequest(ResponseDTO.BadRequest(message: ex.InnerException.Message));
+				}
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+		}
+
+		#endregion Dashboard
 	}
 }

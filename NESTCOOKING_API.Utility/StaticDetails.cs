@@ -53,6 +53,7 @@
 		public const string Currency_VND = "VND";
 		public const string Currency_USD = "USD";
 
+		public const string NotificationType_INFO = "INFO";
 		public const string NotificationType_RECIPE = "RECIPE";
 		public const string NotificationType_REACTION = "REACTION";
 		public const string NotificationType_COMMENT = "COMMENT";
@@ -73,5 +74,11 @@
 
 		public const string TargetType_RECIPE = "recipe";
 		public const string TargetType_COMMENT = "comment";
+
+		public const string Timeline_CURRENT = "current";
+		public const string Timeline_PREVIOUSDATE = "date";
+		public const string Timeline_PREVIOUSWEEK = "week";
+		public const string Timeline_PREVIOUSMONTH = "month";
+		public const string Timeline_PREVIOUSYEAR = "year";
 	}
 }
