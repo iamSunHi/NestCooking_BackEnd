@@ -30,6 +30,7 @@ namespace NESTCOOKING_API.Business.Mapping
 			CreateMap<RequestToBecomeChef, CreatedRequestToBecomeChefDTO>().ReverseMap();
 			CreateMap<RequestToBecomeChef, RequestToBecomeChefDTO>().ReverseMap();
 			CreateMap<RequestToBecomeChef, ApprovalRequestDTO>().ReverseMap();
+
 			// Report
 			CreateMap<Report, ReportResponseDTO>().ReverseMap().ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User));
 			CreateMap<Report, CreateReportDTO>().ReverseMap();
@@ -58,7 +59,7 @@ namespace NESTCOOKING_API.Business.Mapping
 			CreateMap<Comment, UpdateCommentDTO>().ReverseMap();
 
 			// Transaction
-			CreateMap<Transaction,TransactionDTO>().ReverseMap();
+			CreateMap<Transaction, TransactionDTO>().ReverseMap();
 
 			// Notification
 			CreateMap<Notification, NotificationCreateDTO>().ReverseMap();
@@ -66,8 +67,8 @@ namespace NESTCOOKING_API.Business.Mapping
 
 			//Booking
 			CreateMap<Booking, CreatedCommentDTO>().ReverseMap();
-			CreateMap<Booking,ChefApprovalProcessDTO>().ReverseMap();
-			CreateMap<Booking,RequestBookingDTO>().ReverseMap();
+			CreateMap<Booking, ChefApprovalProcessDTO>().ReverseMap();
+			CreateMap<Booking, RequestBookingDTO>().ReverseMap();
 		}
 	}
 }

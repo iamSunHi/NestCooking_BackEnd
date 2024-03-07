@@ -53,6 +53,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<INotificationRepository, NotificationRepository>();
             service.AddScoped<IBookingRepository, BookingRepository>();
             service.AddScoped<IBookingLineRepository, BookingLineRepository>();
+
             #endregion Repositories
 
             #region Services

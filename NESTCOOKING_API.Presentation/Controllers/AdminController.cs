@@ -294,26 +294,26 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 		#endregion Notification
 
-		#region RequestBecomeChef
-		[HttpPut("requestBecomeChef/Approval/{requestId}")]
-		public async Task<IActionResult> ApprovalRequest(string requestId,[FromBody] ApprovalRequestDTO approvalRequestDTO)
+		#region Request To Become Chef
+
+		[HttpPut("requests/approve")]
+		public async Task<IActionResult> ApprovalRequest([FromBody] ApprovalRequestDTO approvalRequestDTO)
 		{
 			try
 			{
-				var exitsRequest = await _requestBecomeChefService.ApprovalRequestByAdmin(requestId, approvalRequestDTO);
-				 return exitsRequest !=null ? Ok(ResponseDTO.Accept(AppString.ApprovalRequestBecomeChefSuccessMessage, result: exitsRequest)) 
-					: NotFound(AppString.RequestBecomeChefNotFound);
-            }
+				var exitsRequest = await _requestBecomeChefService.ApprovalRequestByAdmin(approvalRequestDTO);
+				return exitsRequest != null
+					? Ok(ResponseDTO.Accept(AppString.ApprovalRequestBecomeChefSuccessMessage, result: exitsRequest))
+					: BadRequest(ResponseDTO.BadRequest(message: AppString.RequestBecomeChefNotFound));
+			}
 			catch (Exception ex)
 			{
 				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
 			}
 		}
-		
+
+		#endregion Request To Become Chef
 
 
-        #endregion RequestBecomeChef
-
-
-    }
+	}
 }

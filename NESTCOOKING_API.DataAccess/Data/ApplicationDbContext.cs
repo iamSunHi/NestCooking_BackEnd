@@ -140,25 +140,25 @@ namespace NESTCOOKING_API.DataAccess.Data
 				notification.HasOne<User>().WithMany().HasForeignKey(n => n.ReceiverId).IsRequired(false).OnDelete(DeleteBehavior.NoAction);
 			});
 
-
 			modelBuilder.Entity<Booking>(booking =>
 			{
 				booking.ToTable("Bookings");
-				booking.HasOne<User>(user => user.User).WithMany(b => b.Bookings).HasForeignKey(u => u.UserId).IsRequired();
+				booking.HasOne(b => b.User).WithMany(user => user.Bookings).HasForeignKey(b => b.UserId).IsRequired();
 			});
+
 			modelBuilder.Entity<BookingLine>()
 				 .ToTable("BookingLines")
-				 .HasKey(db => new { db.RecipeId, db.BookingId });
+				 .HasKey(bl => new { bl.RecipeId, bl.BookingId });
 
 			modelBuilder.Entity<BookingLine>()
-				.HasOne(db => db.Recipe)
-				.WithMany(d => d.BookingLines)
-				.HasForeignKey(db => db.RecipeId);
+				.HasOne(bl => bl.Recipe)
+				.WithMany(r => r.BookingLines)
+				.HasForeignKey(bl => bl.RecipeId);
 
 			modelBuilder.Entity<BookingLine>()
-				.HasOne(db => db.Booking)
+				.HasOne(bl => bl.Booking)
 				.WithMany(b => b.BookingLines)
-				.HasForeignKey(db => db.BookingId);
+				.HasForeignKey(bl => bl.BookingId);
 
 		}
 	}

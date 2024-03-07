@@ -111,9 +111,9 @@ namespace NESTCOOKING_API.Business.Services
             return result;
         }
 
-        public async Task<RequestToBecomeChefDTO> ApprovalRequestByAdmin(string requestId, ApprovalRequestDTO approvalRequestDTO)
+        public async Task<RequestToBecomeChefDTO> ApprovalRequestByAdmin(ApprovalRequestDTO approvalRequestDTO)
         {
-            var existingRequest = await _chefRequestRepository.GetAsync(req => req.RequestChefId == requestId);
+            var existingRequest = await _chefRequestRepository.GetAsync(req => req.RequestChefId == approvalRequestDTO.RequestId);
             if (existingRequest == null) {
                 throw new InvalidDataException();
             }
