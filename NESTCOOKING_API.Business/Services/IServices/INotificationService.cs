@@ -8,6 +8,7 @@ namespace NESTCOOKING_API.Business.Services.IServices
 		Task<(int, int, IEnumerable<NotificationReadDTO>)> GetAllNotificationsWithPaginationAsync(PaginationInfoDTO paginationInfo);
 		Task<IEnumerable<NotificationReadDTO>> GetAllNotificationsByReceiverIdAsync(string receiverId);
 		Task CreateNotificationAsync(NotificationCreateDTO notificationCreateDTO);
+		Task<bool> SeenAllUserNotificationsAsync(string userId);
 		Task RemoveNotificationAsync(string notificationId);
 	}
 }
