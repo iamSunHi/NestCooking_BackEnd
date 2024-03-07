@@ -186,5 +186,20 @@ namespace NESTCOOKING_API.Business.Services
 
 			await _notificationRepository.RemoveAsync(notificationFromDb);
 		}
+
+		public async Task UpdateNotificationStatusByIdAsync(string notificationId, string receiverId)
+		{
+			await _notificationRepository.UpdateNotificationStatusAsync(notificationId, receiverId);
+		}
+
+		public async Task UpdateAllNotificationStatusAsync(string receiverId)
+		{
+			var unseenNotificationListFromDb = await _notificationRepository.GetAllAsync(n => n.ReceiverId == receiverId);
+
+			foreach (var notification in unseenNotificationListFromDb)
+			{
+				await _notificationRepository.UpdateNotificationStatusAsync(notification.Id, receiverId);
+			}
+		}
 	}
 }

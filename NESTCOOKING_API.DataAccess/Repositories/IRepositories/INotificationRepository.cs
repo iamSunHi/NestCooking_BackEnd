@@ -4,5 +4,6 @@ namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
 {
 	public interface INotificationRepository : IRepository<Notification>
 	{
+		Task UpdateNotificationStatusAsync(string notificationId, string receiverId);
 	}
 }
