@@ -24,8 +24,10 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		private readonly ITransactionService _transactionService;
 		private readonly INotificationService _notificationService;
 		private readonly IRequestBecomeChefService _requestBecomeChefService;
+		private readonly IStatisticService _statisticService;
 
 		public AdminController(ICategoryService categoryService, IResponseService responseService, IReportService reportService, ITransactionService transactionService, INotificationService notificationService, IRequestBecomeChefService requestBecomeChefService)
+		public AdminController(ICategoryService categoryService, IResponseService responseService, IReportService reportService, ITransactionService transactionService, INotificationService notificationService, IStatisticService statisticService)
 		{
 			_categoryService = categoryService;
 			_responseService = responseService;
@@ -33,6 +35,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			_transactionService = transactionService;
 			_notificationService = notificationService;
 			_requestBecomeChefService = requestBecomeChefService;
+			_statisticService = statisticService;
 		}
 
 		#region Category
@@ -259,7 +262,8 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			try
 			{
 				notificationCreateDTO.NotificationType = notificationCreateDTO.NotificationType.ToUpper();
-				if (notificationCreateDTO.NotificationType != StaticDetails.NotificationType_RECIPE &&
+				if (notificationCreateDTO.NotificationType != StaticDetails.NotificationType_INFO &&
+					notificationCreateDTO.NotificationType != StaticDetails.NotificationType_RECIPE &&
 					notificationCreateDTO.NotificationType != StaticDetails.NotificationType_REACTION &&
 					notificationCreateDTO.NotificationType != StaticDetails.NotificationType_COMMENT &&
 					notificationCreateDTO.NotificationType != StaticDetails.NotificationType_REPORT &&
@@ -315,5 +319,27 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		#endregion Request To Become Chef
 
 
+
+		#region Dashboard
+
+		[HttpGet("statistics")]
+		public async Task<IActionResult> GetAllStatisticsAsync()
+		{
+			try
+			{
+				var result = await _statisticService.GetAllStatisticsAsync();
+				return Ok(ResponseDTO.Accept(result: result));
+			}
+			catch (Exception ex)
+			{
+				if (ex.InnerException != null)
+				{
+					return BadRequest(ResponseDTO.BadRequest(message: ex.InnerException.Message));
+				}
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+		}
+
+		#endregion Dashboard
 	}
 }

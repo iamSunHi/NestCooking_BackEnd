@@ -33,7 +33,8 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		[ResponseCache(Duration = 30)]
 		public async Task<IActionResult> GetRecipeByIdAsync([FromRoute] string id)
 		{
-			var recipe = await _recipeService.GetRecipeByIdAsync(id);
+			var userId = GetUserIdFromContext(HttpContext);
+			var recipe = await _recipeService.GetRecipeByIdAsync(id, userId);
 			if (recipe == null)
 			{
 				return BadRequest(ResponseDTO.BadRequest(message: $"Recipe with id {id} not found."));

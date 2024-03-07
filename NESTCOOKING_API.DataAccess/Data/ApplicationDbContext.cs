@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NESTCOOKING_API.DataAccess.Models;
+using NESTCOOKING_API.DataAccess.Models.Admin;
 
 namespace NESTCOOKING_API.DataAccess.Data
 {
@@ -43,6 +44,16 @@ namespace NESTCOOKING_API.DataAccess.Data
 
 		public DbSet<Booking> Bookings { get; set; }
 		public DbSet<BookingLine> BookingLines { get; set; }
+
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
+		{
+			base.OnModelCreating(modelBuilder);
+		// Admin Statistic
+		public DbSet<BookingStatistic> BookingStatistics { get; set; }
+		public DbSet<ChefStatistic> ChefStatistics { get; set; }
+		public DbSet<RevenueStatistic> RevenueStatistics { get; set; }
+		public DbSet<ViolationStatistic> ViolationStatistics { get; set; }
+		public DbSet<UserStatistic> UserStatistics { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -160,6 +171,27 @@ namespace NESTCOOKING_API.DataAccess.Data
 				.WithMany(b => b.BookingLines)
 				.HasForeignKey(bl => bl.BookingId);
 
+
+			modelBuilder.Entity<UserStatistic>().HasData(new UserStatistic()
+			{
+				Date = new DateOnly(2024, 3, 6)
+			});
+			modelBuilder.Entity<ChefStatistic>().HasData(new ChefStatistic()
+			{
+				Date = new DateOnly(2024, 3, 6)
+			});
+			modelBuilder.Entity<BookingStatistic>().HasData(new BookingStatistic()
+			{
+				Date = new DateOnly(2024, 3, 6)
+			});
+			modelBuilder.Entity<RevenueStatistic>().HasData(new RevenueStatistic()
+			{
+				Date = new DateOnly(2024, 3, 6)
+			});
+			modelBuilder.Entity<ViolationStatistic>().HasData(new ViolationStatistic()
+			{
+				Date = new DateOnly(2024, 3, 6)
+			});
 		}
 	}
 }

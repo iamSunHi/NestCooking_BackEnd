@@ -294,7 +294,7 @@ namespace NESTCOOKING_API.Business.Services
         {
 
             string firstNameKey = provider == ProviderLogin.FACEBOOK ? "first_name" : "given_name";
-            string lastNameKey = provider == ProviderLogin.FACEBOOK ? "last_name" : "name";
+            string lastNameKey = provider == ProviderLogin.FACEBOOK ? "last_name" : "family_name";
             string pictureKey = provider == ProviderLogin.FACEBOOK ? "picture.data.url" : "picture";
 
             var pictureUrl = principal.SelectToken(pictureKey).ToString();

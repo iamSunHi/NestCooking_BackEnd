@@ -3,6 +3,7 @@ using Azure;
 using CloudinaryDotNet;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 using NESTCOOKING_API.Business.DTOs.AdminDTOs;
 using NESTCOOKING_API.Business.DTOs.TransactionDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
@@ -27,7 +28,7 @@ namespace NESTCOOKING_API.Business.Services
             _transactionRepository = transactionRepository;
             _mapper = mapper;
         }
-        public async Task<string> CreateTransaction(TransactionInfor transactionInfor, string userId, bool isSuccess, string payMent)
+        public async Task<string> CreateTransaction(TransactionInfor transactionInfor, string userId, string payMent)
         {
             try
             {
@@ -40,8 +41,8 @@ namespace NESTCOOKING_API.Business.Services
                     Description = transactionInfor.OrderDescription,
                     Currency = StaticDetails.Currency_VND,
                     Payment = payMent,
-                    IsSuccess = isSuccess,
-                    CreatedAt = DateTime.Now
+                    IsSuccess = false,
+                    CreatedAt = DateTime.UtcNow
                 };
                 await _transactionRepository.CreateAsync(transaction);
                 return transaction.Id;
@@ -77,7 +78,8 @@ namespace NESTCOOKING_API.Business.Services
             {
                 var transactionList = await _transactionRepository.GetAllAsync(includeProperties: "User");
                 return _mapper.Map<List<TransactionDTO>>(transactionList);
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
@@ -87,9 +89,34 @@ namespace NESTCOOKING_API.Business.Services
         {
             try
             {
-                var transaction = _transactionRepository.UpdateTransactionSuccessAsync(transactionId, isSuccess);
-                
-            }catch(Exception ex)
+                var trannsactioncheck = await _transactionRepository.GetAsync(t => t.Id == transactionId);
+                if (trannsactioncheck.IsSuccess == true)
+                {
+                    throw new Exception("Duplicated transaction");
+                }
+                else
+                {
+                    var transaction = _transactionRepository.UpdateTransactionSuccessAsync(transactionId, isSuccess);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<string> GetTransactionTypeByIdAsync(string transactionId)
+        {
+            try
+            {
+                var transaction = await _transactionRepository.GetAsync(r => r.Id == transactionId);
+                if (transaction == null)
+                {
+                    throw new Exception("Not found Transaction");
+                }
+                return transaction.Type;
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
