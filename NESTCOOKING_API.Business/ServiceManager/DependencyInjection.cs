@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using NESTCOOKING_API.Business.Authorization;
+using NESTCOOKING_API.Business.BackgroundServices;
 using NESTCOOKING_API.Business.DTOs.EmailDTOs;
 using NESTCOOKING_API.Business.Libraries;
 using NESTCOOKING_API.Business.Mapping;
@@ -52,6 +53,14 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<ITransactionRepository, TransactionRepository>();
             service.AddScoped<INotificationRepository, NotificationRepository>();
 
+            // For admin statistic
+            service.AddSingleton<IStatisticRepository, StatisticRepository>();
+            service.AddScoped<IBookingStatisticRepository, BookingStatisticRepository>();
+            service.AddScoped<IChefStatisticRepository, ChefStatisticRepository>();
+            service.AddScoped<IViolationStatisticRepository, ViolationStatisticRepository>();
+            service.AddScoped<IUserStatisticRepository, UserStatisticRepository>();
+            service.AddScoped<IRevenueStatisticRepository, RevenueStatisticRepository>();
+
 			#endregion Repositories
 
 			#region Services
@@ -76,6 +85,10 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<VnPayLibrary>();
             service.AddScoped<ITransactionService, TransactionService>();
             service.AddScoped<INotificationService, NotificationService>();
+
+			// For admin statistic
+            service.AddHostedService<StatisticBackgroundService>();
+            service.AddScoped<IStatisticService, StatisticService>();
 
 			#endregion Services
 
