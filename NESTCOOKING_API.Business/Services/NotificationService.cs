@@ -54,7 +54,7 @@ namespace NESTCOOKING_API.Business.Services
 		{
 			var receiver = await _userRepository.GetAsync(u => u.Id == receiverId);
 			var notificationListFromDb = (await _notificationRepository
-				.GetAllAsync(n => (n.ReceiverId == receiverId || n.SenderId == null) && n.CreatedAt >= receiver.CreatedAt))
+				.GetAllAsync(n => (n.ReceiverId == receiverId || n.ReceiverId == null) && n.CreatedAt >= receiver.CreatedAt))
 				.ToList();
 
 			if (!notificationListFromDb.Any())
@@ -224,6 +224,21 @@ namespace NESTCOOKING_API.Business.Services
 			}
 
 			return true;
+		}
+
+		public async Task UpdateNotificationStatusByIdAsync(string notificationId, string receiverId)
+		{
+			await _notificationRepository.UpdateNotificationStatusAsync(notificationId, receiverId);
+		}
+
+		public async Task UpdateAllNotificationStatusAsync(string receiverId)
+		{
+			var unseenNotificationListFromDb = await _notificationRepository.GetAllAsync(n => n.ReceiverId == receiverId);
+
+			foreach (var notification in unseenNotificationListFromDb)
+			{
+				await _notificationRepository.UpdateNotificationStatusAsync(notification.Id, receiverId);
+			}
 		}
 	}
 }
