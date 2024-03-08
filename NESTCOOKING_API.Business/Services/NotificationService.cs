@@ -54,7 +54,7 @@ namespace NESTCOOKING_API.Business.Services
 		{
 			var receiver = await _userRepository.GetAsync(u => u.Id == receiverId);
 			var notificationListFromDb = (await _notificationRepository
-				.GetAllAsync(n => (n.ReceiverId == receiverId || n.SenderId == null) && n.CreatedAt >= receiver.CreatedAt))
+				.GetAllAsync(n => (n.ReceiverId == receiverId || n.ReceiverId == null) && n.CreatedAt >= receiver.CreatedAt))
 				.ToList();
 
 			if (!notificationListFromDb.Any())
