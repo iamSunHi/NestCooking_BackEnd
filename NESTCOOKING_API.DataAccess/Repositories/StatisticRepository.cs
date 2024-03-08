@@ -33,8 +33,9 @@ namespace NESTCOOKING_API.DataAccess.Repositories
                 var totalUser = _context.Users.Count();
                 await _context.UserStatistics.AddAsync(new() { Date = currentDate, TotalOfUser = totalUser });
 
-                var roleChefId = (await _context.Roles.FirstAsync(r => r.Name == StaticDetails.Role_Chef)).Id;
-                var totalChef = _context.Users.Select(u => u.RoleId == roleChefId).Count();
+                var roleChef = await _context.Roles.FirstAsync(r => r.Name == StaticDetails.Role_Chef);
+                string? roleChefId = roleChef?.Id;
+                var totalChef = string.IsNullOrEmpty(roleChefId) ? 0 : _context.Users.Select(u => u.RoleId == roleChefId).Count();
                 await _context.ChefStatistics.AddAsync(new() { Date = currentDate, TotalOfChef = totalChef });
 
                 await _context.SaveChangesAsync();
