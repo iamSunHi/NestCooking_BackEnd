@@ -75,24 +75,33 @@ namespace NESTCOOKING_API.Business.Services
 			{
 				case StaticDetails.ReportType_RECIPE:
 					{
-						var recipe = await _recipeRepository.GetAsync(r => r.Id == report.TargetId);
-						violentUserId = recipe.UserId;
-						await _recipeService.DeleteRecipeAsync(violentUserId, recipe.Id);
+						if (report.Status == StaticDetails.ActionStatus_ACCEPTED)
+						{
+                            var recipe = await _recipeRepository.GetAsync(r => r.Id == report.TargetId);
+                            violentUserId = recipe.UserId;
+                            await _recipeService.DeleteRecipeAsync(violentUserId, recipe.Id);
+                        }
 						break;
 					}
 				case StaticDetails.ReportType_USER:
 					{
-						var user = await _userRepository.GetAsync(u => u.Id == report.TargetId);
-						violentUserId = user.Id;
-						await _userManager.SetLockoutEnabledAsync(user, true);
-						await _userManager.SetLockoutEndDateAsync(user, DateTime.UtcNow.AddDays(30));
+						if (report.Status == StaticDetails.ActionStatus_ACCEPTED)
+						{
+                            var user = await _userRepository.GetAsync(u => u.Id == report.TargetId);
+                            violentUserId = user.Id;
+                            await _userManager.SetLockoutEnabledAsync(user, true);
+                            await _userManager.SetLockoutEndDateAsync(user, DateTime.UtcNow.AddDays(30));
+                        }
 						break;
 					}
 				case StaticDetails.ReportType_COMMENT:
 					{
-						var comment = await _commentRepository.GetAsync(c => c.CommentId == report.TargetId);
-						violentUserId = comment.UserId;
-						await _commentService.DeleteComment(violentUserId, report.TargetId);
+						if (report.Status == StaticDetails.ActionStatus_ACCEPTED)
+						{
+                            var comment = await _commentRepository.GetAsync(c => c.CommentId == report.TargetId);
+                            violentUserId = comment.UserId;
+                            await _commentService.DeleteComment(violentUserId, report.TargetId);
+                        }
 						break;
 					}
 			}
