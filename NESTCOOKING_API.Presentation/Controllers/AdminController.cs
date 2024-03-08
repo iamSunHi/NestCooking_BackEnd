@@ -21,14 +21,16 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		private readonly IReportService _reportService;
 		private readonly ITransactionService _transactionService;
 		private readonly INotificationService _notificationService;
+		private readonly IStatisticService _statisticService;
 
-		public AdminController(ICategoryService categoryService, IResponseService responseService, IReportService reportService, ITransactionService transactionService, INotificationService notificationService)
+		public AdminController(IStatisticService statisticService, ICategoryService categoryService, IResponseService responseService, IReportService reportService, ITransactionService transactionService, INotificationService notificationService)
 		{
 			_categoryService = categoryService;
 			_responseService = responseService;
 			_reportService = reportService;
 			_transactionService = transactionService;
 			_notificationService = notificationService;
+			_statisticService = statisticService;
 		}
 
 		#region Category
@@ -291,5 +293,25 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		#endregion Notification
+
+		[HttpGet("statistics")]
+		public async Task<IActionResult> GetAllStatisticsAsync()
+		{
+			try
+			{
+				var result = await _statisticService.GetAllStatisticsAsync();
+				return Ok(ResponseDTO.Accept(result: result));
+			}
+			catch (Exception ex)
+			{
+				if (ex.InnerException != null)
+				{
+					return BadRequest(ResponseDTO.BadRequest(message: ex.InnerException.Message));
+				}
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+		}
 	}
+
+
 }
