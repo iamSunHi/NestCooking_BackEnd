@@ -16,11 +16,12 @@ namespace NESTCOOKING_API.Business.Services
 		private readonly IRecipeRepository _recipeRepository;
 		private readonly ICommentRepository _commentRepository;
 		private readonly IReportRepository _reportRepository;
+		private readonly IRoleRepository _roleRepository;
 		private readonly IMapper _mapper;
 
 		public NotificationService(INotificationRepository notificationRepository, IUserRepository userRepository,
 			IRecipeRepository recipeRepository, ICommentRepository commentRepository, IReportRepository reportRepository,
-			IMapper mapper)
+			IMapper mapper, IRoleRepository roleRepository)
 		{
 			_notificationRepository = notificationRepository;
 			_userRepository = userRepository;
@@ -28,6 +29,7 @@ namespace NESTCOOKING_API.Business.Services
 			_commentRepository = commentRepository;
 			_reportRepository = reportRepository;
 			_mapper = mapper;
+			_roleRepository = roleRepository;
 		}
 
 		public async Task<(int, int, IEnumerable<NotificationReadDTO>)> GetAllNotificationsWithPaginationAsync(PaginationInfoDTO paginationInfo)
@@ -106,6 +108,8 @@ namespace NESTCOOKING_API.Business.Services
 
 						var sender = await _userRepository.GetAsync(u => u.Id == notificationToDb.SenderId);
 						notificationToDb.Content = sender.FirstName + " " + sender.LastName + AppString.NotificationReaction + notificationCreateDTO.TargetType + ".";
+						await _notificationRepository.CreateAsync(notificationToDb);
+
 						break;
 					}
 				case StaticDetails.NotificationType_COMMENT:
@@ -125,6 +129,8 @@ namespace NESTCOOKING_API.Business.Services
 						{
 							notificationToDb.Content = sender.FirstName + " " + sender.LastName + AppString.NotificationCommentReply;
 						}
+						await _notificationRepository.CreateAsync(notificationToDb);
+
 						break;
 					}
 				case StaticDetails.NotificationType_RESPONSE:
@@ -168,12 +174,33 @@ namespace NESTCOOKING_API.Business.Services
 							notificationToDb.ReceiverId = target.UserId;
 							notificationToDb.Content = AppString.NotificationRejectReport;
 						}
+						await _notificationRepository.CreateAsync(notificationToDb);
+
+						break;
+					}
+				case StaticDetails.NotificationType_ANNOUNCEMENT:
+					{
+						var roleAdmin = await _roleRepository.GetRoleIdByNameAsync(StaticDetails.Role_Admin);
+						var listAdmin = await _userRepository.GetAllAsync(u => u.RoleId == roleAdmin);
+						var listAllUserInSystem = await _userRepository.GetAllAsync();
+
+						foreach (var user in listAllUserInSystem)
+						{
+							if (user.RoleId == roleAdmin)
+							{
+								continue;
+							}
+							notificationToDb.Id = Guid.NewGuid().ToString();
+							notificationToDb.ReceiverId = user.Id;
+							notificationToDb.Content = notificationCreateDTO.Content;
+							await _notificationRepository.CreateAsync(notificationToDb);
+						}
 						break;
 					}
 			}
 
-			await _notificationRepository.CreateAsync(notificationToDb);
 		}
+
 
 		public async Task RemoveNotificationAsync(string notificationId)
 		{
@@ -185,6 +212,18 @@ namespace NESTCOOKING_API.Business.Services
 			}
 
 			await _notificationRepository.RemoveAsync(notificationFromDb);
+		}
+
+		public async Task<bool> SeenAllUserNotificationsAsync(string userId)
+		{
+			var listUserNotification = await _notificationRepository.GetAllAsync(n => n.ReceiverId == userId);
+			foreach (var notification in listUserNotification)
+			{
+				notification.IsSeen = true;
+				await _notificationRepository.UpdateAsync(notification);
+			}
+
+			return true;
 		}
 
 		public async Task UpdateNotificationStatusByIdAsync(string notificationId, string receiverId)

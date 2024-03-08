@@ -34,6 +34,22 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			}
 		}
 
+		[HttpGet("seenAll")]
+		[Authorize]
+		public async Task<IActionResult> SeenAllUserNotificationsAsync()
+		{
+			try
+			{
+				var userId = AuthenticationHelper.GetUserIdFromContext(HttpContext);
+				await _notificationService.SeenAllUserNotificationsAsync(userId);
+				return Ok(ResponseDTO.Accept("Success"));
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+		}
+
 		[HttpPatch]
 		public async Task<IActionResult> UpdateNotificationByReceiverIdAsync(NotificationUpdateDTO notificationUpdateDTO)
 		{
