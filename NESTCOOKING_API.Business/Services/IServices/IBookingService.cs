@@ -11,5 +11,8 @@ namespace NESTCOOKING_API.Business.Services.IServices
     public interface IBookingService
     {
         Task<RequestBookingDTO> CreateBooking(string userId, CreateBookingDTO createBooking);
+        Task<RequestBookingDTO> UpdateBookingStatus(string userId,BookingStatusDTO status);
+        Task<IEnumerable<RequestBookingDTO>> GetAllBookings();
+        Task<RequestBookingDTO> GetBooking(string bookingId);
     }
 }

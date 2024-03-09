@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace NESTCOOKING_API.Business.DTOs.BookingDTOs
 {
-    public class ChefApprovalProcessDTO
+    public class BookingStatusDTO
     {
         public string Id { get; set; } = null!;
-        public string Status { get; set; }
+        public string Status { get; set; } = null!;
     }
 }

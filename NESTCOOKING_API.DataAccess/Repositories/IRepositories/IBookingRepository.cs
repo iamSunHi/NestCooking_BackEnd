@@ -10,6 +10,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories.IRepositories
     public interface IBookingRepository : IRepository<Booking> 
     {
         Task<IEnumerable<Booking>> GetBookingsByChefId(string chefId);
-       
+        Task<User> GetChefByBookingId(string id);
+        Task<Booking> UpdateBookingStatus(Booking status);
     }
 }

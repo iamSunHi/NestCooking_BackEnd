@@ -1,13 +1,18 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.Identity.Client;
 using NESTCOOKING_API.Business.DTOs.BookingDTOs;
+using NESTCOOKING_API.Business.DTOs.CommentDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
+using NESTCOOKING_API.DataAccess.Repositories;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using NESTCOOKING_API.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,14 +23,15 @@ namespace NESTCOOKING_API.Business.Services
         private readonly IBookingRepository _bookingRepository;
         private readonly IBookingLineRepository _bookingLineRepository;
         private readonly UserManager<User> _userManager;
+        private readonly IRoleRepository _roleRepository;
         private readonly IMapper _mapper;
-        public BookingService(IBookingRepository bookingRepository, UserManager<User> userManager, IMapper mapper, IBookingLineRepository lineRepository)
+        public BookingService(IBookingRepository bookingRepository, UserManager<User> userManager, IMapper mapper, IBookingLineRepository bookingLineRepository,IRoleRepository roleRepository)
         {
             _bookingRepository = bookingRepository;
             _userManager = userManager;
             _mapper = mapper;
-            _bookingLineRepository = lineRepository;
-
+            _bookingLineRepository =  bookingLineRepository;
+            _roleRepository = roleRepository;
         }
         public async Task<RequestBookingDTO> CreateBooking(string userId, CreateBookingDTO createBooking)
         {
@@ -55,6 +61,8 @@ namespace NESTCOOKING_API.Business.Services
                 requestBooking.UserId = userId;
                 var newBooking = _bookingRepository.CreateAsync(requestBooking);
 
+                //  minus the total booking amount
+                existedUser.Balance -= createBooking.Total;
                 // Add Recipe Infomation Into BookingLine
 
                 foreach (var dish in createBooking.InfomationDishes)
@@ -91,6 +99,92 @@ namespace NESTCOOKING_API.Business.Services
                 throw new Exception(ex.Message, ex);
             }
         }
+
+        public async Task<IEnumerable<RequestBookingDTO>> GetAllBookings()
+        {
+            var result = _mapper.Map<IEnumerable<RequestBookingDTO>>(await _bookingRepository.GetAllAsync());
+            return result;
+        }
+
+        public async Task<RequestBookingDTO> GetBooking(string bookingId)
+        {
+          var result = _mapper.Map<RequestBookingDTO>(await _bookingRepository.GetAsync(b => b.Id == bookingId));
+            return result;
+        }
+
+        public async Task<RequestBookingDTO> UpdateBookingStatus(string userId, BookingStatusDTO status)
+        {
+            try
+            {
+                var existUser = await _userManager.FindByIdAsync(userId);
+                var existBooking = await _bookingRepository.GetAsync(b => b.Id == status.Id);
+
+                if (existUser == null)
+                {
+                    throw new Exception("User not found");
+                }
+
+                if (existBooking == null)
+                {
+                    throw new Exception("Booking request not found");
+                }
+
+                if (status.Status != StaticDetails.ActionStatus_ACCEPTED && status.Status != StaticDetails.ActionStatus_REJECTED)
+                {
+                    throw new Exception("Invalid status type");
+                }
+
+                if (existUser != null && await _roleRepository.GetRoleNameByIdAsync(userId) == "chef")
+                {
+                    // Allow chef to approve or reject
+                    ProcessBookingStatus(existBooking, status);
+
+                }
+                else
+                {
+                    // Allow user to approve, reject, or complete
+                    if (status.Status == StaticDetails.ActionStatus_COMPLETED || status.Status == StaticDetails.ActionStatus_REJECTED)
+                    {
+                        if (status.Status == StaticDetails.ActionStatus_COMPLETED)
+                        {
+                            var adminRoleId = await _roleRepository.GetRoleIdByNameAsync("admin");
+                            var admin = await _userManager.FindByIdAsync(adminRoleId);
+                            var chef = await _bookingRepository.GetChefByBookingId(existBooking.Id);
+
+                            if (admin == null || chef == null)
+                            {
+                                throw new Exception("Admin or chef not found");
+                            }
+                            // add 10% of the total booking amount to admin's wallet
+                            admin.Balance += existBooking.Total * 0.1;
+                            // add 90% of the total booking amount to chef's wallet
+                            chef.Balance += existBooking.Total * 0.9;
+                            ProcessBookingStatus(existBooking, status);
+                        }
+                        if(status.Status == StaticDetails.ActionStatus_REJECTED)
+                        {
+                            // Rejected will minus 20% of total of booking
+                            existUser.Balance += existBooking.Total * 0.8;
+                            ProcessBookingStatus(existBooking, status);
+                        }
+
+                    }
+                }
+                return _mapper.Map<RequestBookingDTO>(existBooking);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error updating booking status: {ex.Message}");
+            }
+        }
+        private async void ProcessBookingStatus(Booking existBooking, BookingStatusDTO status)
+        {
+            existBooking.ApprovalStatusDate = DateTime.Now;
+            existBooking.Status = status.Status;
+            await _bookingRepository.UpdateBookingStatus(existBooking);
+        }
+       
+
         private void ValidateBookingTime(CreateBookingDTO createBooking, IEnumerable<Booking> lastBookings)
         {
             if (lastBookings != null && lastBookings.Any())

@@ -16,12 +16,28 @@ namespace NESTCOOKING_API.DataAccess.Repositories
         {
         }
 
-        public async Task<IEnumerable<Booking>> GetBookingByChefId(string chefId)
+        public async Task<IEnumerable<Booking>> GetBookingsByChefId(string chefId)
         {
             var bookings = await _context.Bookings
-                .Where(b => b.ChefId == chefId) .ToListAsync();
+                .Where(b => b.ChefId == chefId).ToListAsync();
             return bookings;
 
+        }
+
+        public async Task<User> GetChefByBookingId(string id)
+        {
+            var findChef = await _context.Bookings
+                 .Where(b => b.Id == id)
+                 .Select(b => b.User) 
+                 .FirstOrDefaultAsync();
+            return findChef;
+        }
+
+        public async Task<Booking> UpdateBookingStatus(Booking status)
+        {
+            _context.Bookings.Update(status);
+            _context.SaveChanges();
+            return status;
         }
     }
 }

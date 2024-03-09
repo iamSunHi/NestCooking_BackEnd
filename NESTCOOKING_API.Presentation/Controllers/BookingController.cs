@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.BookingDTOs;
+using NESTCOOKING_API.Business.Services;
 using NESTCOOKING_API.Business.Services.IServices;
 using System.Security.Claims;
 
 namespace NESTCOOKING_API.Presentation.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/bookings")]
     [ApiController]
     [Authorize]
     public class BookingController : ControllerBase
@@ -34,6 +35,60 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
             }
         }
+        [HttpPut("approvalStatus/{bookingId}")]
+        public async Task<IActionResult> UpdateBookingStatus(string bookingId, [FromBody] BookingStatusDTO bookingStatusDTO)
+        {
+            try
+            {
+                var userId = GetUserIdFromContext(HttpContext);
+
+                if (bookingId != bookingStatusDTO.Id)
+                {
+                    return BadRequest(ResponseDTO.BadRequest(message: "Mismatched bookingId in the route and DTO."));
+                }
+                var result = await _bookingService.UpdateBookingStatus(userId, bookingStatusDTO);
+                if (result != null)
+                {
+                    return Ok(ResponseDTO.Accept(result: result));
+                }
+                else
+                {
+                    return BadRequest(ResponseDTO.BadRequest(message: "Failed to update booking status."));
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it accordingly
+                return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetAllBooking()
+        {
+            try
+            {
+                var result = await _bookingService.GetAllBookings();
+                return Ok(ResponseDTO.Accept(result: result));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ResponseDTO.BadRequest(ex.Message));
+            }
+        }
+        [HttpGet("{bookingId}")]
+        public async Task<IActionResult> GetBooking(string bookingId)
+        {
+            try
+            {
+                var result = await _bookingService.GetBooking(bookingId);
+                return Ok(ResponseDTO.Accept(result: result));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ResponseDTO.BadRequest(ex.Message));
+            }
+        }
+
         [HttpGet("recipes/approvedBooking")]
         public async Task<IActionResult> GetAllRecipesApprovedBooking()
         {

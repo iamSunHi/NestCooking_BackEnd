@@ -54,7 +54,9 @@
 
 		public static string RequestBecomeChefNotFound = "Request Become Chef Not Found!";
 		public static string UpdateRequestBecomeChefSuccessMessage = "Change Infomation Request Successfully.";
-		public static string InvalidId = "Invalid format for requestId!";
+        public static string InValidStatusType = "Invalid status. Only Accepted or Rejected is allowed.";
+        public static string ApprovalRequestBecomeChefSuccessMessage = "Approval Request Successfully";
+        public static string InvalidId = "Invalid format for requestId!";
 		public static string DeleteRequestSuccessMessage = "Delete request become a chef successfully.";
 		public static string CreateRequestSuccessMessage = "Create request become a chef successfully.";
 		public static string RequestNotFoundMessage = "Request Become Chef not found!";
