@@ -22,5 +22,6 @@ namespace NESTCOOKING_API.DataAccess.Models
 		public double? BookingPrice { get; set; }
 
 		public ICollection<Comment> Comments { get; set; }
-	}
+        public ICollection<BookingLine> BookingLines { get; set; }
+    }
 }

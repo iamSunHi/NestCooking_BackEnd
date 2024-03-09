@@ -53,7 +53,8 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<ITransactionRepository, TransactionRepository>();
             service.AddScoped<INotificationRepository, NotificationRepository>();
             service.AddScoped<IPurchasedRecipesRepository, PurchasedRecipesRepository>();
-
+            service.AddScoped<IBookingLineRepository, BookingLineRepository>();
+            service.AddScoped<IBookingRepository, BookingRepository>();
 
             // For admin statistic
             service.AddSingleton<IStatisticRepository, StatisticRepository>();
@@ -88,7 +89,8 @@ namespace NESTCOOKING_API.Business.ServiceManager
             service.AddScoped<ITransactionService, TransactionService>();
             service.AddScoped<INotificationService, NotificationService>();
             service.AddScoped<IPurchasedRecipesService, PurchasedRecipesService>();
-
+            service.AddScoped<IBookingService, BookingService>();
+            service.AddScoped<IBookingLineService, BookingLineService>();
 			// For admin statistic
             service.AddHostedService<StatisticBackgroundService>();
             service.AddScoped<IStatisticService, StatisticService>();

@@ -462,5 +462,27 @@ namespace NESTCOOKING_API.Business.Services
 			recipeFromDb = await _recipeRepository.GetAsync(i => i.Id == recipeForBookingDTO.Id);
 			return _mapper.Map<RecipeForBookingDTO>(recipeFromDb);
 		}
-	}
+
+        public async Task<IEnumerable<RecipeForBookingDTO>> GetAllRecipesApprovedForBooking()
+        {
+            var recipesApprovedBooking = await _recipeRepository.GetAllAsync(recipe => recipe.IsAvailableForBooking);
+			return _mapper.Map<IEnumerable<RecipeForBookingDTO>>(recipesApprovedBooking);
+        }
+
+
+
+        //public async Task<IEnumerable<RecipeDTO>> GetAllFavoriteRecipeAsync(string userId)
+        //{
+        //    var favoriteRecipesFromDb = await _favoriteRecipeRepository.GetAllAsync(fr => fr.UserId == userId, includeProperties: "Recipe");
+        //    var recipeList = new List<RecipeDTO>();
+        //    foreach (var favoriteRecipe in favoriteRecipesFromDb)
+        //    {
+        //        var recipe = _mapper.Map<RecipeDTO>(favoriteRecipe.Recipe);
+        //        var userFromDb = await _userRepository.GetAsync(u => u.Id == favoriteRecipe.Recipe.UserId);
+        //        recipe.User = _mapper.Map<UserShortInfoDTO>(userFromDb);
+        //        recipeList.Add(recipe);
+        //    }
+        //    return recipeList;
+        //}
+    }
 }
