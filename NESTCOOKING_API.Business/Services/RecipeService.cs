@@ -8,6 +8,7 @@ using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using NESTCOOKING_API.Utility;
+using System.Collections;
 
 namespace NESTCOOKING_API.Business.Services
 {
@@ -463,10 +464,11 @@ namespace NESTCOOKING_API.Business.Services
 			return _mapper.Map<RecipeForBookingDTO>(recipeFromDb);
 		}
 
-        public async Task<IEnumerable<RecipeForBookingDTO>> GetAllRecipesApprovedForBooking()
+        public async Task<IEnumerable<RecipeForBookingDTO>> GetChefApprovedRecipesForBooking(string chefId)
         {
             var recipesApprovedBooking = await _recipeRepository.GetAllAsync(recipe => recipe.IsAvailableForBooking);
-			return _mapper.Map<IEnumerable<RecipeForBookingDTO>>(recipesApprovedBooking);
+            var recipesForBookOfChef = recipesApprovedBooking.Where(chef => chef.UserId == chefId);
+			return _mapper.Map<IEnumerable<RecipeForBookingDTO>>(recipesForBookOfChef);
         }
 
 

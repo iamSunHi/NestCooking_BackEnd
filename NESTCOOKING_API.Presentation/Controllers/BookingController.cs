@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NESTCOOKING_API.Business.Authentication;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.BookingDTOs;
 using NESTCOOKING_API.Business.Services;
@@ -26,7 +27,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
         {
             try
             {
-                var userId = GetUserIdFromContext(HttpContext);
+                var userId = AuthenticationHelper.GetUserIdFromContext(HttpContext);
                 var result = await _bookingService.CreateBooking(userId, createBookingDTO);
                 return Ok(ResponseDTO.Accept(result: result));
             }
@@ -35,13 +36,12 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
             }
         }
-        [HttpPut("approvalStatus/{bookingId}")]
+        [HttpPut("status/{bookingId}")]
         public async Task<IActionResult> UpdateBookingStatus(string bookingId, [FromBody] BookingStatusDTO bookingStatusDTO)
         {
             try
             {
-                var userId = GetUserIdFromContext(HttpContext);
-
+                var userId = AuthenticationHelper.GetUserIdFromContext(HttpContext);
                 if (bookingId != bookingStatusDTO.Id)
                 {
                     return BadRequest(ResponseDTO.BadRequest(message: "Mismatched bookingId in the route and DTO."));
@@ -58,7 +58,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception or handle it accordingly
                 return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
             }
         }
@@ -89,12 +88,12 @@ namespace NESTCOOKING_API.Presentation.Controllers
             }
         }
 
-        [HttpGet("recipes/approvedBooking")]
-        public async Task<IActionResult> GetAllRecipesApprovedBooking()
+        [HttpGet("chef/{chefId}/approved-recipes-for-booking")]
+        public async Task<IActionResult> GetMenuRecipesApprovedBookingOfChef(string chefId)
         {
             try
             {
-                var result = await _recipeService.GetAllRecipesApprovedForBooking();
+                var result = await _recipeService.GetChefApprovedRecipesForBooking(chefId);
                 return Ok(ResponseDTO.Accept(result: result));
 
             }
@@ -102,11 +101,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
             {
                 return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
             }
-        }
-
-        private string GetUserIdFromContext(HttpContext context)
-        {
-            return context.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
         }
     }
 }

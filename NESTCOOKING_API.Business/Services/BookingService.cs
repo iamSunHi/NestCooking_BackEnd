@@ -11,6 +11,7 @@ using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using NESTCOOKING_API.Utility;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Net.WebSockets;
 using System.Text;
@@ -25,12 +26,12 @@ namespace NESTCOOKING_API.Business.Services
         private readonly UserManager<User> _userManager;
         private readonly IRoleRepository _roleRepository;
         private readonly IMapper _mapper;
-        public BookingService(IBookingRepository bookingRepository, UserManager<User> userManager, IMapper mapper, IBookingLineRepository bookingLineRepository,IRoleRepository roleRepository)
+        public BookingService(IBookingRepository bookingRepository, UserManager<User> userManager, IMapper mapper, IBookingLineRepository bookingLineRepository, IRoleRepository roleRepository)
         {
             _bookingRepository = bookingRepository;
             _userManager = userManager;
             _mapper = mapper;
-            _bookingLineRepository =  bookingLineRepository;
+            _bookingLineRepository = bookingLineRepository;
             _roleRepository = roleRepository;
         }
         public async Task<RequestBookingDTO> CreateBooking(string userId, CreateBookingDTO createBooking)
@@ -45,6 +46,10 @@ namespace NESTCOOKING_API.Business.Services
                 if (createBooking.TimeEnd <= createBooking.TimeStart || createBooking.TimeStart <= DateTime.UtcNow)
                 {
                     throw new Exception(message: "TimeEnd must be greater than TimeStart");
+                }
+                if(createBooking.TimeEnd <= createBooking.TimeStart.AddHours(1))
+                {
+                    throw new Exception("Please ensure that the time interval between 'Time Start' and 'Time End' is at least 1 hour when booking a chef.");
                 }
                 var lastBooking = await _bookingRepository.GetBookingsByChefId(createBooking.ChefId);
                 ValidateBookingTime(createBooking, lastBooking);
@@ -76,7 +81,6 @@ namespace NESTCOOKING_API.Business.Services
                     await _bookingLineRepository.CreateAsync(bookingLine);
 
                 }
-                //var result = _mapper.Map<RequestBookingDTO>(newBooking); => missing mapping
                 var result = new RequestBookingDTO
                 {
                     Id = requestBooking.Id,
@@ -108,7 +112,7 @@ namespace NESTCOOKING_API.Business.Services
 
         public async Task<RequestBookingDTO> GetBooking(string bookingId)
         {
-          var result = _mapper.Map<RequestBookingDTO>(await _bookingRepository.GetAsync(b => b.Id == bookingId));
+            var result = _mapper.Map<RequestBookingDTO>(await _bookingRepository.GetAsync(b => b.Id == bookingId));
             return result;
         }
 
@@ -137,8 +141,11 @@ namespace NESTCOOKING_API.Business.Services
                 if (existUser != null && await _roleRepository.GetRoleNameByIdAsync(userId) == "chef")
                 {
                     // Allow chef to approve or reject
-                    ProcessBookingStatus(existBooking, status);
-
+                    if (existBooking.Status == StaticDetails.ActionStatus_PENDING)
+                    {
+                        ProcessBookingStatus(existBooking, status);
+                    }
+                    throw new Exception("Chef Only Allow Acept or Reject");
                 }
                 else
                 {
@@ -147,25 +154,48 @@ namespace NESTCOOKING_API.Business.Services
                     {
                         if (status.Status == StaticDetails.ActionStatus_COMPLETED)
                         {
-                            var adminRoleId = await _roleRepository.GetRoleIdByNameAsync("admin");
-                            var admin = await _userManager.FindByIdAsync(adminRoleId);
-                            var chef = await _bookingRepository.GetChefByBookingId(existBooking.Id);
-
-                            if (admin == null || chef == null)
+                            if (existBooking.Status == StaticDetails.ActionStatus_ACCEPTED)
                             {
-                                throw new Exception("Admin or chef not found");
+                                var adminRoleId = await _roleRepository.GetRoleIdByNameAsync("admin");
+                                var admin = await _userManager.FindByIdAsync(adminRoleId);
+                                var chef = await _bookingRepository.GetChefByBookingId(existBooking.Id);
+
+                                if (admin == null || chef == null)
+                                {
+                                    throw new Exception("Admin or chef not found");
+                                }
+                                // add 10% of the total booking amount to admin's wallet
+                                admin.Balance += existBooking.Total * 0.1;
+                                // add 90% of the total booking amount to chef's wallet
+                                chef.Balance += existBooking.Total * 0.9;
+                                ProcessBookingStatus(existBooking, status);
                             }
-                            // add 10% of the total booking amount to admin's wallet
-                            admin.Balance += existBooking.Total * 0.1;
-                            // add 90% of the total booking amount to chef's wallet
-                            chef.Balance += existBooking.Total * 0.9;
-                            ProcessBookingStatus(existBooking, status);
+                            throw new Exception("Unavailable Completed Booking Is Pending Status");
                         }
-                        if(status.Status == StaticDetails.ActionStatus_REJECTED)
+                        if (status.Status == StaticDetails.ActionStatus_REJECTED)
                         {
-                            // Rejected will minus 20% of total of booking
-                            existUser.Balance += existBooking.Total * 0.8;
-                            ProcessBookingStatus(existBooking, status);
+                            if (existBooking.Status == StaticDetails.ActionStatus_PENDING)
+                            {
+                                if (existBooking.CreatedAt <= existBooking.CreatedAt.AddMinutes(20))
+                                {
+                                    // Rejected will minus 20% of total of booking 
+                                    existUser.Balance += existBooking.Total * 0.8;
+                                }
+                                else
+                                {
+                                    existUser.Balance += existBooking.Total;
+                                }
+                                ProcessBookingStatus(existBooking, status);
+                            }
+                            if (existBooking.Status == StaticDetails.ActionStatus_ACCEPTED)
+                            {
+                                if (existBooking.CreatedAt <= existBooking.ApprovalStatusDate.AddDays(1))
+                                {
+                                    // if user reject booking after chef accept 1 day ago , the user will lose 30% of the total booking
+                                    existUser.Balance += existBooking.Total * 0.4;
+                                }
+                            }
+                            throw new Exception("Unable to cancel booking in progress.");
                         }
 
                     }
@@ -183,7 +213,7 @@ namespace NESTCOOKING_API.Business.Services
             existBooking.Status = status.Status;
             await _bookingRepository.UpdateBookingStatus(existBooking);
         }
-       
+
 
         private void ValidateBookingTime(CreateBookingDTO createBooking, IEnumerable<Booking> lastBookings)
         {

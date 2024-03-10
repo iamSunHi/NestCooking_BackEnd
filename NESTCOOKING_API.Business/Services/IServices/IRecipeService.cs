@@ -17,9 +17,8 @@ namespace NESTCOOKING_API.Business.Services.IServices
 		Task<IEnumerable<RecipeDTO>> GetAllFavoriteRecipeAsync(string userId);
 		Task SaveFavoriteRecipeAsync(string userId, string recipeId);
 		Task RemoveFavoriteRecipeAsync(string userId, string recipeId);
-
 		Task<IEnumerable<RecipeForBookingDTO>> GetRecipesForBookingByChefIdAsync(string chefId);
 		Task<RecipeForBookingDTO> UpdateRecipeForBookingAsync(string userId, RecipeForBookingDTO recipeForBookingDTO);
-		Task<IEnumerable<RecipeForBookingDTO>> GetAllRecipesApprovedForBooking();
+		Task<IEnumerable<RecipeForBookingDTO>> GetChefApprovedRecipesForBooking(string chefId);
 	}
 }

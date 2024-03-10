@@ -8,7 +8,8 @@ namespace NESTCOOKING_API.Business.DTOs.BookingDTOs
 {
     public class BookingStatusDTO
     {
-        public string Id { get; set; } = null!;
+       // bookingId
+        public string Id { get; set; } = null!; 
         public string Status { get; set; } = null!;
     }
 }
