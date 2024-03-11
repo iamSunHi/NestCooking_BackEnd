@@ -35,7 +35,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 
                 var roleChef = await _context.Roles.FirstOrDefaultAsync(r => r.Name == StaticDetails.Role_Chef);
                 string? roleChefId = roleChef?.Id;
-                var totalChef = string.IsNullOrEmpty(roleChefId) ? 0 : _context.Users.Select(u => u.RoleId == roleChefId).Count();
+                var totalChef = string.IsNullOrEmpty(roleChefId) ? 0 : _context.Users.Where(u => u.RoleId == roleChefId).Count();
                 await _context.ChefStatistics.AddAsync(new() { Date = currentDate, TotalOfChef = totalChef });
 
                 await _context.SaveChangesAsync();
@@ -60,7 +60,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
             var roleChef = await _context.Roles.FirstOrDefaultAsync(r => r.Name == StaticDetails.Role_Chef);
             string? roleChefId = roleChef?.Id;
             var totalNewChef = string.IsNullOrEmpty(roleChefId) ? 0 : userListFromDb.Where(u => u.RoleId == roleChefId && u.CreatedAt.Date == currentDate.Date).Count();
-            var totalChef = string.IsNullOrEmpty(roleChefId) ? 0 : _context.Users.Select(u => u.RoleId == roleChefId).Count();
+            var totalChef = string.IsNullOrEmpty(roleChefId) ? 0 : _context.Users.Where(u => u.RoleId == roleChefId).Count();
             var currentChefStatistic = await _context.ChefStatistics.FirstAsync(us => us.Date == currentDateOnly);
             currentChefStatistic.NumberOfNewChef = totalNewChef;
             currentChefStatistic.TotalOfChef = totalChef;
