@@ -42,7 +42,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
             try
             {
                 var userId = AuthenticationHelper.GetUserIdFromContext(HttpContext);
-                if (bookingId != bookingStatusDTO.Id)
+                if (bookingId != bookingStatusDTO.BookingId)
                 {
                     return BadRequest(ResponseDTO.BadRequest(message: "Mismatched bookingId in the route and DTO."));
                 }

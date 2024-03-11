@@ -47,7 +47,7 @@ namespace NESTCOOKING_API.Business.Services
                 {
                     throw new Exception(message: "TimeEnd must be greater than TimeStart");
                 }
-                if(createBooking.TimeEnd <= createBooking.TimeStart.AddHours(1))
+                if(createBooking.TimeEnd < createBooking.TimeStart.AddHours(1))
                 {
                     throw new Exception("Please ensure that the time interval between 'Time Start' and 'Time End' is at least 1 hour when booking a chef.");
                 }
@@ -121,7 +121,7 @@ namespace NESTCOOKING_API.Business.Services
             try
             {
                 var existUser = await _userManager.FindByIdAsync(userId);
-                var existBooking = await _bookingRepository.GetAsync(b => b.Id == status.Id);
+                var existBooking = await _bookingRepository.GetAsync(b => b.Id == status.BookingId);
 
                 if (existUser == null)
                 {
