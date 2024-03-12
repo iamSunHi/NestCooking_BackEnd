@@ -167,18 +167,17 @@ namespace NESTCOOKING_API.DataAccess.Data
             {
                 Date = new DateOnly(2024, 3, 6)
             });
+
             modelBuilder.Entity<Booking>(booking =>
             {
-                booking.ToTable("Bookings");
-                booking.HasKey(b => b.Id);
+                booking.HasMany<BookingLine>().WithOne().HasForeignKey(bl => bl.BookingId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
             });
-            modelBuilder.Entity<Booking>()
-                   .HasOne(b => b.Chef)
-                   .WithMany()
-                   .HasForeignKey(b => b.ChefId);
-            modelBuilder.Entity<BookingLine>()
-                 .ToTable("BookingLines")
-                 .HasKey(db => new { db.RecipeId, db.BookingId });
+            modelBuilder.Entity<BookingLine>(bookingLine =>
+            {
+                bookingLine.HasKey(bl => new { bl.RecipeId, bl.BookingId });
+                bookingLine.HasOne<Recipe>().WithMany().HasForeignKey(bl => bl.RecipeId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
+                bookingLine.HasOne<Booking>().WithMany().HasForeignKey(bl => bl.BookingId).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
+            });
         }
     }
 }

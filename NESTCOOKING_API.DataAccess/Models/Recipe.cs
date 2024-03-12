@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace NESTCOOKING_API.DataAccess.Models
 {
@@ -21,7 +22,7 @@ namespace NESTCOOKING_API.DataAccess.Models
 		public bool IsAvailableForBooking { get; set; } = false;
 		public double? BookingPrice { get; set; }
 
-		public ICollection<Comment> Comments { get; set; }
-        public ICollection<BookingLine> BookingLines { get; set; }
+        [JsonIgnore]
+        public ICollection<Comment> Comments { get; set; }
     }
 }

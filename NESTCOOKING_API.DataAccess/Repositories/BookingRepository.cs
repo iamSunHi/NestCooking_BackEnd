@@ -2,11 +2,6 @@
 using NESTCOOKING_API.DataAccess.Data;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NESTCOOKING_API.DataAccess.Repositories
 {
@@ -16,28 +11,28 @@ namespace NESTCOOKING_API.DataAccess.Repositories
         {
         }
 
-        public async Task<IEnumerable<Booking>> GetBookingsByChefId(string chefId)
+        public async Task<Booking> UpdateBookingStatus(Booking entity)
         {
-            var bookings = await _context.Bookings
-                .Where(b => b.ChefId == chefId).ToListAsync();
-            return bookings;
+            var bookingFromDb = await this.GetAsync(b => b.Id == entity.Id);
+            if (bookingFromDb != null)
+            {
+                if (_context.Entry(bookingFromDb).State == EntityState.Detached)
+                {
+                    _context.Attach(bookingFromDb);
+                }
 
-        }
+                bookingFromDb.ApprovalStatusDate = entity.ApprovalStatusDate;
+                bookingFromDb.Status = entity.Status;
+                bookingFromDb.TransactionIdList = entity.TransactionIdList;
 
-        public async Task<User> GetChefByBookingId(string id)
-        {
-            var findChef = await _context.Bookings
-                 .Where(b => b.Id == id)
-                 .Select(b => b.User) 
-                 .FirstOrDefaultAsync();
-            return findChef;
-        }
+                _context.SaveChanges();
 
-        public async Task<Booking> UpdateBookingStatus(Booking status)
-        {
-            _context.Bookings.Update(status);
-            _context.SaveChanges();
-            return status;
+                return bookingFromDb;
+            }
+            else
+            {
+                throw new Exception("Booking does not exist!");
+            }
         }
     }
 }

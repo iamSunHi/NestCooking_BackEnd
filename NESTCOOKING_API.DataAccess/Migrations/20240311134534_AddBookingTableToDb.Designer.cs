@@ -12,8 +12,8 @@ using NESTCOOKING_API.DataAccess.Data;
 namespace NESTCOOKING_API.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240309040355_Add_BookDb")]
-    partial class Add_BookDb
+    [Migration("20240311134534_AddBookingTableToDb")]
+    partial class AddBookingTableToDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -280,16 +280,16 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.Property<string>("ChefId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Note")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("TimeEnd")
@@ -301,7 +301,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.Property<double>("Total")
                         .HasColumnType("float");
 
-                    b.Property<string>("TransactionRef")
+                    b.Property<string>("TransactionIdList")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -311,11 +311,9 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ChefId");
-
                     b.HasIndex("UserId");
 
-                    b.ToTable("Bookings", (string)null);
+                    b.ToTable("Bookings");
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.BookingLine", b =>
@@ -333,7 +331,7 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.HasIndex("BookingId");
 
-                    b.ToTable("BookingLines", (string)null);
+                    b.ToTable("BookingLines");
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Category", b =>
@@ -1113,40 +1111,26 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Booking", b =>
                 {
-                    b.HasOne("NESTCOOKING_API.DataAccess.Models.User", "Chef")
-                        .WithMany()
-                        .HasForeignKey("ChefId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("NESTCOOKING_API.DataAccess.Models.User", "User")
+                    b.HasOne("NESTCOOKING_API.DataAccess.Models.User", null)
                         .WithMany("Bookings")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Chef");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.BookingLine", b =>
                 {
-                    b.HasOne("NESTCOOKING_API.DataAccess.Models.Booking", "Booking")
-                        .WithMany("BookingLines")
+                    b.HasOne("NESTCOOKING_API.DataAccess.Models.Booking", null)
+                        .WithMany()
                         .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("NESTCOOKING_API.DataAccess.Models.Recipe", "Recipe")
-                        .WithMany("BookingLines")
+                    b.HasOne("NESTCOOKING_API.DataAccess.Models.Recipe", null)
+                        .WithMany()
                         .HasForeignKey("RecipeId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-
-                    b.Navigation("Booking");
-
-                    b.Navigation("Recipe");
                 });
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.CategoryRecipe", b =>
@@ -1429,11 +1413,6 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Booking", b =>
-                {
-                    b.Navigation("BookingLines");
-                });
-
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Comment", b =>
                 {
                     b.Navigation("ChildComments");
@@ -1441,8 +1420,6 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
             modelBuilder.Entity("NESTCOOKING_API.DataAccess.Models.Recipe", b =>
                 {
-                    b.Navigation("BookingLines");
-
                     b.Navigation("Comments");
                 });
 

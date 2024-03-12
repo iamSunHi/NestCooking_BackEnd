@@ -1,102 +1,160 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.Identity.Client;
 using NESTCOOKING_API.Business.DTOs.BookingDTOs;
-using NESTCOOKING_API.Business.DTOs.CommentDTOs;
+using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
+using NESTCOOKING_API.Business.DTOs.UserDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
-using NESTCOOKING_API.DataAccess.Repositories;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using NESTCOOKING_API.Utility;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
-using System.Net.WebSockets;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NESTCOOKING_API.Business.Services
 {
     public class BookingService : IBookingService
     {
+        private readonly IMapper _mapper;
+        private readonly UserManager<User> _userManager;
         private readonly IBookingRepository _bookingRepository;
         private readonly IBookingLineRepository _bookingLineRepository;
-        private readonly UserManager<User> _userManager;
+        private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
-        private readonly IMapper _mapper;
-        public BookingService(IBookingRepository bookingRepository, UserManager<User> userManager, IMapper mapper, IBookingLineRepository bookingLineRepository, IRoleRepository roleRepository)
+        private readonly ITransactionRepository _transactionRepository;
+        private readonly IRecipeRepository _recipeRepository;
+
+        public BookingService(IMapper mapper, UserManager<User> userManager,
+            IBookingRepository bookingRepository, IUserRepository userRepository, IBookingLineRepository bookingLineRepository, IRoleRepository roleRepository, ITransactionRepository transactionRepository, IRecipeRepository recipeRepository)
         {
-            _bookingRepository = bookingRepository;
-            _userManager = userManager;
             _mapper = mapper;
+            _userManager = userManager;
+            _bookingRepository = bookingRepository;
             _bookingLineRepository = bookingLineRepository;
+            _userRepository = userRepository;
             _roleRepository = roleRepository;
+            _transactionRepository = transactionRepository;
+            _recipeRepository = recipeRepository;
         }
-        public async Task<RequestBookingDTO> CreateBooking(string userId, CreateBookingDTO createBooking)
+
+        public async Task<IEnumerable<BookingShortInfoDTO>> GetAllBookingsByChefIdAsync(string chefId)
+        {
+            var bookingListFromDb = (await _bookingRepository.GetAllAsync(b => b.ChefId == chefId)).ToList();
+            var result = _mapper.Map<List<BookingShortInfoDTO>>(bookingListFromDb);
+            return result;
+        }
+
+        public async Task<IEnumerable<BookingShortInfoDTO>> GetAllBookingsByUserIdAsync(string userId)
+        {
+            var bookingListFromDb = (await _bookingRepository.GetAllAsync(b => b.UserId == userId)).ToList();
+            var result = _mapper.Map<List<BookingShortInfoDTO>>(bookingListFromDb);
+
+            for (int i = 0; i < bookingListFromDb.Count; i++)
+            {
+                var chef = await _userRepository.GetAsync(u => u.Id == bookingListFromDb[i].ChefId);
+                result[i].Chef = _mapper.Map<UserShortInfoDTO>(chef);
+            }
+
+            return result;
+        }
+
+        public async Task<List<UserShortInfoDTO>> GetAllChefsAsync(string? city = null)
+        {
+            var roleChefId = await _roleRepository.GetRoleIdByNameAsync(StaticDetails.Role_Chef);
+            var chefList = await _userRepository.GetAllAsync(u => u.RoleId == roleChefId);
+            return _mapper.Map<List<UserShortInfoDTO>>(chefList);
+        }
+
+        public async Task<BookingDetailDTO> GetBookingByIdAsync(string bookingId)
+        {
+            var bookingFromDb = await _bookingRepository.GetAsync(b => b.Id == bookingId);
+            var booking = _mapper.Map<BookingDetailDTO>(bookingFromDb);
+
+            var user = await _userRepository.GetAsync(u => u.Id == bookingFromDb.UserId);
+            booking.User = _mapper.Map<UserShortInfoDTO>(user);
+            var chef = await _userRepository.GetAsync(u => u.Id == bookingFromDb.ChefId);
+            booking.Chef = _mapper.Map<UserShortInfoDTO>(chef);
+
+            var bookingLines = await _bookingLineRepository.GetAllAsync(bl => bl.BookingId == booking.Id);
+            foreach (var bookingLine in bookingLines)
+            {
+                var recipeForBooking = await _recipeRepository.GetAsync(r => r.Id == bookingLine.RecipeId);
+                booking.BookingDishes.Add(_mapper.Map<RecipeForBookingDTO>(recipeForBooking));
+            }
+
+            foreach (var transactionId in bookingFromDb.TransactionIdList)
+            {
+                var transactionFromDb = await _transactionRepository.GetAsync(t => t.Id == transactionId, includeProperties: "User");
+                var transaction = _mapper.Map<BookingTransactionDTO>(transactionFromDb);
+                transaction.UserFullName = transactionFromDb.User.FirstName + " " + transactionFromDb.User.LastName;
+                booking.TransactionList.Add(transaction);
+            }
+            return booking;
+        }
+
+        public async Task<BookingDetailDTO> CreateBooking(string userId, CreateBookingDTO createBooking)
         {
             try
             {
-                var existedUser = await _userManager.FindByIdAsync(userId);
-                if (existedUser == null)
-                {
-                    throw new Exception(message: " User Not Found");
-                }
+                //if (DateTime.UtcNow.AddDays(2) >= createBooking.TimeStart)
+                //{
+                //    throw new Exception(message: "Booking must be placed 2 days or more from now.");
+                //}
                 if (createBooking.TimeEnd <= createBooking.TimeStart || createBooking.TimeStart <= DateTime.UtcNow)
                 {
-                    throw new Exception(message: "TimeEnd must be greater than TimeStart");
+                    throw new Exception(message: "'Time End' must be greater than 'Time Start'");
                 }
-                if(createBooking.TimeEnd < createBooking.TimeStart.AddHours(1))
+                if (createBooking.TimeEnd < createBooking.TimeStart.AddHours(1))
                 {
-                    throw new Exception("Please ensure that the time interval between 'Time Start' and 'Time End' is at least 1 hour when booking a chef.");
+                    throw new Exception("Please ensure that the time interval between 'Time Start' and 'Time End' is at least 1 hour.");
                 }
-                var lastBooking = await _bookingRepository.GetBookingsByChefId(createBooking.ChefId);
-                ValidateBookingTime(createBooking, lastBooking);
-                if (existedUser.Balance < createBooking.Total)
+
+                await this.ValidateBookingTime(createBooking);
+
+                var userFromDb = await _userRepository.GetAsync(u => u.Id == userId);
+                if (userFromDb.Balance < createBooking.Total)
                 {
-                    throw new Exception(message: "Insufficient balance to create booking");
+                    throw new Exception(message: "You don't have enough balance to create this booking. You must have 100% of the total booking amount to create this.");
                 }
-                var requestBooking = _mapper.Map<Booking>(createBooking);
-                requestBooking.Id = Guid.NewGuid().ToString();
-                requestBooking.Status = StaticDetails.ActionStatus_PENDING;
-                requestBooking.CreatedAt = DateTime.UtcNow;
-                requestBooking.TransactionRef = "Loading...";
-                requestBooking.ApprovalStatusDate = DateTime.UtcNow;
-                requestBooking.UserId = userId;
-                var newBooking = _bookingRepository.CreateAsync(requestBooking);
 
-                //  minus the total booking amount
-                existedUser.Balance -= createBooking.Total;
-                // Add Recipe Infomation Into BookingLine
+                await _userRepository.IncreaseUserBalanceAsync(userFromDb.Id, -createBooking.Total);
+                var transactionId = await this.CreateTransactionAsync(
+                    userId, StaticDetails.PaymentType_BOOKING,
+                    -createBooking.Total, AppString.PaymentSendDepositForBookingOfUser
+                );
 
-                foreach (var dish in createBooking.InfomationDishes)
+                var newBooking = _mapper.Map<Booking>(createBooking);
+                newBooking.Id = Guid.NewGuid().ToString();
+                newBooking.Status = StaticDetails.ActionStatus_PENDING;
+                newBooking.CreatedAt = DateTime.UtcNow;
+                newBooking.ApprovalStatusDate = DateTime.UtcNow;
+                newBooking.UserId = userId;
+                newBooking.TransactionIdList =
+                [
+                    transactionId
+                ];
+
+                var admin = await _userRepository.GetAsync(u => u.Email == AppString.MailEmail);
+                await _userRepository.IncreaseUserBalanceAsync(admin.Id, createBooking.Total);
+                transactionId = await this.CreateTransactionAsync(
+                    admin.Id, StaticDetails.PaymentType_BOOKING,
+                    createBooking.Total, AppString.PaymentReceiveDepositForBookingOfUser
+                );
+                newBooking.TransactionIdList.Add(transactionId);
+
+                await _bookingRepository.CreateAsync(newBooking);
+
+                // Add Recipes infomation into BookingLine
+                foreach (var dish in createBooking.BookingDishes)
                 {
                     var bookingLine = new BookingLine
                     {
-                        BookingId = requestBooking.Id,
+                        BookingId = newBooking.Id,
                         RecipeId = dish.RecipeId,
                         Quantity = dish.Quantity,
                     };
                     await _bookingLineRepository.CreateAsync(bookingLine);
-
                 }
-                var result = new RequestBookingDTO
-                {
-                    Id = requestBooking.Id,
-                    UserId = userId,
-                    ChefId = createBooking.ChefId,
-                    Status = requestBooking.Status,
-                    Address = createBooking.Address,
-                    TransactionRef = requestBooking.TransactionRef,
-                    Note = createBooking.Note,
-                    CreatedAt = requestBooking.CreatedAt,
-                    TimeStart = createBooking.TimeStart,
-                    TimeEnd = createBooking.TimeEnd,
-                    Total = createBooking.Total,
-                    ApprovalStatusDate = requestBooking.ApprovalStatusDate,
-                };
-                return result;
+
+                var createdBooking = await this.GetBookingByIdAsync(newBooking.Id);
+                return createdBooking;
             }
             catch (Exception ex)
             {
@@ -104,131 +162,279 @@ namespace NESTCOOKING_API.Business.Services
             }
         }
 
-        public async Task<IEnumerable<RequestBookingDTO>> GetAllBookings()
+        public async Task<BookingDetailDTO> UpdateBookingStatus(string userId, BookingStatusDTO bookingStatusDTO)
         {
-            var result = _mapper.Map<IEnumerable<RequestBookingDTO>>(await _bookingRepository.GetAllAsync());
-            return result;
-        }
-
-        public async Task<RequestBookingDTO> GetBooking(string bookingId)
-        {
-            var result = _mapper.Map<RequestBookingDTO>(await _bookingRepository.GetAsync(b => b.Id == bookingId));
-            return result;
-        }
-
-        public async Task<RequestBookingDTO> UpdateBookingStatus(string userId, BookingStatusDTO status)
-        {
-            try
+            var bookingFromDb = await _bookingRepository.GetAsync(b => b.Id == bookingStatusDTO.BookingId);
+            if (bookingFromDb == null)
             {
-                var existUser = await _userManager.FindByIdAsync(userId);
-                var existBooking = await _bookingRepository.GetAsync(b => b.Id == status.BookingId);
+                throw new Exception("Booking not found.");
+            }
 
-                if (existUser == null)
-                {
-                    throw new Exception("User not found");
-                }
+            var user = await _userRepository.GetAsync(u => u.Id == bookingFromDb.UserId);
+            var admin = await _userRepository.GetAsync(u => u.Email == AppString.MailEmail);
+            var chef = await _userRepository.GetAsync(u => u.Id == bookingFromDb.ChefId);
 
-                if (existBooking == null)
-                {
-                    throw new Exception("Booking request not found");
-                }
+            var bookingDepositMoneyOfChef = bookingFromDb.Total * 0.2;
 
-                if (status.Status != StaticDetails.ActionStatus_ACCEPTED && status.Status != StaticDetails.ActionStatus_REJECTED)
-                {
-                    throw new Exception("Invalid status type");
-                }
+            bookingStatusDTO.Status = bookingStatusDTO.Status.ToUpper();
+            if (bookingStatusDTO.Status is not StaticDetails.ActionStatus_ACCEPTED &&
+                bookingStatusDTO.Status is not StaticDetails.ActionStatus_REJECTED &&
+                bookingStatusDTO.Status is not StaticDetails.ActionStatus_COMPLETED &&
+                bookingStatusDTO.Status is not StaticDetails.ActionStatus_CANCELED)
+            {
+                throw new Exception("Invalid status type.");
+            }
 
-                if (existUser != null && await _roleRepository.GetRoleNameByIdAsync(userId) == "chef")
+            if ((await _userRepository.GetRoleAsync(userId)) is StaticDetails.Role_Chef)
+            {
+                if (bookingFromDb.Status == StaticDetails.ActionStatus_PENDING)
                 {
-                    // Allow chef to approve or reject
-                    if (existBooking.Status == StaticDetails.ActionStatus_PENDING)
+                    switch (bookingStatusDTO.Status)
                     {
-                        ProcessBookingStatus(existBooking, status);
-                    }
-                    throw new Exception("Chef Only Allow Acept or Reject");
-                }
-                else
-                {
-                    // Allow user to approve, reject, or complete
-                    if (status.Status == StaticDetails.ActionStatus_COMPLETED || status.Status == StaticDetails.ActionStatus_REJECTED)
-                    {
-                        if (status.Status == StaticDetails.ActionStatus_COMPLETED)
-                        {
-                            if (existBooking.Status == StaticDetails.ActionStatus_ACCEPTED)
+                        case StaticDetails.ActionStatus_ACCEPTED:
                             {
-                                var adminRoleId = await _roleRepository.GetRoleIdByNameAsync("admin");
-                                var admin = await _userManager.FindByIdAsync(adminRoleId);
-                                var chef = await _bookingRepository.GetChefByBookingId(existBooking.Id);
+                                if (chef.Balance < bookingDepositMoneyOfChef)
+                                {
+                                    throw new Exception(message: "You don't have enough balance to accept this booking. You must have 20% of the total booking amount to accept this.");
+                                }
+                                await this.ValidateBookingTime(_mapper.Map<CreateBookingDTO>(bookingFromDb));
 
-                                if (admin == null || chef == null)
-                                {
-                                    throw new Exception("Admin or chef not found");
-                                }
-                                // add 10% of the total booking amount to admin's wallet
-                                admin.Balance += existBooking.Total * 0.1;
-                                // add 90% of the total booking amount to chef's wallet
-                                chef.Balance += existBooking.Total * 0.9;
-                                ProcessBookingStatus(existBooking, status);
-                            }
-                            throw new Exception("Unavailable Completed Booking Is Pending Status");
-                        }
-                        if (status.Status == StaticDetails.ActionStatus_REJECTED)
-                        {
-                            if (existBooking.Status == StaticDetails.ActionStatus_PENDING)
-                            {
-                                if (existBooking.CreatedAt <= existBooking.CreatedAt.AddMinutes(20))
-                                {
-                                    // Rejected will minus 20% of total of booking 
-                                    existUser.Balance += existBooking.Total * 0.8;
-                                }
-                                else
-                                {
-                                    existUser.Balance += existBooking.Total;
-                                }
-                                ProcessBookingStatus(existBooking, status);
-                            }
-                            if (existBooking.Status == StaticDetails.ActionStatus_ACCEPTED)
-                            {
-                                if (existBooking.CreatedAt <= existBooking.ApprovalStatusDate.AddDays(1))
-                                {
-                                    // if user reject booking after chef accept 1 day ago , the user will lose 30% of the total booking
-                                    existUser.Balance += existBooking.Total * 0.4;
-                                }
-                            }
-                            throw new Exception("Unable to cancel booking in progress.");
-                        }
+                                await _userRepository.IncreaseUserBalanceAsync(admin.Id, bookingDepositMoneyOfChef);
+                                var transactionId = await this.CreateTransactionAsync(
+                                    admin.Id, StaticDetails.PaymentType_BOOKING,
+                                    bookingDepositMoneyOfChef, AppString.PaymentReceiveDepositForBookingOfChef
+                                );
+                                bookingFromDb.TransactionIdList.Add(transactionId);
 
+                                await _userRepository.IncreaseUserBalanceAsync(chef.Id, -bookingDepositMoneyOfChef);
+                                transactionId = await this.CreateTransactionAsync(
+                                    chef.Id, StaticDetails.PaymentType_BOOKING,
+                                    -bookingDepositMoneyOfChef, AppString.PaymentSendDepositForBookingOfChef
+                                );
+                                bookingFromDb.TransactionIdList.Add(transactionId);
+                                break;
+                            }
+                        case StaticDetails.ActionStatus_REJECTED:
+                            {
+                                await _userRepository.IncreaseUserBalanceAsync(user.Id, bookingFromDb.Total);
+                                var transactionId = await this.CreateTransactionAsync(
+                                    user.Id, StaticDetails.PaymentType_BOOKING,
+                                    bookingFromDb.Total, AppString.PaymentDepositBackForBooking
+                                );
+                                bookingFromDb.TransactionIdList.Add(transactionId);
+
+                                await _userRepository.IncreaseUserBalanceAsync(admin.Id, -bookingFromDb.Total);
+                                transactionId = await this.CreateTransactionAsync(
+                                    admin.Id, StaticDetails.PaymentType_BOOKING,
+                                    -bookingFromDb.Total, AppString.PaymentDepositBackForBooking
+                                );
+                                bookingFromDb.TransactionIdList.Add(transactionId);
+                                break;
+                            }
+                        default:
+                            throw new Exception(AppString.SomethingWrongMessage);
                     }
                 }
-                return _mapper.Map<RequestBookingDTO>(existBooking);
+                else if (bookingFromDb.Status == StaticDetails.ActionStatus_ACCEPTED)
+                {
+                    if (bookingStatusDTO.Status == StaticDetails.ActionStatus_CANCELED)
+                    {
+                        // if chef cancel a accepted booking, he/she will lose deposit money
+                        await _userRepository.IncreaseUserBalanceAsync(user.Id, bookingFromDb.Total + bookingDepositMoneyOfChef);
+                        var transactionId = await this.CreateTransactionAsync(
+                            user.Id, StaticDetails.PaymentType_BOOKING,
+                            bookingFromDb.Total + bookingDepositMoneyOfChef, AppString.PaymentCancelAcceptedBookingByChef
+                        );
+                        bookingFromDb.TransactionIdList.Add(transactionId);
+
+                        await _userRepository.IncreaseUserBalanceAsync(admin.Id, -(bookingFromDb.Total + bookingDepositMoneyOfChef));
+                        transactionId = await this.CreateTransactionAsync(
+                            admin.Id, StaticDetails.PaymentType_BOOKING,
+                            -(bookingFromDb.Total + bookingDepositMoneyOfChef), AppString.PaymentCancelAcceptedBookingByChef
+                        );
+                        bookingFromDb.TransactionIdList.Add(transactionId);
+                    }
+                    else
+                    {
+                        throw new Exception(AppString.SomethingWrongMessage);
+                    }
+                }
             }
-            catch (Exception ex)
+            else
             {
-                throw new Exception($"Error updating booking status: {ex.Message}");
+                // allow user to approve, cancel, or complete
+                switch (bookingStatusDTO.Status)
+                {
+                    case StaticDetails.ActionStatus_COMPLETED:
+                        {
+                            if (bookingFromDb.Status == StaticDetails.ActionStatus_ACCEPTED)
+                            {
+                                // decrease 90% of the total booking amount and keep 10% as fee to admin's balance
+                                await _userRepository.IncreaseUserBalanceAsync(admin.Id, -(bookingFromDb.Total * 0.9 + bookingDepositMoneyOfChef));
+                                var transactionId = await this.CreateTransactionAsync(
+                                    admin.Id, StaticDetails.PaymentType_BOOKING,
+                                    -(bookingFromDb.Total * 0.9 + bookingDepositMoneyOfChef), AppString.PaymentCompleteBooking
+                                );
+                                bookingFromDb.TransactionIdList.Add(transactionId);
+
+                                // increase 90% of the total booking amount and booking deposit money of chef to chef's balance
+                                await _userRepository.IncreaseUserBalanceAsync(chef.Id, bookingFromDb.Total * 0.9 + bookingDepositMoneyOfChef);
+                                transactionId = await this.CreateTransactionAsync(
+                                    user.Id, StaticDetails.PaymentType_BOOKING,
+                                    bookingFromDb.Total * 0.9 + bookingDepositMoneyOfChef, AppString.PaymentCompleteBooking
+                                );
+                                bookingFromDb.TransactionIdList.Add(transactionId);
+                            }
+                            else
+                            {
+                                throw new Exception(AppString.SomethingWrongMessage);
+                            }
+                            break;
+                        }
+                    case StaticDetails.ActionStatus_CANCELED:
+                        {
+                            switch (bookingFromDb.Status)
+                            {
+                                case StaticDetails.ActionStatus_PENDING:
+                                    {
+                                        // if the user cancel a pending booking, they will not lose money
+                                        await _userRepository.IncreaseUserBalanceAsync(user.Id, bookingFromDb.Total);
+                                        var transactionId = await this.CreateTransactionAsync(
+                                            user.Id, StaticDetails.PaymentType_BOOKING,
+                                            bookingFromDb.Total, AppString.PaymentDepositBackForBooking
+                                        );
+                                        bookingFromDb.TransactionIdList.Add(transactionId);
+
+                                        await _userRepository.IncreaseUserBalanceAsync(admin.Id, -bookingFromDb.Total);
+                                        transactionId = await this.CreateTransactionAsync(
+                                            admin.Id, StaticDetails.PaymentType_BOOKING,
+                                            -bookingFromDb.Total, AppString.PaymentDepositBackForBooking
+                                        );
+                                        bookingFromDb.TransactionIdList.Add(transactionId);
+                                        break;
+                                    }
+                                case StaticDetails.ActionStatus_ACCEPTED:
+                                    {
+                                        await _userRepository.IncreaseUserBalanceAsync(admin.Id, -(bookingFromDb.Total * 0.95));
+                                        var transactionId = await this.CreateTransactionAsync(
+                                            admin.Id, StaticDetails.PaymentType_BOOKING,
+                                            -(bookingFromDb.Total * 0.95), AppString.PaymentCancelAcceptedBookingByUser
+                                        );
+                                        bookingFromDb.TransactionIdList.Add(transactionId);
+
+                                        if (DateTime.UtcNow >= bookingFromDb.TimeStart.AddHours(-2))
+                                        {
+                                            // if the user cancel accepted booking less than 2 hours, they will lose 75% of the total (5% to admin, 70% to chef)
+                                            await _userRepository.IncreaseUserBalanceAsync(user.Id, bookingFromDb.Total * 0.25);
+                                            transactionId = await this.CreateTransactionAsync(
+                                                user.Id, StaticDetails.PaymentType_BOOKING,
+                                                bookingFromDb.Total * 0.25, AppString.PaymentCancelAcceptedBookingByUser
+                                            );
+                                            bookingFromDb.TransactionIdList.Add(transactionId);
+
+                                            await _userRepository.IncreaseUserBalanceAsync(chef.Id, bookingFromDb.Total * 0.7 + bookingDepositMoneyOfChef);
+                                            transactionId = await this.CreateTransactionAsync(
+                                                chef.Id, StaticDetails.PaymentType_BOOKING,
+                                                bookingFromDb.Total * 0.7 + bookingDepositMoneyOfChef, AppString.PaymentCancelAcceptedBookingByUser
+                                            );
+                                            bookingFromDb.TransactionIdList.Add(transactionId);
+                                        }
+                                        else if (DateTime.UtcNow >= bookingFromDb.TimeStart.AddDays(-1))
+                                        {
+                                            // if the user cancel accepted booking more than 2 hours to 1 day, they will lose 45% of the total (5% to admin, 40% to chef)
+                                            await _userRepository.IncreaseUserBalanceAsync(user.Id, bookingFromDb.Total * 0.55);
+                                            transactionId = await this.CreateTransactionAsync(
+                                                user.Id, StaticDetails.PaymentType_BOOKING,
+                                                bookingFromDb.Total * 0.5, AppString.PaymentCancelAcceptedBookingByUser
+                                            );
+                                            bookingFromDb.TransactionIdList.Add(transactionId);
+
+                                            await _userRepository.IncreaseUserBalanceAsync(chef.Id, bookingFromDb.Total * 0.4 + bookingDepositMoneyOfChef);
+                                            transactionId = await this.CreateTransactionAsync(
+                                                chef.Id, StaticDetails.PaymentType_BOOKING,
+                                                bookingFromDb.Total * 0.4 + bookingDepositMoneyOfChef, AppString.PaymentCancelAcceptedBookingByUser
+                                            );
+                                            bookingFromDb.TransactionIdList.Add(transactionId);
+                                        }
+                                        else //if (DateTime.UtcNow < bookingFromDb.TimeStart.AddDays(-1))
+                                        {
+                                            // if the user cancel accepted booking more than 1 day, they will lose 25% of the total (5% to admin, 20% to chef)
+                                            await _userRepository.IncreaseUserBalanceAsync(user.Id, bookingFromDb.Total * 0.75);
+                                            transactionId = await this.CreateTransactionAsync(
+                                                user.Id, StaticDetails.PaymentType_BOOKING,
+                                                bookingFromDb.Total * 0.75, AppString.PaymentCancelAcceptedBookingByUser
+                                            );
+                                            bookingFromDb.TransactionIdList.Add(transactionId);
+
+                                            await _userRepository.IncreaseUserBalanceAsync(chef.Id, bookingFromDb.Total * 0.2 + bookingDepositMoneyOfChef);
+                                            transactionId = await this.CreateTransactionAsync(
+                                                user.Id, StaticDetails.PaymentType_BOOKING,
+                                                bookingFromDb.Total * 0.2 + bookingDepositMoneyOfChef, AppString.PaymentCancelAcceptedBookingByUser
+                                            );
+                                            bookingFromDb.TransactionIdList.Add(transactionId);
+                                        }
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        throw new Exception(AppString.SomethingWrongMessage);
+                                    }
+                            }
+                            break;
+                        }
+                    default:
+                        {
+                            throw new Exception("Invalid status type.");
+                        }
+                }
             }
+
+            await this.ProcessBookingStatus(bookingFromDb, bookingStatusDTO);
+            return await this.GetBookingByIdAsync(bookingStatusDTO.BookingId);
         }
-        private async void ProcessBookingStatus(Booking existBooking, BookingStatusDTO status)
+
+        private async Task ProcessBookingStatus(Booking existBooking, BookingStatusDTO status)
         {
-            existBooking.ApprovalStatusDate = DateTime.Now;
+            existBooking.ApprovalStatusDate = DateTime.UtcNow;
             existBooking.Status = status.Status;
             await _bookingRepository.UpdateBookingStatus(existBooking);
         }
 
-
-        private void ValidateBookingTime(CreateBookingDTO createBooking, IEnumerable<Booking> lastBookings)
+        private async Task ValidateBookingTime(CreateBookingDTO createBooking)
         {
-            if (lastBookings != null && lastBookings.Any())
+            var bookingsOfChefFromDb = await _bookingRepository.GetAllAsync(b => b.ChefId == createBooking.ChefId && b.Status == StaticDetails.ActionStatus_ACCEPTED);
+            if (bookingsOfChefFromDb != null && bookingsOfChefFromDb.Any())
             {
-                foreach (var lastBooking in lastBookings)
+                foreach (var booking in bookingsOfChefFromDb.OrderByDescending(b => b.CreatedAt))
                 {
-                    if (createBooking.TimeStart < lastBooking.TimeEnd.AddHours(1))
+                    if (createBooking.TimeStart < booking.TimeEnd.AddHours(1))
                     {
-                        throw new Exception($"Chef is currently working. The new booking must start at least 1 hour after {lastBooking.TimeEnd}");
+                        throw new Exception($"The chef has been booked for this time. Please select another time period.");
                     }
                 }
             }
         }
 
+        private async Task<string> CreateTransactionAsync(
+            string userId, string type, double amount, string description
+        )
+        {
+            Transaction transaction = new()
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserId = userId,
+                Type = type,
+                Amount = amount,
+                Description = description,
+                Currency = StaticDetails.Currency_VND,
+                Payment = StaticDetails.Payment_Wallet,
+                IsSuccess = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _transactionRepository.CreateAsync(transaction);
+
+            return transaction.Id;
+        }
     }
 }
 

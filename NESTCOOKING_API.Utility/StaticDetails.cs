@@ -43,8 +43,9 @@
 		public const string ActionStatus_ACCEPTED = "ACCEPTED";
 		public const string ActionStatus_REJECTED = "REJECTED";
 		public const string ActionStatus_COMPLETED = "COMPLETED";
+        public const string ActionStatus_CANCELED = "CANCELED";
 
-		public const string PaymentType_DEPOSIT = "DEPOSIT";
+        public const string PaymentType_DEPOSIT = "DEPOSIT";
 		public const string PaymentType_WITHDRAW = "WITHDRAW";
 		public const string PaymentType_BOOKING = "BOOKING";
 		public const string PaymentType_PURCHASEDRECIPE = "PURCHASEDRECIPE";
