@@ -7,6 +7,7 @@ using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
 using NESTCOOKING_API.Utility;
+using System.Collections.Generic;
 
 namespace NESTCOOKING_API.Business.Services
 {
@@ -79,13 +80,20 @@ namespace NESTCOOKING_API.Business.Services
                 booking.BookingDishes.Add(_mapper.Map<RecipeForBookingDTO>(recipeForBooking));
             }
 
+            List<BookingTransactionDTO> deposit = new List<BookingTransactionDTO>();
+            List<BookingTransactionDTO> withdraw = new List<BookingTransactionDTO>();
             foreach (var transactionId in bookingFromDb.TransactionIdList)
             {
                 var transactionFromDb = await _transactionRepository.GetAsync(t => t.Id == transactionId, includeProperties: "User");
                 var transaction = _mapper.Map<BookingTransactionDTO>(transactionFromDb);
                 transaction.UserFullName = transactionFromDb.User.FirstName + " " + transactionFromDb.User.LastName;
-                booking.TransactionList.Add(transaction);
+                if (transaction.Amount >= 0)
+                    withdraw.Add(transaction);
+                else
+                    deposit.Add(transaction);
             }
+            booking.Transaction = new { deposit, withdraw };
+
             return booking;
         }
 

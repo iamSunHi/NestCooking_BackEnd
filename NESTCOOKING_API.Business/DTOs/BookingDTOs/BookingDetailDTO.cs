@@ -18,6 +18,6 @@ namespace NESTCOOKING_API.Business.DTOs.BookingDTOs
         public DateTime CreatedAt { get; set; }
         public DateTime ApprovalStatusDate { get; set; }
 
-        public required List<BookingTransactionDTO> TransactionList { get; set; } = new List<BookingTransactionDTO>();
+        public required object Transaction { get; set; }
     }
 }
