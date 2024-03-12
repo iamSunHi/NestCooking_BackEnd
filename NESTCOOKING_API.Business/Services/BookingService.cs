@@ -93,13 +93,13 @@ namespace NESTCOOKING_API.Business.Services
         {
             try
             {
-                //if (DateTime.UtcNow.AddDays(2) >= createBooking.TimeStart)
-                //{
-                //    throw new Exception(message: "Booking must be placed 2 days or more from now.");
-                //}
+                if (DateTime.UtcNow.AddDays(2) >= createBooking.TimeStart)
+                {
+                    throw new Exception(message: "Booking must be placed 2 days or more from now.");
+                }
                 if (createBooking.TimeEnd <= createBooking.TimeStart || createBooking.TimeStart <= DateTime.UtcNow)
                 {
-                    throw new Exception(message: "'Time End' must be greater than 'Time Start'");
+                    throw new Exception(message: "'Time End' must be greater than 'Time Start'.");
                 }
                 if (createBooking.TimeEnd < createBooking.TimeStart.AddHours(1))
                 {
