@@ -30,7 +30,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
                     UserId = report.UserId,
                     Title = title,
                     Content = content,
-                    CreatedAt = DateTime.UtcNow,
+                    CreatedAt = DateTime.Now,
                 };
                 _dbContext.Responses.Add(newResponse);
                 await _dbContext.SaveChangesAsync();

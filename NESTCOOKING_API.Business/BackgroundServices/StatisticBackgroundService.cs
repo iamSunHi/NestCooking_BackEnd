@@ -16,7 +16,7 @@ namespace NESTCOOKING_API.Business.BackgroundServices
 		{
 			while (!stoppingToken.IsCancellationRequested)
 			{
-				var currentDateOnly = DateOnly.FromDateTime(DateTime.UtcNow);
+				var currentDateOnly = DateOnly.FromDateTime(DateTime.Now);
 
 				await _statisticRepository.CreateNewDataIfNewDate(currentDateOnly);
 

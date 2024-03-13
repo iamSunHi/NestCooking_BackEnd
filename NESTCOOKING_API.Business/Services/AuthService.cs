@@ -74,7 +74,7 @@ namespace NESTCOOKING_API.Business.Services
             }
 
             var newUser = _mapper.Map<User>(registrationRequestDTO);
-            newUser.CreatedAt = DateTime.UtcNow;
+            newUser.CreatedAt = DateTime.Now;
             var result = await _userRepository.Register(newUser, registrationRequestDTO.Password);
 
             return result;
@@ -116,7 +116,7 @@ namespace NESTCOOKING_API.Business.Services
                         FirstName = info.FirstName,
                         LastName = info.LastName,
                         Email = info.Email,
-                        CreatedAt = DateTime.UtcNow,
+                        CreatedAt = DateTime.Now,
                         AvatarUrl = info.Picture,
                         RoleId = await _roleRepository.GetRoleIdByNameAsync(StaticDetails.Role_User)
                     };

@@ -29,8 +29,8 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 						Recipe = recipe,
 						User = user,
 						Reaction = emoji,
-						CreatedAt = DateTime.UtcNow,
-						UpdatedAt = DateTime.UtcNow
+						CreatedAt = DateTime.Now,
+						UpdatedAt = DateTime.Now
 					};
 					await _context.AddAsync(reactionRecipe);
 					await _context.SaveChangesAsync();
@@ -45,8 +45,8 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 						Comment = comment,
 						User = user,
 						Reaction = emoji,
-						CreatedAt = DateTime.UtcNow,
-						UpdatedAt = DateTime.UtcNow
+						CreatedAt = DateTime.Now,
+						UpdatedAt = DateTime.Now
 					};
 					await _context.AddAsync(commentReaction);
 					await _context.SaveChangesAsync();
@@ -130,7 +130,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 					if (reactionRecipe != null)
 					{
 						reactionRecipe.Reaction = emoji;
-						reactionRecipe.UpdatedAt = DateTime.UtcNow;
+						reactionRecipe.UpdatedAt = DateTime.Now;
 						await _context.SaveChangesAsync();
 					}
 				}
@@ -142,7 +142,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 					if (reactionComment != null)
 					{
 						reactionComment.Reaction = emoji;
-						reactionComment.UpdatedAt = DateTime.UtcNow;
+						reactionComment.UpdatedAt = DateTime.Now;
 						await _context.SaveChangesAsync();
 					}
 				}

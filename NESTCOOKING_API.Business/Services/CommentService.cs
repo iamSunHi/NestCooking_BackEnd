@@ -45,8 +45,8 @@ namespace NESTCOOKING_API.Business.Services
 				var requestComment = _mapper.Map<Comment>(createComment);
 				requestComment.CommentId = Guid.NewGuid().ToString();
 				requestComment.UserId = userId;
-				requestComment.CreatedAt = DateTime.UtcNow;
-				requestComment.UpdatedAt = DateTime.UtcNow;
+				requestComment.CreatedAt = DateTime.Now;
+				requestComment.UpdatedAt = DateTime.Now;
 				await _commentRepository.CreateAsync(requestComment);
 				var result = await GetCommentById(requestComment.CommentId);
 				return result;
@@ -117,7 +117,7 @@ namespace NESTCOOKING_API.Business.Services
 			}
 			if (existtingComment != null && existtingComment.UserId.Equals(user.Id))
 			{
-				existtingComment.UpdatedAt = DateTime.UtcNow;
+				existtingComment.UpdatedAt = DateTime.Now;
 				_mapper.Map(updateComment, existtingComment);
 				await _commentRepository.UpdateComment(existtingComment);
 				var updatedDto = _mapper.Map<RequestCommentDTO>(existtingComment);

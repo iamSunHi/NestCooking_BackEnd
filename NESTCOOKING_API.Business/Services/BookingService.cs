@@ -101,11 +101,11 @@ namespace NESTCOOKING_API.Business.Services
         {
             try
             {
-                if (DateTime.UtcNow.AddDays(2) >= createBooking.TimeStart)
+                if (DateTime.Now.AddDays(2) >= createBooking.TimeStart)
                 {
                     throw new Exception(message: "Booking must be placed 2 days or more from now.");
                 }
-                if (createBooking.TimeEnd <= createBooking.TimeStart || createBooking.TimeStart <= DateTime.UtcNow)
+                if (createBooking.TimeEnd <= createBooking.TimeStart || createBooking.TimeStart <= DateTime.Now)
                 {
                     throw new Exception(message: "'Time End' must be greater than 'Time Start'.");
                 }
@@ -131,8 +131,8 @@ namespace NESTCOOKING_API.Business.Services
                 var newBooking = _mapper.Map<Booking>(createBooking);
                 newBooking.Id = Guid.NewGuid().ToString();
                 newBooking.Status = StaticDetails.ActionStatus_PENDING;
-                newBooking.CreatedAt = DateTime.UtcNow;
-                newBooking.ApprovalStatusDate = DateTime.UtcNow;
+                newBooking.CreatedAt = DateTime.Now;
+                newBooking.ApprovalStatusDate = DateTime.Now;
                 newBooking.UserId = userId;
                 newBooking.TransactionIdList =
                 [
@@ -330,7 +330,7 @@ namespace NESTCOOKING_API.Business.Services
                                         );
                                         bookingFromDb.TransactionIdList.Add(transactionId);
 
-                                        if (DateTime.UtcNow >= bookingFromDb.TimeStart.AddHours(-2))
+                                        if (DateTime.Now >= bookingFromDb.TimeStart.AddHours(-2))
                                         {
                                             // if the user cancel accepted booking less than 2 hours, they will lose 75% of the total (5% to admin, 70% to chef)
                                             await _userRepository.IncreaseUserBalanceAsync(user.Id, bookingFromDb.Total * 0.25);
@@ -347,7 +347,7 @@ namespace NESTCOOKING_API.Business.Services
                                             );
                                             bookingFromDb.TransactionIdList.Add(transactionId);
                                         }
-                                        else if (DateTime.UtcNow >= bookingFromDb.TimeStart.AddDays(-1))
+                                        else if (DateTime.Now >= bookingFromDb.TimeStart.AddDays(-1))
                                         {
                                             // if the user cancel accepted booking more than 2 hours to 1 day, they will lose 45% of the total (5% to admin, 40% to chef)
                                             await _userRepository.IncreaseUserBalanceAsync(user.Id, bookingFromDb.Total * 0.55);
@@ -364,7 +364,7 @@ namespace NESTCOOKING_API.Business.Services
                                             );
                                             bookingFromDb.TransactionIdList.Add(transactionId);
                                         }
-                                        else //if (DateTime.UtcNow < bookingFromDb.TimeStart.AddDays(-1))
+                                        else //if (DateTime.Now < bookingFromDb.TimeStart.AddDays(-1))
                                         {
                                             // if the user cancel accepted booking more than 1 day, they will lose 25% of the total (5% to admin, 20% to chef)
                                             await _userRepository.IncreaseUserBalanceAsync(user.Id, bookingFromDb.Total * 0.75);
@@ -403,7 +403,7 @@ namespace NESTCOOKING_API.Business.Services
 
         private async Task ProcessBookingStatus(Booking existBooking, BookingStatusDTO status)
         {
-            existBooking.ApprovalStatusDate = DateTime.UtcNow;
+            existBooking.ApprovalStatusDate = DateTime.Now;
             existBooking.Status = status.Status;
             await _bookingRepository.UpdateBookingStatus(existBooking);
         }
@@ -437,7 +437,7 @@ namespace NESTCOOKING_API.Business.Services
                 Currency = StaticDetails.Currency_VND,
                 Payment = StaticDetails.Payment_Wallet,
                 IsSuccess = true,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Now
             };
             await _transactionRepository.CreateAsync(transaction);
 

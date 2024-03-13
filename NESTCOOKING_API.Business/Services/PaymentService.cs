@@ -27,7 +27,7 @@ namespace NESTCOOKING_API.Business.Services
             try
             {
                 var timeZoneById = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-                var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneById); ;
+                var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.Now, timeZoneById); ;
                 var urlCallBack = StaticDetails.FE_URL + "/payment/callback";
 
                 _vnPayLibrary.AddRequestData("vnp_Version", "2.1.0");

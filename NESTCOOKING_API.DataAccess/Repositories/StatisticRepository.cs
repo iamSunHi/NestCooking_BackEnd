@@ -46,7 +46,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
         {
             using var scope = _scopeFactory.CreateScope();
             var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            var currentDate = DateTime.UtcNow.Date;
+            var currentDate = DateTime.Now.Date;
             var currentDateOnly = DateOnly.FromDateTime(currentDate);
             var userListFromDb = _context.Users.ToList();
 
