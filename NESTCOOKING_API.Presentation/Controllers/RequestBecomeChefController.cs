@@ -38,22 +38,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
 			}
 		}
-
-		[HttpGet]
-		[Authorize(Roles = StaticDetails.Role_Admin)]
-		public async Task<IActionResult> GetAllRequests()
-		{
-			try
-			{
-				var result = await _userRequestService.GetAllRequestsToBecomeChef();
-				return Ok(ResponseDTO.Accept(result: result));
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
-			}
-		}
-
 		[HttpGet("{requestId}", Name = "GetRequestById")]
 		public async Task<IActionResult> GetRequestById(string requestId)
 		{

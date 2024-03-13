@@ -317,9 +317,53 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
             }
         }
+        [HttpGet("requestchef")]
+        public async Task<IActionResult> GetAllRequests([FromQuery] string? status, [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
+        {
+            try
+            {
+                var result = await _requestBecomeChefService.GetAllRequestsToBecomeChef();
+                if (status != null)
+                {
+                    if (status.ToUpper() != StaticDetails.ActionStatus_ACCEPTED &&
+                        status.ToUpper() != StaticDetails.ActionStatus_COMPLETED &&
+                        status.ToUpper() != StaticDetails.ActionStatus_PENDING &&
+                        status.ToUpper() != StaticDetails.ActionStatus_REJECTED
+                        )
+                    {
+                        return BadRequest(ResponseDTO.BadRequest(message: "Invalid status!"));
+                    }
+                    result = result.Where(r => r.Status == status).ToList();
+                }
+                if (pageNumber != null || pageSize != null)
+                {
+                    if (pageNumber == null || pageSize == null)
+                    {
+                        return BadRequest(ResponseDTO.BadRequest("You have to fill both pageNumber and pageSize if you want pagination."));
+                    }
+                    if (pageNumber == 0)
+                    {
+                        pageNumber = 1;
+                    }
+                    if (pageSize == 0)
+                    {
+                        pageSize = 1;
+                    }
+                    else if (pageSize > 100)
+                    {
+                        pageSize = 100;
+                    }
+                    result = result.Skip((int)((pageNumber - 1) * pageSize)).Take((int)pageSize).ToList();
+                }
+                return Ok(ResponseDTO.Accept(result: result));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+            }
+        }
+
         #endregion RequestBecomeChef
-
-
 
         [HttpGet("statistics")]
         public async Task<IActionResult> GetAllStatisticsAsync()
