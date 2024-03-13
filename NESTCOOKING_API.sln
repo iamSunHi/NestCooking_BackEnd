@@ -3,19 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NESTCOOKING_API.Presentation", "NESTCOOKING_API.Presentation\NESTCOOKING_API.Presentation.csproj", "{CA8475FB-A6A0-423E-9C5A-CAE4880A3672}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NESTCOOKING_API.API", "NESTCOOKING_API.Presentation\NESTCOOKING_API.API.csproj", "{CA8475FB-A6A0-423E-9C5A-CAE4880A3672}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NESTCOOKING_API.DataAccess", "NESTCOOKING_API.DataAccess\NESTCOOKING_API.DataAccess.csproj", "{CEB9CCE4-632B-4AC5-A7EB-83323D84BE0A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NESTCOOKING_API.Business", "NESTCOOKING_API.Business\NESTCOOKING_API.Business.csproj", "{E9E1138A-7E02-48CB-A15F-DC5EFB6FCCE2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NESTCOOKING_API.Utility", "NESTCOOKING_API.Utility\NESTCOOKING_API.Utility.csproj", "{B17311A5-102A-4E06-8D17-E1800E0741D8}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. Presentation Layer", "1. Presentation Layer", "{3CE8DCED-7657-43A3-B2C9-C529D577EB1C}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Business Layer", "2. Business Layer", "{E2F858EE-710E-4319-9047-3EFDE5EF6A70}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. Data Access Layer", "3. Data Access Layer", "{BA99A2C3-D6EC-493C-90CD-1CFD49973C31}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,11 +36,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{CA8475FB-A6A0-423E-9C5A-CAE4880A3672} = {3CE8DCED-7657-43A3-B2C9-C529D577EB1C}
-		{CEB9CCE4-632B-4AC5-A7EB-83323D84BE0A} = {BA99A2C3-D6EC-493C-90CD-1CFD49973C31}
-		{E9E1138A-7E02-48CB-A15F-DC5EFB6FCCE2} = {E2F858EE-710E-4319-9047-3EFDE5EF6A70}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AB36A973-EEE5-4634-BBC4-45D3F1EEDF49}
