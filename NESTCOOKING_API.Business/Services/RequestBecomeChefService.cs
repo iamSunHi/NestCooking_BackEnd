@@ -114,16 +114,34 @@ namespace NESTCOOKING_API.Business.Services
         public async Task<RequestToBecomeChefDTO> ApprovalRequestByAdmin(ApprovalRequestDTO approvalRequestDTO)
         {
             var existingRequest = await _chefRequestRepository.GetAsync(r => r.RequestChefId == approvalRequestDTO.RequestId);
+            var userSendRequest = await _userManager.FindByIdAsync(existingRequest?.UserID);
             if (existingRequest == null)
             {
                 throw new InvalidDataException();
             }
+
             if (approvalRequestDTO.Status != ActionStatus_ACCEPTED && approvalRequestDTO.Status != ActionStatus_REJECTED)
             {
                 throw new InvalidOperationException(AppString.InValidStatusType);
             }
-            //_mapper.Map(approvalRequestDTO, existingRequest);
+
+            // Check Status Request
+            if (approvalRequestDTO.Status == ActionStatus_ACCEPTED)
+            {
+                userSendRequest.RoleId = RoleId_Chef;
+            }
+            else if (existingRequest.Status == ActionStatus_ACCEPTED && approvalRequestDTO.Status == ActionStatus_REJECTED)
+            {
+                userSendRequest.RoleId = RoleId_User;
+            }
+
             existingRequest.Status = approvalRequestDTO.Status;
+
+            var responseId = $"{Guid.NewGuid().ToString("N")}-{DateTime.Now.ToString("yyyy/MM/dd-HH:mm:ss")}";
+            existingRequest.ResponseId = responseId;
+
+
+            await _userManager.UpdateAsync(userSendRequest);
             await _chefRequestRepository.UpdateRequestToBecomeChef(existingRequest);
             return _mapper.Map<RequestToBecomeChefDTO>(existingRequest);
         }
