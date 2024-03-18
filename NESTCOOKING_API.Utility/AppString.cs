@@ -1,4 +1,6 @@
-﻿namespace NESTCOOKING_API.Utility
+﻿using System.Data;
+
+namespace NESTCOOKING_API.Utility
 {
     public class AppString
     {
@@ -64,6 +66,7 @@
         public static string InvalidFormatErrorMessage = "Invalid format";
         public static string InternalServerErrorMessage = "Internal Server Error.";
         public static string RequestNotification = "You are currently a chef, you cannot create new requests";
+        public static string RequestHasBeenProcessed = " Your Request Has Been Processed";
 
         public static string InvalidReportTypeErrorMessage = "Invalid Report Type!";
         public static string ReportNotFoundErrorMessage = "Report Not Found!";

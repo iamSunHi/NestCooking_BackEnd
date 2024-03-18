@@ -153,24 +153,21 @@ namespace NESTCOOKING_API.Business.Services
             {
                 throw new InvalidDataException();
             }
-
+            if(existingRequest.Status != ActionStatus_PENDING)
+            {
+                throw new Exception(AppString.RequestHasBeenProcessed);
+            }
             if (approvalRequestDTO.Status != ActionStatus_ACCEPTED && approvalRequestDTO.Status != ActionStatus_REJECTED)
             {
                 throw new InvalidOperationException(AppString.InValidStatusType);
             }
 
-            // Check Status Request
+            // Check Status Request 
             if (approvalRequestDTO.Status == ActionStatus_ACCEPTED)
             {
                 userSendRequest.RoleId = await _roleRepository.GetRoleIdByNameAsync(Role_Chef);
             }
-            else if (existingRequest.Status == ActionStatus_ACCEPTED && approvalRequestDTO.Status == ActionStatus_REJECTED)
-            {
-                userSendRequest.RoleId = await _roleRepository.GetRoleIdByNameAsync(Role_User);
-            }
-
             existingRequest.Status = approvalRequestDTO.Status;
-
             var responseId = $"{Guid.NewGuid().ToString("N")}-{DateTime.Now.ToString("yyyy/MM/dd-HH:mm:ss")}";
             existingRequest.ResponseId = responseId;
 
