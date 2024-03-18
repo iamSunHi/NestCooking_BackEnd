@@ -45,10 +45,6 @@
 		public const string ActionStatus_COMPLETED = "COMPLETED";
         public const string ActionStatus_CANCELED = "CANCELED";
 
-        public const string RoleId_Admin = "280f772d-b275-4af8-ab39-bba2a9dd83bb";
-        public const string RoleId_User = "475031f1-916a-466e-a484-2fb76b6e8170";
-        public const string RoleId_Chef = "3e2c1946-8b56-4f69-bb18-7709c87ec9f3";
-
         public const string PaymentType_DEPOSIT = "DEPOSIT";
 		public const string PaymentType_WITHDRAW = "WITHDRAW";
 		public const string PaymentType_BOOKING = "BOOKING";

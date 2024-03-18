@@ -53,7 +53,7 @@ namespace NESTCOOKING_API.Business.Services
                 {
                     throw new Exception(AppString.RequestAlreadyHandledErrorMessage);
                 }
-                if (user.RoleId == RoleId_Chef)
+                if (user.RoleId == await GetRoleId(Role_Chef))
                 {
                     throw new Exception(AppString.RequestNotification);
                 }
@@ -71,7 +71,8 @@ namespace NESTCOOKING_API.Business.Services
                 // notification 
                 // co roleId
                 var userList = await _userRepository.GetAllAsync();
-                var adminList = userList.Where(roleId => roleId.RoleId == RoleId_Admin).ToList();
+                string roleIdAdmin = await GetRoleId(Role_Chef);
+                var adminList = userList.Where(roleId => roleId.RoleId == roleIdAdmin).ToList();
                 foreach (var ad in adminList)
                 {
 
@@ -160,11 +161,11 @@ namespace NESTCOOKING_API.Business.Services
             // Check Status Request
             if (approvalRequestDTO.Status == ActionStatus_ACCEPTED)
             {
-                userSendRequest.RoleId = RoleId_Chef;
+                userSendRequest.RoleId = await GetRoleId(Role_Chef);
             }
             else if (existingRequest.Status == ActionStatus_ACCEPTED && approvalRequestDTO.Status == ActionStatus_REJECTED)
             {
-                userSendRequest.RoleId = RoleId_User;
+                userSendRequest.RoleId = await GetRoleId(Role_User);
             }
 
             existingRequest.Status = approvalRequestDTO.Status;
@@ -189,6 +190,12 @@ namespace NESTCOOKING_API.Business.Services
             await _notificationService.CreateNotificationAsync(createNotificationDTO);
 
             return _mapper.Map<RequestToBecomeChefDTO>(existingRequest);
+        }
+        private async Task<string> GetRoleId(string roleName)
+        {
+            var listRole = await _roleRepository.GetAllAsync();
+            var role = listRole.FirstOrDefault(r => r.Name == roleName);
+            return role?.Id;
         }
     }
 }
