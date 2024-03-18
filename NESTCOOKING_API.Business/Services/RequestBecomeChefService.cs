@@ -53,7 +53,8 @@ namespace NESTCOOKING_API.Business.Services
                 {
                     throw new Exception(AppString.RequestAlreadyHandledErrorMessage);
                 }
-                if (user.RoleId == await GetRoleId(Role_Chef))
+               
+                if (user.RoleId == await _roleRepository.GetRoleIdByNameAsync(Role_Chef))
                 {
                     throw new Exception(AppString.RequestNotification);
                 }
@@ -71,7 +72,7 @@ namespace NESTCOOKING_API.Business.Services
                 // notification 
                 // co roleId
                 var userList = await _userRepository.GetAllAsync();
-                string roleIdAdmin = await GetRoleId(Role_Chef);
+                string roleIdAdmin = await _roleRepository.GetRoleIdByNameAsync(Role_Admin);
                 var adminList = userList.Where(roleId => roleId.RoleId == roleIdAdmin).ToList();
                 foreach (var ad in adminList)
                 {
@@ -161,11 +162,11 @@ namespace NESTCOOKING_API.Business.Services
             // Check Status Request
             if (approvalRequestDTO.Status == ActionStatus_ACCEPTED)
             {
-                userSendRequest.RoleId = await GetRoleId(Role_Chef);
+                userSendRequest.RoleId = await _roleRepository.GetRoleIdByNameAsync(Role_Chef);
             }
             else if (existingRequest.Status == ActionStatus_ACCEPTED && approvalRequestDTO.Status == ActionStatus_REJECTED)
             {
-                userSendRequest.RoleId = await GetRoleId(Role_User);
+                userSendRequest.RoleId = await _roleRepository.GetRoleIdByNameAsync(Role_User);
             }
 
             existingRequest.Status = approvalRequestDTO.Status;
@@ -191,11 +192,6 @@ namespace NESTCOOKING_API.Business.Services
 
             return _mapper.Map<RequestToBecomeChefDTO>(existingRequest);
         }
-        private async Task<string> GetRoleId(string roleName)
-        {
-            var listRole = await _roleRepository.GetAllAsync();
-            var role = listRole.FirstOrDefault(r => r.Name == roleName);
-            return role?.Id;
-        }
+       
     }
 }
