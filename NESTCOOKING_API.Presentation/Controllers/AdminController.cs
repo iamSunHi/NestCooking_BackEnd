@@ -298,15 +298,11 @@ namespace NESTCOOKING_API.Presentation.Controllers
         #endregion Notification
 
         #region RequestBecomeChef
-        [HttpPut("requestBecomeChef/Approval/{requestId}")]
-        public async Task<IActionResult> ApprovalRequest(string requestId, [FromBody] ApprovalRequestDTO approvalRequestDTO)
+        [HttpPut("requestbecomechef/approval")]
+        public async Task<IActionResult> ApprovalRequest([FromBody] ApprovalRequestDTO approvalRequestDTO)
         {
             try
             {
-                if (requestId != approvalRequestDTO.RequestId)
-                {
-                    return BadRequest(ResponseDTO.BadRequest(message: "This RequestId Not Found"));
-                }
                 var result = await _requestBecomeChefService.ApprovalRequestByAdmin(approvalRequestDTO);
                 return result != null ? Ok(ResponseDTO.Accept(AppString.ApprovalRequestBecomeChefSuccessMessage, result: result))
                    : NotFound(AppString.RequestBecomeChefNotFound);

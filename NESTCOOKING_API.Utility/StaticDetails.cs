@@ -76,8 +76,9 @@
 
 		public const string TargetType_RECIPE = "recipe";
 		public const string TargetType_COMMENT = "comment";
+        public const string TargetType_REQUESTBECOMCHEF = "becomeChef";	
 
-		public const string Timeline_CURRENT = "current";
+        public const string Timeline_CURRENT = "current";
 		public const string Timeline_PREVIOUSDATE = "date";
 		public const string Timeline_PREVIOUSWEEK = "week";
 		public const string Timeline_PREVIOUSMONTH = "month";

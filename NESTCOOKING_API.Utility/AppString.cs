@@ -1,4 +1,6 @@
-﻿namespace NESTCOOKING_API.Utility
+﻿using System.Data;
+
+namespace NESTCOOKING_API.Utility
 {
     public class AppString
     {
@@ -63,6 +65,8 @@
         public static string BecomeChefRequestInternalServerErrorMessage = "Failed to create request to become chef.";
         public static string InvalidFormatErrorMessage = "Invalid format";
         public static string InternalServerErrorMessage = "Internal Server Error.";
+        public static string RequestNotification = "You are currently a chef, you cannot create new requests";
+        public static string RequestHasBeenProcessed = " Your Request Has Been Processed";
 
         public static string InvalidReportTypeErrorMessage = "Invalid Report Type!";
         public static string ReportNotFoundErrorMessage = "Report Not Found!";
@@ -102,6 +106,9 @@
         public static string NotificationApproveReport = "We have approved your report and removed the violation. Thank you for your help in building a positive community.";
         public static string NotificationApproveReportForViolentUser = "You were reported due to violent behavior. After checking carefully, we confirm that is true, so we deleted that violent content. If you think this is a mistake, please send us a reply.";
         public static string NotificationRejectReport = "We have seen your report, but we haven't seen any violations. If you think this is a mistake, please send us another report.";
+        public static string NotificationAcceptedRequestBecomeChef = "Congratulations! We're thrilled to inform you that you've been accepted as a chef with our NEST COOKING system.";
+        public static string NotificationRejectedRequestBecomChef = "Sorry The Request Not Accepted Because Not Enough Condition Of NestCooking!";
+
 
         // For Payment Description
         public static string PaymentSendDepositForBookingOfUser = "Send deposit to initiate booking creation.";
