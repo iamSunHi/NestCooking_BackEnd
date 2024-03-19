@@ -9,7 +9,6 @@ namespace NESTCOOKING_API.Business.DTOs.BookingDTOs
         public UserShortInfoDTO User { get; set; }
         public UserShortInfoDTO Chef { get; set; }
         public string Address { get; set; } = null!;
-        public string? Note { get; set; }
         public List<RecipeForBookingDTO> BookingDishes { get; set; } = new List<RecipeForBookingDTO>();
         public DateTime TimeStart { get; set; }
         public DateTime TimeEnd { get; set; }

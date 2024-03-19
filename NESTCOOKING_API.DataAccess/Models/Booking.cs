@@ -9,7 +9,6 @@ namespace NESTCOOKING_API.DataAccess.Models
         public string UserId { get; set; } = null!;
         public string ChefId { get; set; } = null!;
         public string Address { get; set; } = null!;
-        public string? Note { get; set; }
         public DateTime TimeStart { get; set; }
         public DateTime TimeEnd { get; set; }
         public double Total { get; set; }

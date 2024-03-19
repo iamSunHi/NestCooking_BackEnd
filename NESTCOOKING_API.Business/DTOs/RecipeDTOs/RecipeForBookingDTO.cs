@@ -6,9 +6,7 @@
 		public string Title { get; set; } = null!;
 		public string Description { get; set; } = null!;
 		public int Portion { get; set; }
-		public string? ThumbnailUrl { get; set; }
-
-		public bool IsAvailableForBooking { get; set; }
-		public double? BookingPrice { get; set; }
+		public int BookingPrice { get; set; }
+		public string? Note { get; set; }
 	}
 }
