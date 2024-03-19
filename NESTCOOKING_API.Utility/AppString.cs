@@ -108,6 +108,8 @@ namespace NESTCOOKING_API.Utility
 		public static string NotificationRejectReport = "We have seen your report, but we haven't seen any violations. If you think this is a mistake, please send us another report.";
 		public static string NotificationAcceptedRequestBecomeChef = "Congratulations and thank you! We're excited to announce that you've been accepted as a chef within our platform.";
 		public static string NotificationRejectedRequestBecomeChef = "Apologies, your request was not accepted due to improperly to our requirements.";
+		public static string NotificationAcceptedRecipe = "We have approved your recipe. Now, everyone can see your fantastic recipe!";
+		public static string NotificationRejectedRecipe = "Apologies, your recipe was rejected due to improperly to our requirements. Please try to create another recipe!";
 
 		// For Payment Description
 		public static string PaymentSendDepositForBookingOfUser = "Send deposit to initiate booking creation.";

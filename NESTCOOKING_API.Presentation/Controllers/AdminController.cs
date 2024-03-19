@@ -3,10 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.AdminDTOs;
 using NESTCOOKING_API.Business.DTOs.ChefRequestDTOs;
-using NESTCOOKING_API.Business.DTOs.CommentDTOs;
 using NESTCOOKING_API.Business.DTOs.NotificationDTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
-using NESTCOOKING_API.Business.Services;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.Utility;
 
@@ -25,7 +23,10 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		private readonly INotificationService _notificationService;
 		private readonly IStatisticService _statisticService;
 		private readonly IRequestBecomeChefService _requestBecomeChefService;
-		public AdminController(IStatisticService statisticService, ICategoryService categoryService, IResponseService responseService, IReportService reportService, ITransactionService transactionService, INotificationService notificationService, IRequestBecomeChefService requestBecomeChef)
+		private readonly IRecipeService _recipeService;
+		public AdminController(IStatisticService statisticService, ICategoryService categoryService, IResponseService responseService,
+			IReportService reportService, ITransactionService transactionService, INotificationService notificationService,
+			IRequestBecomeChefService requestBecomeChef, IRecipeService recipeService)
 		{
 			_categoryService = categoryService;
 			_responseService = responseService;
@@ -34,6 +35,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			_notificationService = notificationService;
 			_statisticService = statisticService;
 			_requestBecomeChefService = requestBecomeChef;
+			_recipeService = recipeService;
 		}
 
 		#region Category
@@ -364,6 +366,8 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 		#endregion RequestBecomeChef
 
+		#region Statistic
+
 		[HttpGet("statistics")]
 		public async Task<IActionResult> GetAllStatisticsAsync()
 		{
@@ -381,7 +385,41 @@ namespace NESTCOOKING_API.Presentation.Controllers
 				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
 			}
 		}
+
+		#endregion Statistic
+
+		#region Verify recipes
+
+		[HttpGet("recipe/unverified")]
+		public async Task<IActionResult> GetAllUnverifiedRecipesAsync()
+		{
+			try
+			{
+				var recipes = await _recipeService.GetAllUnverifiedRecipesAsync();
+				recipes = recipes.OrderByDescending(r => r.CreatedAt).ToList();
+				return Ok(ResponseDTO.Accept(result: recipes));
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+		}
+
+		[HttpPost("recipe/verify")]
+		public async Task<IActionResult> GetAllUnverifiedRecipesAsync([FromBody] AdminVerifyRecipeDTO verifyRecipeDTO)
+		{
+			try
+			{
+				verifyRecipeDTO.Status = verifyRecipeDTO.Status.ToUpper();
+				await _recipeService.VerifyRecipe(verifyRecipeDTO);
+				return Ok(ResponseDTO.Accept());
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+		}
+
+		#endregion Verify recipes
 	}
-
-
 }

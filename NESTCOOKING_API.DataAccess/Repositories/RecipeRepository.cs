@@ -16,7 +16,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 			var skipNumber = (pageNumber - 1) * pageSize;
 			var query = _dbSet.AsQueryable<Recipe>();
 
-			var recipes = await query.Skip(skipNumber).Take(pageSize).ToListAsync();
+			var recipes = await query.Where(r => r.IsVerified).Skip(skipNumber).Take(pageSize).ToListAsync();
 			if (recipes.Any())
 			{
 				return recipes;
@@ -46,6 +46,23 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 				recipeFromDb.CookingTime = recipe.CookingTime;
 				recipeFromDb.Portion = recipe.Portion;
 				recipeFromDb.UpdatedAt = recipe.UpdatedAt;
+
+				await _context.SaveChangesAsync();
+			}
+		}
+
+		public async Task VerifyAsync(string recipeId)
+		{
+			var recipeFromDb = await this.GetAsync(r => r.Id == recipeId);
+
+			if (recipeFromDb != null)
+			{
+				if (_context.Entry(recipeFromDb).State == EntityState.Detached)
+				{
+					_context.Attach(recipeFromDb);
+				}
+
+				recipeFromDb.IsVerified = true;
 
 				await _context.SaveChangesAsync();
 			}
