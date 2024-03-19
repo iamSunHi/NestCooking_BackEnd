@@ -185,6 +185,10 @@ namespace NESTCOOKING_API.Business.Services
 			if (approvalRequestDTO.Status == ActionStatus_ACCEPTED)
 			{
 				userSendRequest.RoleId = await _roleRepository.GetRoleIdByNameAsync(Role_Chef);
+				userSendRequest.PhoneNumber = existingRequest.PhoneNumber;
+				userSendRequest.PhoneNumberConfirmed = true;
+				userSendRequest.IsMale = existingRequest.Gender == "Male" ? true : false;
+				userSendRequest.Address = existingRequest.Address;
 			}
 			existingRequest.Status = approvalRequestDTO.Status;
 			var responseId = $"{Guid.NewGuid().ToString("N")}-{DateTime.Now.ToString("yyyy/MM/dd-HH:mm:ss")}";
@@ -197,10 +201,10 @@ namespace NESTCOOKING_API.Business.Services
 			var createNotificationDTO = new NotificationCreateDTO
 			{
 				SenderId = null,
-				Content = approvalRequestDTO.Status == ActionStatus_ACCEPTED
-			   ? $"Hi, {userSendRequest.FirstName}. {AppString.NotificationAcceptedRequestBecomeChef}"
-			   : $"{AppString.NotificationRejectedRequestBecomeChef}",
-				NotificationType = NotificationType_ANNOUNCEMENT,
+				Content = approvalRequestDTO.Status == ActionStatus_ACCEPTED ?
+						$"Hi, {userSendRequest.FirstName}. {AppString.NotificationAcceptedRequestBecomeChef}" :
+						$"{AppString.NotificationRejectedRequestBecomeChef}",
+						NotificationType = NotificationType_ANNOUNCEMENT,
 				ReceiverId = userSendRequest.Id,
 				TargetType = TargetType_REQUESTBECOMCHEF
 			};
