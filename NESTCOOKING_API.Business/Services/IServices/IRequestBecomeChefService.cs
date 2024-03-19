@@ -4,6 +4,7 @@ namespace NESTCOOKING_API.Business.Services.IServices
 {
 	public interface IRequestBecomeChefService
 	{
+		Task<IEnumerable<RequestToBecomeChefDTO>> GetAllPendingRequestsToBecomeChef();
 		Task<IEnumerable<RequestToBecomeChefDTO>> GetAllRequestsToBecomeChef();
 		Task<RequestToBecomeChefDTO> GetRequestToBecomeChefById(string requestId);
 		Task<RequestToBecomeChefDTO> CreateRequestToBecomeChef(string userId, CreatedRequestToBecomeChefDTO requestToBecomeChefDTO);
