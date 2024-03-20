@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NESTCOOKING_API.Business.Authentication;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.AdminDTOs;
 using NESTCOOKING_API.Business.DTOs.ChefRequestDTOs;
@@ -391,13 +392,27 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		#region Verify recipes
 
 		[HttpGet("recipe/unverified")]
-		public async Task<IActionResult> GetAllUnverifiedRecipesAsync()
+		[ResponseCache(Duration = 30)]
+		public async Task<IActionResult> GetAllUnverifiedRecipesAsync([FromQuery] string? id = null)
 		{
 			try
 			{
-				var recipes = await _recipeService.GetAllUnverifiedRecipesAsync();
-				recipes = recipes.OrderByDescending(r => r.CreatedAt).ToList();
-				return Ok(ResponseDTO.Accept(result: recipes));
+				if (string.IsNullOrEmpty(id))
+				{
+					var recipes = await _recipeService.GetAllUnverifiedRecipesAsync();
+					recipes = recipes.OrderByDescending(r => r.CreatedAt).ToList();
+					return Ok(ResponseDTO.Accept(result: recipes));
+				}
+				else
+				{
+					var userId = AuthenticationHelper.GetUserIdFromContext(HttpContext);
+					var recipe = await _recipeService.GetRecipeByIdAsync(id, userId);
+					if (recipe == null)
+					{
+						return BadRequest(ResponseDTO.BadRequest(message: $"Recipe with id {id} not found."));
+					}
+					return Ok(ResponseDTO.Accept(result: recipe));
+				}
 			}
 			catch (Exception ex)
 			{
@@ -405,7 +420,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			}
 		}
 
-		[HttpPost("recipe/verify")]
+		[HttpPut("recipe/verify")]
 		public async Task<IActionResult> GetAllUnverifiedRecipesAsync([FromBody] AdminVerifyRecipeDTO verifyRecipeDTO)
 		{
 			try

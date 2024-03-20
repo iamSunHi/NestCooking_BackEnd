@@ -76,12 +76,14 @@ namespace NESTCOOKING_API.Business.Services
 		public async Task<IEnumerable<RecipeDTO>> GetAllUnverifiedRecipesAsync()
 		{
 			var recipesFromDb = await _recipeRepository.GetAllAsync(r => !r.IsVerified);
+			recipesFromDb = recipesFromDb.OrderByDescending(r => r.CreatedAt);
 			return await ConvertRecipesToListRecipeDTO(recipesFromDb);
 		}
 
 		public async Task<IEnumerable<RecipeDTO>> GetAllRecipesAsync()
 		{
-			var recipesFromDb = await _recipeRepository.GetAllAsync(r => r.IsVerified);
+			var recipesFromDb = await _recipeRepository.GetAllAsync();
+			recipesFromDb = recipesFromDb.OrderByDescending(r => r.CreatedAt);
 			return await ConvertRecipesToListRecipeDTO(recipesFromDb);
 		}
 
@@ -105,6 +107,16 @@ namespace NESTCOOKING_API.Business.Services
 			if (recipeFromDb == null)
 			{
 				return null;
+			}
+			if (!recipeFromDb.IsVerified)
+			{
+				if (userId == null)
+				{
+					throw new Exception("This recipe is not verified! You don't have permission to view the details of this recipe!");
+				}
+				var roleOfUser = await _userRepository.GetRoleAsync(userId);
+				if (roleOfUser != StaticDetails.Role_Admin)
+					throw new Exception("This recipe is not verified! You don't have permission to view the details of this recipe!");
 			}
 
 			var recipe = _mapper.Map<RecipeDetailDTO>(recipeFromDb);
