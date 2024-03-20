@@ -6,6 +6,7 @@ using NESTCOOKING_API.Business.DTOs.AdminDTOs;
 using NESTCOOKING_API.Business.DTOs.ChefRequestDTOs;
 using NESTCOOKING_API.Business.DTOs.NotificationDTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
+using NESTCOOKING_API.Business.DTOs.UserDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.Utility;
 
@@ -25,9 +26,10 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		private readonly IStatisticService _statisticService;
 		private readonly IRequestBecomeChefService _requestBecomeChefService;
 		private readonly IRecipeService _recipeService;
+		private readonly IUserService _userService;
 		public AdminController(IStatisticService statisticService, ICategoryService categoryService, IResponseService responseService,
 			IReportService reportService, ITransactionService transactionService, INotificationService notificationService,
-			IRequestBecomeChefService requestBecomeChef, IRecipeService recipeService)
+			IRequestBecomeChefService requestBecomeChef, IRecipeService recipeService, IUserService userService)
 		{
 			_categoryService = categoryService;
 			_responseService = responseService;
@@ -37,6 +39,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			_statisticService = statisticService;
 			_requestBecomeChefService = requestBecomeChef;
 			_recipeService = recipeService;
+			_userService = userService;
 		}
 
 		#region Category
@@ -436,5 +439,51 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		#endregion Verify recipes
+
+		#region User
+
+		[HttpGet("user")]
+		public async Task<IActionResult> GetAllUsers()
+		{
+			try
+			{
+				var userList = await _userService.GetAllUsersAsync();
+				return Ok(ResponseDTO.Accept(result: userList));
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+		}
+
+		[HttpPut("user/lock")]
+		public async Task<IActionResult> LockUserAsync([FromBody] AdminLockUserDTO lockUserDTO)
+		{
+			try
+			{
+				await _userService.LockUserAsync(lockUserDTO.UserId, lockUserDTO.Minute);
+				return Ok(ResponseDTO.Accept());
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+		}
+
+		[HttpPut("user/unlock/{userId}")]
+		public async Task<IActionResult> UnlockUserAsync([FromRoute] string userId)
+		{
+			try
+			{
+				await _userService.UnlockUserAsync(userId);
+				return Ok(ResponseDTO.Accept());
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
+		}
+
+		#endregion User
 	}
 }
