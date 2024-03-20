@@ -21,9 +21,10 @@ namespace NESTCOOKING_API.Business.Services
 		private readonly ITransactionRepository _transactionRepository;
 		private readonly IRecipeRepository _recipeRepository;
 		private readonly IUserConnectionService _userConnectionService;
+		private readonly IRecipeService _recipeService;
 
 		public BookingService(IMapper mapper,
-		IUserConnectionService userConnectionService,
+			IUserConnectionService userConnectionService, IRecipeService recipeService,
 			IBookingRepository bookingRepository, IUserRepository userRepository, IBookingLineRepository bookingLineRepository, IRoleRepository roleRepository, ITransactionRepository transactionRepository, IRecipeRepository recipeRepository)
 		{
 			_mapper = mapper;
@@ -34,6 +35,7 @@ namespace NESTCOOKING_API.Business.Services
 			_transactionRepository = transactionRepository;
 			_recipeRepository = recipeRepository;
 			_userConnectionService = userConnectionService;
+			_recipeService = recipeService;
 		}
 
 		public async Task<IEnumerable<BookingShortInfoDTO>> GetAllBookingsByChefIdAsync(string chefId)
@@ -67,13 +69,14 @@ namespace NESTCOOKING_API.Business.Services
 			{
 				var mappedChefDTO = _mapper.Map<ChefDetailDTO>(chef);
 
-				var recipeList = await _recipeRepository.GetAllAsync(r => r.UserId == chef.Id);
-				mappedChefDTO.ListRecipes = _mapper.Map<IEnumerable<RecipeDTO>>(recipeList);
+				mappedChefDTO.ListRecipes = await _recipeService.GetAllRecipesForBookingByChefIdAsync(chef.Id);
 
-				var numberOfFollowers = await _userConnectionService.GetAllFollowersByUserIdAsync(chef.Id);
-				mappedChefDTO.FollowerCount = numberOfFollowers.Count;
-
-				mappedChefs.Add(mappedChefDTO);
+				if (mappedChefDTO.ListRecipes.Any())
+				{
+					var numberOfFollowers = await _userConnectionService.GetAllFollowersByUserIdAsync(chef.Id);
+					mappedChefDTO.FollowerCount = numberOfFollowers.Count;
+					mappedChefs.Add(mappedChefDTO);
+				}
 			}
 
 			return mappedChefs.ToList();
@@ -117,9 +120,9 @@ namespace NESTCOOKING_API.Business.Services
 		{
 			try
 			{
-				if (DateTime.Now.AddDays(2) < createBooking.TimeStart)
+				if (DateTime.Now.AddDays(2) > createBooking.TimeStart)
 				{
-					throw new Exception(message: "Booking must be placed 2 days or more from now.");
+					throw new Exception(message: "Booking must be placed at least 2 days from now.");
 				}
 				if (createBooking.TimeEnd <= createBooking.TimeStart || createBooking.TimeStart <= DateTime.Now)
 				{

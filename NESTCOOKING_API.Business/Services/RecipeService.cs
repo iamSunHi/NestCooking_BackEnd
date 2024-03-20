@@ -115,7 +115,7 @@ namespace NESTCOOKING_API.Business.Services
 					throw new Exception("This recipe is not verified! You don't have permission to view the details of this recipe!");
 				}
 				var roleOfUser = await _userRepository.GetRoleAsync(userId);
-				if (roleOfUser != StaticDetails.Role_Admin)
+				if (roleOfUser != StaticDetails.Role_Admin && recipeFromDb.UserId != userId)
 					throw new Exception("This recipe is not verified! You don't have permission to view the details of this recipe!");
 			}
 
@@ -225,7 +225,7 @@ namespace NESTCOOKING_API.Business.Services
 			await AddIngredients(recipe.Id, createRecipeDTO.Ingredients);
 			await AddOrUpdateInstructors(recipe.Id, createRecipeDTO.Instructors);
 
-			var newRecipe = await this.GetRecipeByIdAsync(newRecipeId);
+			var newRecipe = await this.GetRecipeByIdAsync(newRecipeId, userId);
 			return newRecipe;
 		}
 
@@ -251,7 +251,7 @@ namespace NESTCOOKING_API.Business.Services
 			await UpdateIngredients(recipeFromDb.Id, updateRecipeDTO.Ingredients);
 			await AddOrUpdateInstructors(recipeFromDb.Id, updateRecipeDTO.Instructors.ToList());
 
-			return await this.GetRecipeByIdAsync(recipeId);
+			return await this.GetRecipeByIdAsync(recipeId, userId);
 		}
 		public async Task DeleteRecipeAsync(string userId, string id)
 		{
