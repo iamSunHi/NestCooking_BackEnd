@@ -12,7 +12,7 @@ using NESTCOOKING_API.DataAccess.Data;
 namespace NESTCOOKING_API.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240319121055_Update-Booking-Line")]
+    [Migration("20240320054652_UpdateBookingLine")]
     partial class UpdateBookingLine
     {
         /// <inheritdoc />
@@ -284,9 +284,6 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
                         .IsRequired()

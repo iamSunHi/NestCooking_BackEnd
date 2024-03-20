@@ -10,6 +10,10 @@ namespace NESTCOOKING_API.DataAccess.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropColumn(
+                name: "Note",
+                table: "Bookings");
+
             migrationBuilder.AddColumn<string>(
                 name: "Note",
                 table: "BookingLines",
@@ -23,6 +27,12 @@ namespace NESTCOOKING_API.DataAccess.Migrations
             migrationBuilder.DropColumn(
                 name: "Note",
                 table: "BookingLines");
+
+            migrationBuilder.AddColumn<string>(
+                name: "Note",
+                table: "Bookings",
+                type: "nvarchar(max)",
+                nullable: true);
         }
     }
 }
