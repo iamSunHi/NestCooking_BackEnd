@@ -14,5 +14,7 @@ namespace NESTCOOKING_API.Business.DTOs.RecipeDTOs
 		public double Difficult { get; set; }
 		public DateTime CreatedAt { get; set; }
 		public DateTime UpdatedAt { get; set; }
+
+		public bool IsVerified { get; set; }
 	}
 }

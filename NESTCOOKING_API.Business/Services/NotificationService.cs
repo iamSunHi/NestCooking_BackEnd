@@ -112,7 +112,7 @@ namespace NESTCOOKING_API.Business.Services
 
 						break;
 					}
-					case StaticDetails.NotificationType_REQUEST:
+				case StaticDetails.NotificationType_REQUEST:
 					{
 
 						await _notificationRepository.CreateAsync(notificationToDb);
@@ -190,17 +190,18 @@ namespace NESTCOOKING_API.Business.Services
 						var adminAccount = await _userRepository.GetAsync(u => u.RoleId == roleAdminId);
 						var listAllUserInSystem = await _userRepository.GetAllAsync();
 
-                        if (notificationCreateDTO.TargetType == StaticDetails.TargetType_REQUESTBECOMCHEF)
-                        {
-                            notificationToDb.Id = Guid.NewGuid().ToString();
-                            notificationToDb.ReceiverId = notificationCreateDTO.ReceiverId;
-                            notificationToDb.SenderId = adminAccount.Id;
-                            notificationToDb.Content = notificationCreateDTO.Content;
-                            await _notificationRepository.CreateAsync(notificationToDb);
-                            break;
-                        }
+						if (notificationCreateDTO.TargetType == StaticDetails.TargetType_REQUESTBECOMCHEF
+							|| notificationCreateDTO.TargetType == StaticDetails.TargetType_RECIPE)
+						{
+							notificationToDb.Id = Guid.NewGuid().ToString();
+							notificationToDb.ReceiverId = notificationCreateDTO.ReceiverId;
+							notificationToDb.SenderId = adminAccount.Id;
+							notificationToDb.Content = notificationCreateDTO.Content;
+							await _notificationRepository.CreateAsync(notificationToDb);
+							break;
+						}
 
-                        foreach (var user in listAllUserInSystem)
+						foreach (var user in listAllUserInSystem)
 						{
 							if (user.RoleId == roleAdminId)
 							{
