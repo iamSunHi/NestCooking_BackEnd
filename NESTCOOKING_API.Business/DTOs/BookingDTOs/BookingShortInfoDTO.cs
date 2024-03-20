@@ -5,7 +5,8 @@ namespace NESTCOOKING_API.Business.DTOs.BookingDTOs
     public class BookingShortInfoDTO
     {
         public string Id { get; set; } = null!;
-        public UserShortInfoDTO Chef { get; set; }
+		public UserShortInfoDTO User { get; set; }
+		public UserShortInfoDTO Chef { get; set; }
         public DateTime TimeStart { get; set; }
         public DateTime TimeEnd { get; set; }
         public double Total { get; set; }

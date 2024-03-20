@@ -8,5 +8,7 @@
 		public string? ThumbnailUrl { get; set; }
 		public int Portion { get; set; }
 		public int BookingPrice { get; set; }
+
+		public string? Note { get; set; }
 	}
 }

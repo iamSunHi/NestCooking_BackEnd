@@ -42,6 +42,15 @@ namespace NESTCOOKING_API.Business.Services
 		{
 			var bookingListFromDb = (await _bookingRepository.GetAllAsync(b => b.ChefId == chefId)).ToList();
 			var result = _mapper.Map<List<BookingShortInfoDTO>>(bookingListFromDb);
+
+			for (var i = 0; i < bookingListFromDb.Count(); i++)
+			{
+				var user = await _userRepository.GetAsync(u => u.Id == bookingListFromDb[i].UserId);
+				result[i].User = _mapper.Map<UserShortInfoDTO>(user);
+				var chef = await _userRepository.GetAsync(u => u.Id == bookingListFromDb[i].ChefId);
+				result[i].Chef = _mapper.Map<UserShortInfoDTO>(chef);
+			}
+
 			return result;
 		}
 
@@ -52,6 +61,8 @@ namespace NESTCOOKING_API.Business.Services
 
 			for (int i = 0; i < bookingListFromDb.Count; i++)
 			{
+				var user = await _userRepository.GetAsync(u => u.Id == bookingListFromDb[i].UserId);
+				result[i].User = _mapper.Map<UserShortInfoDTO>(user);
 				var chef = await _userRepository.GetAsync(u => u.Id == bookingListFromDb[i].ChefId);
 				result[i].Chef = _mapper.Map<UserShortInfoDTO>(chef);
 			}
@@ -96,7 +107,9 @@ namespace NESTCOOKING_API.Business.Services
 			foreach (var bookingLine in bookingLines)
 			{
 				var recipeForBooking = await _recipeRepository.GetAsync(r => r.Id == bookingLine.RecipeId);
-				booking.BookingDishes.Add(_mapper.Map<RecipeForBookingDTO>(recipeForBooking));
+				var mappedRecipe = _mapper.Map<RecipeForBookingDTO>(recipeForBooking);
+				mappedRecipe.Note = bookingLine.Note;
+				booking.BookingDishes.Add(mappedRecipe);
 			}
 
 			List<BookingTransactionDTO> deposit = new List<BookingTransactionDTO>();
