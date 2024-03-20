@@ -48,6 +48,19 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 return BadRequest(ResponseDTO.BadRequest(ex.Message));
             }
         }
+        [HttpGet("chefs/{chefId}/schedules")]
+        public async Task<IActionResult> GetChefBookingScheduleDTOs(string chefId)
+        {
+            try
+            {
+                var result = await _bookingService.GetChefBookingScheduleDTOs(chefId);
+                return Ok(ResponseDTO.Accept(result: result));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ResponseDTO.BadRequest(ex.Message));
+            }
+        }
 
         [HttpGet("my-booking")]
         public async Task<IActionResult> GetAllBookingsByUserIdAsync()
@@ -140,5 +153,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
                 return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
             }
         }
+
     }
 }

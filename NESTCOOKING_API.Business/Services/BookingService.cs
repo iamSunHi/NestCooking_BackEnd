@@ -14,25 +14,26 @@ namespace NESTCOOKING_API.Business.Services
     public class BookingService : IBookingService
     {
         private readonly IMapper _mapper;
-        private readonly UserManager<User> _userManager;
         private readonly IBookingRepository _bookingRepository;
         private readonly IBookingLineRepository _bookingLineRepository;
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
         private readonly ITransactionRepository _transactionRepository;
         private readonly IRecipeRepository _recipeRepository;
+        private readonly IUserConnectionService _userConnectionService;
 
-        public BookingService(IMapper mapper, UserManager<User> userManager,
+        public BookingService(IMapper mapper,
+        IUserConnectionService userConnectionService,
             IBookingRepository bookingRepository, IUserRepository userRepository, IBookingLineRepository bookingLineRepository, IRoleRepository roleRepository, ITransactionRepository transactionRepository, IRecipeRepository recipeRepository)
         {
             _mapper = mapper;
-            _userManager = userManager;
             _bookingRepository = bookingRepository;
             _bookingLineRepository = bookingLineRepository;
             _userRepository = userRepository;
             _roleRepository = roleRepository;
             _transactionRepository = transactionRepository;
             _recipeRepository = recipeRepository;
+            _userConnectionService = userConnectionService;
         }
 
         public async Task<IEnumerable<BookingShortInfoDTO>> GetAllBookingsByChefIdAsync(string chefId)
@@ -56,11 +57,27 @@ namespace NESTCOOKING_API.Business.Services
             return result;
         }
 
-        public async Task<List<UserShortInfoDTO>> GetAllChefsAsync(string? city = null)
+        public async Task<List<ChefDetailDTO>> GetAllChefsAsync(string? city = null)
         {
             var roleChefId = await _roleRepository.GetRoleIdByNameAsync(StaticDetails.Role_Chef);
             var chefList = await _userRepository.GetAllAsync(u => u.RoleId == roleChefId);
-            return _mapper.Map<List<UserShortInfoDTO>>(chefList);
+
+            var tasks = chefList.Select(async chef =>
+            {
+                var mappedChefDTO = _mapper.Map<ChefDetailDTO>(chef);
+
+                var recipeList = await _recipeRepository.GetAllAsync(r => r.UserId == chef.Id);
+                mappedChefDTO.ListRecipes = _mapper.Map<IEnumerable<RecipeDTO>>(recipeList);
+
+                var numberOfFollowers = await _userConnectionService.GetAllFollowersByUserIdAsync(chef.Id);
+                mappedChefDTO.FollowerCount = numberOfFollowers.Count;
+
+                return mappedChefDTO;
+            });
+
+            var mappedChefs = await Task.WhenAll(tasks);
+
+            return mappedChefs.ToList();
         }
 
         public async Task<BookingDetailDTO> GetBookingByIdAsync(string bookingId)
@@ -101,7 +118,7 @@ namespace NESTCOOKING_API.Business.Services
         {
             try
             {
-                if (DateTime.Now.AddDays(2) >= createBooking.TimeStart)
+                if (DateTime.Now.AddDays(2) < createBooking.TimeStart)
                 {
                     throw new Exception(message: "Booking must be placed 2 days or more from now.");
                 }
@@ -157,6 +174,7 @@ namespace NESTCOOKING_API.Business.Services
                         BookingId = newBooking.Id,
                         RecipeId = dish.RecipeId,
                         Quantity = dish.Quantity,
+                        Note = dish.Note
                     };
                     await _bookingLineRepository.CreateAsync(bookingLine);
                 }
@@ -442,6 +460,21 @@ namespace NESTCOOKING_API.Business.Services
             await _transactionRepository.CreateAsync(transaction);
 
             return transaction.Id;
+        }
+
+        public async Task<List<ChefBookingScheduleDTO>> GetChefBookingScheduleDTOs(string chefId)
+        {
+            var listBookings = await _bookingRepository.GetAllAsync(b => b.ChefId == chefId);
+            var result = new List<ChefBookingScheduleDTO>();
+            foreach (var booking in listBookings)
+            {
+                result.Add(new ChefBookingScheduleDTO
+                {
+                    TimeStart = booking.TimeStart,
+                    TimeEnd = booking.TimeEnd
+                });
+            }
+            return result;
         }
     }
 }
