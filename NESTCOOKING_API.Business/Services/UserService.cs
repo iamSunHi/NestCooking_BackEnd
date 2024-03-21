@@ -35,13 +35,17 @@ namespace NESTCOOKING_API.Business.Services
 		}
 		public async Task<List<AdminUserDTO>> GetAllUsersAsync()
 		{
-			var userListFromDb = (await _userRepository.GetAllAsync()).ToList();
+			var roleAdminId = (await _roleRepository.GetAsync(r => r.Name == StaticDetails.Role_Admin)).Id;
+			var roleList = (await _roleRepository.GetAllAsync()).ToDictionary(r => r.Id);
+			var userListFromDb = (await _userRepository.GetAllAsync(u => u.RoleId != roleAdminId)).ToList();
 			var userList = _mapper.Map<List<AdminUserDTO>>(userListFromDb);
 			for (int i = 0; i < userListFromDb.Count; i++)
 			{
-				var lockOutEnd = (await _userManager.GetLockoutEndDateAsync(userListFromDb[i])).GetValueOrDefault().LocalDateTime;
-				if (lockOutEnd >= DateTime.Now)
-					userList[i].LockOutEnd = lockOutEnd.ToString();
+				userList[i].Gender = userListFromDb[i].IsMale ? "male" : "female";
+				userList[i].Role = roleList[userListFromDb[i].RoleId].Name;
+				var lockOutEnd = (await _userManager.GetLockoutEndDateAsync(userListFromDb[i])).GetValueOrDefault().DateTime;
+				if (lockOutEnd >= DateTime.UtcNow.AddHours(7))
+					userList[i].LockOutEndTime = lockOutEnd;
 			}
 			return userList;
 		}
@@ -51,18 +55,17 @@ namespace NESTCOOKING_API.Business.Services
 			var userFromDb = await _userRepository.GetAsync(u => u.Id == userId);
 			if (await _userManager.IsLockedOutAsync(userFromDb))
 			{
-				var lockOutEnd = (await _userManager.GetLockoutEndDateAsync(userFromDb)).GetValueOrDefault().LocalDateTime;
-				throw new Exception($"This user has already been locked out, with the end time is {lockOutEnd.ToString()}.");
+				var lockOutEnd = (await _userManager.GetLockoutEndDateAsync(userFromDb)).GetValueOrDefault().DateTime;
+				throw new Exception($"This user has already been locked out, with the end time is {lockOutEnd}.");
 			}
-			await _userManager.SetLockoutEndDateAsync(userFromDb, DateTime.Now.AddMinutes(minute));
+			await _userManager.SetLockoutEndDateAsync(userFromDb, DateTime.UtcNow.AddHours(7).AddMinutes(minute));
 		}
 		public async Task UnlockUserAsync(string userId)
 		{
 			var userFromDb = await _userRepository.GetAsync(u => u.Id == userId);
 			if (!(await _userManager.IsLockedOutAsync(userFromDb)))
 			{
-				var lockOutEnd = (await _userManager.GetLockoutEndDateAsync(userFromDb)).GetValueOrDefault().LocalDateTime;
-				throw new Exception($"This user hasn't already been locked out..");
+				throw new Exception($"This user hasn't already been locked out.");
 			}
 			await _userManager.SetLockoutEndDateAsync(userFromDb, null);
 		}
