@@ -90,7 +90,7 @@ namespace NESTCOOKING_API.Business.Services
                             var user = await _userRepository.GetAsync(u => u.Id == report.TargetId);
                             violentUserId = user.Id;
                             await _userManager.SetLockoutEnabledAsync(user, true);
-                            await _userManager.SetLockoutEndDateAsync(user, DateTime.Now.AddDays(30));
+                            await _userManager.SetLockoutEndDateAsync(user, DateTime.UtcNow.AddHours(7).AddDays(30));
                         }
 						break;
 					}

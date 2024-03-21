@@ -217,8 +217,8 @@ namespace NESTCOOKING_API.Business.Services
 			var newRecipeId = Guid.NewGuid().ToString();
 			recipe.Id = newRecipeId;
 			recipe.UserId = userId;
-			recipe.CreatedAt = DateTime.Now;
-			recipe.UpdatedAt = DateTime.Now;
+			recipe.CreatedAt = DateTime.UtcNow.AddHours(7);
+			recipe.UpdatedAt = DateTime.UtcNow.AddHours(7);
 			await _recipeRepository.CreateAsync(recipe);
 
 			await AddCategories(recipe.Id, createRecipeDTO.Categories);
@@ -244,7 +244,7 @@ namespace NESTCOOKING_API.Business.Services
 			var recipe = _mapper.Map<Recipe>(updateRecipeDTO);
 			recipe.Id = recipeId;
 			recipe.UserId = userId;
-			recipe.UpdatedAt = DateTime.Now;
+			recipe.UpdatedAt = DateTime.UtcNow.AddHours(7);
 			if (!recipe.IsPublic)
 			{
 				await _recipeRepository.VerifyAsync(recipeId, false, false);

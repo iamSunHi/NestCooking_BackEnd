@@ -133,11 +133,11 @@ namespace NESTCOOKING_API.Business.Services
 		{
 			try
 			{
-				if (DateTime.Now.AddDays(2) > createBooking.TimeStart)
+				if (DateTime.UtcNow.AddHours(7).AddDays(2) > createBooking.TimeStart)
 				{
 					throw new Exception(message: "Booking must be placed at least 2 days from now.");
 				}
-				if (createBooking.TimeEnd <= createBooking.TimeStart || createBooking.TimeStart <= DateTime.Now)
+				if (createBooking.TimeEnd <= createBooking.TimeStart || createBooking.TimeStart <= DateTime.UtcNow.AddHours(7))
 				{
 					throw new Exception(message: "'Time End' must be greater than 'Time Start'.");
 				}
@@ -163,8 +163,8 @@ namespace NESTCOOKING_API.Business.Services
 				var newBooking = _mapper.Map<Booking>(createBooking);
 				newBooking.Id = Guid.NewGuid().ToString();
 				newBooking.Status = StaticDetails.ActionStatus_PENDING;
-				newBooking.CreatedAt = DateTime.Now;
-				newBooking.ApprovalStatusDate = DateTime.Now;
+				newBooking.CreatedAt = DateTime.UtcNow.AddHours(7);
+				newBooking.ApprovalStatusDate = DateTime.UtcNow.AddHours(7);
 				newBooking.UserId = userId;
 				newBooking.TransactionIdList =
 				[
@@ -363,7 +363,7 @@ namespace NESTCOOKING_API.Business.Services
 										);
 										bookingFromDb.TransactionIdList.Add(transactionId);
 
-										if (DateTime.Now >= bookingFromDb.TimeStart.AddHours(-2))
+										if (DateTime.UtcNow.AddHours(7) >= bookingFromDb.TimeStart.AddHours(-2))
 										{
 											// if the user cancel accepted booking less than 2 hours, they will lose 75% of the total (5% to admin, 70% to chef)
 											await _userRepository.IncreaseUserBalanceAsync(user.Id, bookingFromDb.Total * 0.25);
@@ -380,7 +380,7 @@ namespace NESTCOOKING_API.Business.Services
 											);
 											bookingFromDb.TransactionIdList.Add(transactionId);
 										}
-										else if (DateTime.Now >= bookingFromDb.TimeStart.AddDays(-1))
+										else if (DateTime.UtcNow.AddHours(7) >= bookingFromDb.TimeStart.AddDays(-1))
 										{
 											// if the user cancel accepted booking more than 2 hours to 1 day, they will lose 45% of the total (5% to admin, 40% to chef)
 											await _userRepository.IncreaseUserBalanceAsync(user.Id, bookingFromDb.Total * 0.55);
@@ -397,7 +397,7 @@ namespace NESTCOOKING_API.Business.Services
 											);
 											bookingFromDb.TransactionIdList.Add(transactionId);
 										}
-										else //if (DateTime.Now < bookingFromDb.TimeStart.AddDays(-1))
+										else //if (DateTime.UtcNow.AddHours(7) < bookingFromDb.TimeStart.AddDays(-1))
 										{
 											// if the user cancel accepted booking more than 1 day, they will lose 25% of the total (5% to admin, 20% to chef)
 											await _userRepository.IncreaseUserBalanceAsync(user.Id, bookingFromDb.Total * 0.75);
@@ -436,7 +436,7 @@ namespace NESTCOOKING_API.Business.Services
 
 		private async Task ProcessBookingStatus(Booking existBooking, BookingStatusDTO status)
 		{
-			existBooking.ApprovalStatusDate = DateTime.Now;
+			existBooking.ApprovalStatusDate = DateTime.UtcNow.AddHours(7);
 			existBooking.Status = status.Status;
 			await _bookingRepository.UpdateBookingStatus(existBooking);
 		}
@@ -470,7 +470,7 @@ namespace NESTCOOKING_API.Business.Services
 				Currency = StaticDetails.Currency_VND,
 				Payment = StaticDetails.Payment_Wallet,
 				IsSuccess = true,
-				CreatedAt = DateTime.Now
+				CreatedAt = DateTime.UtcNow.AddHours(7)
 			};
 			await _transactionRepository.CreateAsync(transaction);
 

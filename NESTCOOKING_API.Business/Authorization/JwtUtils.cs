@@ -39,7 +39,7 @@ namespace NESTCOOKING_API.Business.Authorization
 					new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
 					new Claim(ClaimTypes.Role, role)
 				}),
-				Expires = DateTime.Now.AddDays(7),
+				Expires = DateTime.UtcNow.AddHours(7).AddDays(7),
 				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
 			};
 

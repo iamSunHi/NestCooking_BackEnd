@@ -43,7 +43,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 					_context.Attach(ingredientTipFromDb);
 				}
 				ingredientTipFromDb.Title = ingredientTip.Title;
-				ingredientTipFromDb.UpdatedAt = DateTime.Now;
+				ingredientTipFromDb.UpdatedAt = DateTime.UtcNow.AddHours(7);
 
 				await _context.SaveChangesAsync();
 			}

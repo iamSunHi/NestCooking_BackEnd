@@ -93,7 +93,7 @@ namespace NESTCOOKING_API.Business.Services
 			var ingredientTip = _mapper.Map<IngredientTip>(ingredientTipDTO);
 			ingredientTip.Id = Guid.NewGuid().ToString();
 			ingredientTip.UserId = userId;
-			ingredientTip.CreatedAt = DateTime.Now;
+			ingredientTip.CreatedAt = DateTime.UtcNow.AddHours(7);
 			await _ingredientTipRepository.CreateAsync(ingredientTip);
 
 			foreach (var content in ingredientTipDTO.Contents)

@@ -100,7 +100,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			try
 			{
 				var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
-				ingredientTipDTO.UpdatedAt = DateTime.Now;
+				ingredientTipDTO.UpdatedAt = DateTime.UtcNow.AddHours(7);
 				await _ingredientTipService.UpdateIngredientTipAsync(userId, ingredientTipDTO);
 				return Ok(ResponseDTO.Accept(result: ingredientTipDTO));
 			}

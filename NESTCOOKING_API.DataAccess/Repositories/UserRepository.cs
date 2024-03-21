@@ -66,7 +66,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
                         await _userManager.AccessFailedAsync(user);
                         if (await _userManager.GetAccessFailedCountAsync(user) == 3)
                         {
-                            await _userManager.SetLockoutEndDateAsync(user, DateTime.Now.AddMinutes(30));
+                            await _userManager.SetLockoutEndDateAsync(user, DateTime.UtcNow.AddHours(7).AddMinutes(30));
                             await _userManager.ResetAccessFailedCountAsync(user);
                         }
                     }

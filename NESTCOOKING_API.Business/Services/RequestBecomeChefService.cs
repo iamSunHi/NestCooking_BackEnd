@@ -59,7 +59,7 @@ namespace NESTCOOKING_API.Business.Services
 				requestToBecomeChef.UserID = userId;
 				requestToBecomeChef.Status = ActionStatus_PENDING;
 				requestToBecomeChef.ResponseId = null;
-				requestToBecomeChef.CreatedAt = DateTime.Now;
+				requestToBecomeChef.CreatedAt = DateTime.UtcNow.AddHours(7);
 
 				var result = this._mapper.Map<RequestToBecomeChefDTO>(await _chefRequestRepository.CreateRequestToBecomeChef(requestToBecomeChef));
 
@@ -114,7 +114,7 @@ namespace NESTCOOKING_API.Business.Services
 
 			if (existingRequest != null)
 			{
-				existingRequest.CreatedAt = DateTime.Now;
+				existingRequest.CreatedAt = DateTime.UtcNow.AddHours(7);
 				_mapper.Map(requestToBecomeChefDTO, existingRequest);
 				await _chefRequestRepository.UpdateRequestToBecomeChef(existingRequest);
 				var updatedDto = _mapper.Map<RequestToBecomeChefDTO>(existingRequest);
@@ -191,7 +191,7 @@ namespace NESTCOOKING_API.Business.Services
 				userSendRequest.Address = existingRequest.Address;
 			}
 			existingRequest.Status = approvalRequestDTO.Status;
-			var responseId = $"{Guid.NewGuid().ToString("N")}-{DateTime.Now.ToString("yyyy/MM/dd-HH:mm:ss")}";
+			var responseId = $"{Guid.NewGuid().ToString("N")}-{DateTime.UtcNow.AddHours(7).ToString("yyyy/MM/dd-HH:mm:ss")}";
 			existingRequest.ResponseId = responseId;
 
 

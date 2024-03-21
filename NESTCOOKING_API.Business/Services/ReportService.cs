@@ -64,7 +64,7 @@ namespace NESTCOOKING_API.Business.Services
 			}
 			createdReportMapped.Id = Guid.NewGuid().ToString();
 			createdReportMapped.User = user;
-			createdReportMapped.CreatedAt = DateTime.Now;
+			createdReportMapped.CreatedAt = DateTime.UtcNow.AddHours(7);
 			createdReportMapped.Status = StaticDetails.ActionStatus_PENDING;
 
 			await _reportRepository.CreateAsync(createdReportMapped);

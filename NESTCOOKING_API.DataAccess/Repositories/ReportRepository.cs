@@ -32,7 +32,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 						reportEntity.Title = reportToDb.Title;
 						reportEntity.Content = reportToDb.Content;
 						reportEntity.ImageUrls = reportToDb.ImageUrls;
-						reportEntity.CreatedAt = DateTime.Now;
+						reportEntity.CreatedAt = DateTime.UtcNow.AddHours(7);
 
 						await _context.SaveChangesAsync();
 						return reportEntity;

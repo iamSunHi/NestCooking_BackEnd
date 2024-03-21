@@ -81,7 +81,7 @@ namespace NESTCOOKING_API.Business.Services
 		{
 			var notificationToDb = _mapper.Map<Notification>(notificationCreateDTO);
 			notificationToDb.Id = Guid.NewGuid().ToString();
-			notificationToDb.CreatedAt = DateTime.Now;
+			notificationToDb.CreatedAt = DateTime.UtcNow.AddHours(7);
 
 			switch (notificationCreateDTO.NotificationType)
 			{
