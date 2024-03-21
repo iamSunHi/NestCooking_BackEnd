@@ -38,7 +38,7 @@ namespace NESTCOOKING_API.Business.Services
             using var client = new SmtpClient();
             try
             {
-                client.Connect(_emailRequest.SmtpServer, _emailRequest.Port, true);
+                client.Connect(_emailRequest.SmtpServer, _emailRequest.Port, false);
                 client.AuthenticationMechanisms.Remove("XOAUTH2");
                 client.Authenticate(_emailRequest.UserName, _emailRequest.Password);
 
