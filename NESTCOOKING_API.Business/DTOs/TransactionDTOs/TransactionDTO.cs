@@ -11,6 +11,7 @@ namespace NESTCOOKING_API.Business.DTOs.TransactionDTOs
 		public string Description { get; set; } = null!;
 		public string Currency { get; set; } = null!;
 		public string Payment { get; set; } = null!;
-		public DateTime CreatedAt { get; set; }
+        public bool IsSuccess { get; set; }
+        public DateTime CreatedAt { get; set; }
 	}
 }
