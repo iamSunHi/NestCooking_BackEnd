@@ -25,8 +25,15 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		[ResponseCache(Duration = 30)]
 		public async Task<IActionResult> GetAllRecipesAsync()
 		{
-			var recipes = await _recipeService.GetAllRecipesAsync();
-			return Ok(ResponseDTO.Accept(result: recipes));
+			try
+			{
+				var recipes = await _recipeService.GetAllVerifiedRecipesAsync();
+				return Ok(ResponseDTO.Accept(result: recipes));
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ResponseDTO.BadRequest(message: ex.Message));
+			}
 		}
 
 		[HttpGet("{id}")]

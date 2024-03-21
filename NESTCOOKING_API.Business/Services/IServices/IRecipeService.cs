@@ -7,7 +7,7 @@ namespace NESTCOOKING_API.Business.Services.IServices
 {
 	public interface IRecipeService
 	{
-		Task<IEnumerable<RecipeDTO>> GetAllUnverifiedRecipesAsync();
+		Task<IEnumerable<RecipeDTO>> GetAllVerifiedRecipesAsync();
 		Task<IEnumerable<RecipeDTO>> GetAllRecipesAsync();
 		Task<(int, int, IEnumerable<RecipeDTO>)> GetRecipesAsync(PaginationInfoDTO paginationInfo);
 		Task<RecipeDetailDTO> GetRecipeByIdAsync(string id, string? userId);
@@ -22,6 +22,6 @@ namespace NESTCOOKING_API.Business.Services.IServices
 		Task<List<RecipeForBookingDTO>> GetAllRecipesForBookingByChefIdAsync(string chefId);
 		Task<RecipeForBookingDTO> UpdateRecipeForBookingAsync(string userId, RecipeForBookingDTO recipeForBookingDTO);
 
-		Task VerifyRecipe(AdminVerifyRecipeDTO adminVerifyRecipeDTO);
+		Task VerifyRecipeAsync(AdminVerifyRecipeDTO adminVerifyRecipeDTO);
 	}
 }

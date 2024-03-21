@@ -51,7 +51,7 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 			}
 		}
 
-		public async Task VerifyAsync(string recipeId)
+		public async Task VerifyAsync(string recipeId, bool isVerified = false, bool isPublic = false)
 		{
 			var recipeFromDb = await this.GetAsync(r => r.Id == recipeId);
 
@@ -62,7 +62,8 @@ namespace NESTCOOKING_API.DataAccess.Repositories
 					_context.Attach(recipeFromDb);
 				}
 
-				recipeFromDb.IsVerified = true;
+				recipeFromDb.IsVerified = isVerified;
+				recipeFromDb.IsPublic = isPublic;
 
 				await _context.SaveChangesAsync();
 			}

@@ -16,5 +16,6 @@ namespace NESTCOOKING_API.Business.DTOs.RecipeDTOs
 		public DateTime UpdatedAt { get; set; }
 
 		public bool IsVerified { get; set; }
+		public bool IsPublic { get; set; }
 	}
 }

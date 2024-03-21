@@ -73,9 +73,9 @@ namespace NESTCOOKING_API.Business.Services
 			_notificationService = notificationService;
 		}
 
-		public async Task<IEnumerable<RecipeDTO>> GetAllUnverifiedRecipesAsync()
+		public async Task<IEnumerable<RecipeDTO>> GetAllVerifiedRecipesAsync()
 		{
-			var recipesFromDb = await _recipeRepository.GetAllAsync(r => !r.IsVerified);
+			var recipesFromDb = await _recipeRepository.GetAllAsync(r => r.IsVerified && r.IsPublic);
 			recipesFromDb = recipesFromDb.OrderByDescending(r => r.CreatedAt);
 			return await ConvertRecipesToListRecipeDTO(recipesFromDb);
 		}
@@ -245,6 +245,10 @@ namespace NESTCOOKING_API.Business.Services
 			recipe.Id = recipeId;
 			recipe.UserId = userId;
 			recipe.UpdatedAt = DateTime.Now;
+			if (!recipe.IsPublic)
+			{
+				await _recipeRepository.VerifyAsync(recipeId, false, false);
+			}
 			await _recipeRepository.UpdateAsync(recipe);
 
 			await UpdateCategories(recipeFromDb.Id, updateRecipeDTO.Categories);
@@ -529,14 +533,14 @@ namespace NESTCOOKING_API.Business.Services
 			return _mapper.Map<RecipeForBookingDTO>(recipeFromDb);
 		}
 
-		public async Task VerifyRecipe(AdminVerifyRecipeDTO adminVerifyRecipeDTO)
+		public async Task VerifyRecipeAsync(AdminVerifyRecipeDTO adminVerifyRecipeDTO)
 		{
 			switch (adminVerifyRecipeDTO.Status)
 			{
 				case StaticDetails.ActionStatus_ACCEPTED:
 					{
 						var recipeFromDb = await _recipeRepository.GetAsync(r => r.Id == adminVerifyRecipeDTO.RecipeId);
-						await _recipeRepository.VerifyAsync(adminVerifyRecipeDTO.RecipeId);
+						await _recipeRepository.VerifyAsync(adminVerifyRecipeDTO.RecipeId, true, true);
 						NotificationCreateDTO notificationCreateDTO = new()
 						{
 							ReceiverId = recipeFromDb.UserId,
@@ -550,7 +554,7 @@ namespace NESTCOOKING_API.Business.Services
 				case StaticDetails.ActionStatus_REJECTED:
 					{
 						var recipeFromDb = await _recipeRepository.GetAsync(r => r.Id == adminVerifyRecipeDTO.RecipeId);
-						await this.DeleteRecipeAsync(recipeFromDb.UserId, recipeFromDb.Id);
+						await _recipeRepository.VerifyAsync(adminVerifyRecipeDTO.RecipeId, true, false);
 						NotificationCreateDTO notificationCreateDTO = new()
 						{
 							ReceiverId = recipeFromDb.UserId,

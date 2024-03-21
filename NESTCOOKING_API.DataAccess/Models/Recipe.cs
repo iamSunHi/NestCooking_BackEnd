@@ -23,8 +23,9 @@ namespace NESTCOOKING_API.DataAccess.Models
 		public double? BookingPrice { get; set; }
 
 		public bool IsVerified { get; set; } = false;
+		public bool IsPublic { get; set; } = false;
 
-        [JsonIgnore]
+		[JsonIgnore]
         public ICollection<Comment> Comments { get; set; }
     }
 }

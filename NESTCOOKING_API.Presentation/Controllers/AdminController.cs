@@ -306,7 +306,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		#region RequestBecomeChef
 
 
-		[HttpGet("request")]
+		[HttpGet("requests")]
 		public async Task<IActionResult> GetAllRequests([FromQuery] string? status, [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
 		{
 			try
@@ -353,7 +353,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			}
 		}
 
-		[HttpPut("request/verify")]
+		[HttpPut("requests/verify")]
 		public async Task<IActionResult> ApprovalRequest([FromBody] ApprovalRequestDTO approvalRequestDTO)
 		{
 			try
@@ -394,16 +394,15 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 		#region Verify recipes
 
-		[HttpGet("recipe/unverified")]
+		[HttpGet("recipes")]
 		[ResponseCache(Duration = 30)]
-		public async Task<IActionResult> GetAllUnverifiedRecipesAsync([FromQuery] string? id = null)
+		public async Task<IActionResult> GetRecipesAsync([FromQuery] string? id = null)
 		{
 			try
 			{
 				if (string.IsNullOrEmpty(id))
 				{
-					var recipes = await _recipeService.GetAllUnverifiedRecipesAsync();
-					recipes = recipes.OrderByDescending(r => r.CreatedAt).ToList();
+					var recipes = await _recipeService.GetAllRecipesAsync();
 					return Ok(ResponseDTO.Accept(result: recipes));
 				}
 				else
@@ -423,13 +422,13 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			}
 		}
 
-		[HttpPut("recipe/verify")]
-		public async Task<IActionResult> GetAllUnverifiedRecipesAsync([FromBody] AdminVerifyRecipeDTO verifyRecipeDTO)
+		[HttpPut("recipes/verify")]
+		public async Task<IActionResult> VerifyRecipeAsyncsAsync([FromBody] AdminVerifyRecipeDTO VerifyRecipeAsyncDTO)
 		{
 			try
 			{
-				verifyRecipeDTO.Status = verifyRecipeDTO.Status.ToUpper();
-				await _recipeService.VerifyRecipe(verifyRecipeDTO);
+				VerifyRecipeAsyncDTO.Status = VerifyRecipeAsyncDTO.Status.ToUpper();
+				await _recipeService.VerifyRecipeAsync(VerifyRecipeAsyncDTO);
 				return Ok(ResponseDTO.Accept());
 			}
 			catch (Exception ex)
