@@ -8,6 +8,7 @@ using NESTCOOKING_API.Business.Services;
 using NESTCOOKING_API.Business.Services.IServices;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.Utility;
+using System.Net;
 using System.Security.Claims;
 using static NESTCOOKING_API.Utility.StaticDetails;
 namespace NESTCOOKING_API.Presentation.Controllers
@@ -82,7 +83,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
                         {
                             await _purchasedRecipesService.DeletePurchaseByTransactionId(paymentResponse.OrderId);
                         }
-                        return BadRequest(ResponseDTO.BadRequest(message: "An error occurred during processing"));
+                        return BadRequest(ResponseDTO.Create(HttpStatusCode.BadRequest, message: "Error", result: paymentResponse));
                     }
                     return Ok(ResponseDTO.Accept(result: paymentResponse));
                 }
