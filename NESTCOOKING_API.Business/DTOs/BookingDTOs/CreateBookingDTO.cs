@@ -8,5 +8,6 @@
         public DateTime TimeStart { get; set; }
         public DateTime TimeEnd { get; set; }
         public double Total { get; set; }
+        public string PhoneNumber { get; set; } = null!;
     }
 }

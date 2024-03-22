@@ -15,6 +15,7 @@ namespace NESTCOOKING_API.DataAccess.Models
         public string Status { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
         public DateTime ApprovalStatusDate { get; set; }
+        public string PhoneNumber { get; set; } = null!;
 
         // One booking can have many transactions. Example: take money of user, give chef money,...
         public required List<string> TransactionIdList { get; set; }

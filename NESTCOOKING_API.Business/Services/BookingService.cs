@@ -178,7 +178,6 @@ namespace NESTCOOKING_API.Business.Services
 					createBooking.Total, AppString.PaymentReceiveDepositForBookingOfUser
 				);
 				newBooking.TransactionIdList.Add(transactionId);
-
 				await _bookingRepository.CreateAsync(newBooking);
 
 				// Add Recipes infomation into BookingLine
