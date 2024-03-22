@@ -108,7 +108,8 @@ namespace NESTCOOKING_API.Presentation.Controllers
 			{
 				return BadRequest(ResponseDTO.BadRequest(message: $"User id is required."));
 			}
-			var recipe = await _recipeService.GetRecipesByUserIdAsync(userId);
+			var currentUserId = AuthenticationHelper.GetUserIdFromContext(HttpContext);
+			var recipe = await _recipeService.GetRecipesByUserIdAsync(userId, currentUserId);
 			if (recipe == null)
 			{
 				return BadRequest(ResponseDTO.BadRequest(message: $"You don't have any recipe."));

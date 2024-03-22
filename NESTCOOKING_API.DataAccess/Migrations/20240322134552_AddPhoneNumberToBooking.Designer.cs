@@ -12,8 +12,8 @@ using NESTCOOKING_API.DataAccess.Data;
 namespace NESTCOOKING_API.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240311134534_AddBookingTableToDb")]
-    partial class AddBookingTableToDb
+    [Migration("20240322134552_AddPhoneNumberToBooking")]
+    partial class AddPhoneNumberToBooking
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -285,7 +285,8 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Note")
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
@@ -323,6 +324,9 @@ namespace NESTCOOKING_API.DataAccess.Migrations
 
                     b.Property<string>("BookingId")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -693,6 +697,12 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsPrivate")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsVerified")
                         .HasColumnType("bit");
 
                     b.Property<int>("Portion")

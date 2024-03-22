@@ -89,7 +89,7 @@ namespace NESTCOOKING_API.Business.Services
 
 		public async Task<(int, int, IEnumerable<RecipeDTO>)> GetRecipesAsync(PaginationInfoDTO paginationInfo)
 		{
-			var totalItems = (await _recipeRepository.GetAllAsync(r => r.IsVerified)).Count();
+			var totalItems = (await _recipeRepository.GetAllAsync(r => r.IsVerified && r.IsPublic)).Count();
 			var totalPages = (int)Math.Ceiling((double)totalItems / paginationInfo.PageSize);
 			var recipesFromDb = await _recipeRepository.GetRecipesWithPaginationAsync(paginationInfo.PageNumber, paginationInfo.PageSize);
 			if (recipesFromDb == null)
@@ -131,17 +131,22 @@ namespace NESTCOOKING_API.Business.Services
 				{
 					return recipe;
 				}
-				else if (recipeFromDb.UserId != userId)
+				else
 				{
-					var purchaseData = await _purchasedRecipesRepositoryService.GetAsync(p => p.RecipeId == id && p.UserId == userId);
-					if (purchaseData == null)
+					var roleAdminId = (await _roleRepository.GetAsync(r => r.Name == StaticDetails.Role_Admin)).Id;
+					var userFromDb = await _userRepository.GetAsync(u => u.Id == userId);
+					if (recipeFromDb.UserId != userId && userFromDb.RoleId != roleAdminId)
 					{
-						return recipe;
-					}
-					var transactionData = await _transactionRepository.GetAsync(t => t.Id == purchaseData.TransactionId);
-					if (!transactionData.IsSuccess)
-					{
-						return recipe;
+						var purchaseData = await _purchasedRecipesRepositoryService.GetAsync(p => p.RecipeId == id && p.UserId == userId);
+						if (purchaseData == null)
+						{
+							return recipe;
+						}
+						var transactionData = await _transactionRepository.GetAsync(t => t.Id == purchaseData.TransactionId);
+						if (!transactionData.IsSuccess)
+						{
+							return recipe;
+						}
 					}
 				}
 			}
@@ -171,13 +176,18 @@ namespace NESTCOOKING_API.Business.Services
 		public async Task<IEnumerable<RecipeDTO>> GetRecipesByCategoryIdAsync(int categoryId)
 		{
 			var recipesFromDb = await _categoryRecipeRepository.GetRecipesByCategoryIdAsync(categoryId);
+			recipesFromDb = recipesFromDb.Where(r => r.IsVerified && r.IsPublic).ToList();
 			return await ConvertRecipesToListRecipeDTO(recipesFromDb);
 
 		}
 
-		public async Task<IEnumerable<RecipeDTO>> GetRecipesByUserIdAsync(string userId)
+		public async Task<IEnumerable<RecipeDTO>> GetRecipesByUserIdAsync(string userId, string? currentUserId)
 		{
-			var recipesFromDb = await _recipeRepository.GetAllAsync(r => r.UserId == userId);
+			var recipesFromDb = (await _recipeRepository.GetAllAsync(r => r.UserId == userId)).ToList();
+			if (currentUserId != null && currentUserId != userId)
+			{
+				recipesFromDb = recipesFromDb.Where(r => r.IsVerified && r.IsPublic).ToList();
+			}
 			return await ConvertRecipesToListRecipeDTO(recipesFromDb);
 
 		}

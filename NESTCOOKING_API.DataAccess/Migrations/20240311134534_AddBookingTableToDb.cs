@@ -24,7 +24,6 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                     TimeEnd = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Total = table.Column<double>(type: "float", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ApprovalStatusDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TransactionIdList = table.Column<string>(type: "nvarchar(max)", nullable: false)
