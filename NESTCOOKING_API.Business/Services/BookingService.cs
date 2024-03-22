@@ -466,7 +466,7 @@ namespace NESTCOOKING_API.Business.Services
 				Type = type,
 				Amount = amount,
 				Description = description,
-				Currency = StaticDetails.Currency_VND,
+				Currency = StaticDetails.Currency_USD,
 				Payment = StaticDetails.Payment_Wallet,
 				IsSuccess = true,
 				CreatedAt = DateTime.UtcNow.AddHours(7)
