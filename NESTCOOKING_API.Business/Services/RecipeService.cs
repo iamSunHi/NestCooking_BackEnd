@@ -131,7 +131,7 @@ namespace NESTCOOKING_API.Business.Services
 				{
 					return recipe;
 				}
-				else
+				else if (recipeFromDb.UserId != userId)
 				{
 					var purchaseData = await _purchasedRecipesRepositoryService.GetAsync(p => p.RecipeId == id && p.UserId == userId);
 					if (purchaseData == null)
@@ -145,29 +145,6 @@ namespace NESTCOOKING_API.Business.Services
 					}
 				}
 			}
-			// if (recipe.User.Id != userId)
-			// {
-			// 	if (recipe.IsPrivate)
-			// 	{
-			// 		if (userId == null)
-			// 		{
-			// 			return recipe;
-			// 		}
-			// 		var purchaseData = await _purchasedRecipesRepositoryService.GetAsync(p => p.RecipeId == id && p.UserId == userId);
-
-			// 		if (purchaseData == null)
-			// 		{
-			// 			return recipe;
-			// 		}
-
-			// 		var transactionData = await _transactionRepository.GetAsync(t => t.Id == purchaseData.TransactionId);
-
-			// 		if (!transactionData.IsSuccess)
-			// 		{
-			// 			return recipe;
-			// 		}
-			// 	}
-			// }
 
 			var ingredientList = await _ingredientRepository.GetAllAsync(i => i.RecipeId == id);
 			recipe.Ingredients = _mapper.Map<IEnumerable<IngredientDTO>>(ingredientList);
