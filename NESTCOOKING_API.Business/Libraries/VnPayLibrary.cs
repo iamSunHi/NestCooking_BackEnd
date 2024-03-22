@@ -47,9 +47,6 @@ namespace NESTCOOKING_API.Business.Libraries
             var orderInfo = GetResponseData("vnp_OrderInfo");
             var vnpTransactionStatus = GetResponseData("vnp_TransactionStatus");
             var checkSignature = ValidateSignature(vnpSecureHash, hashSecret); //check Signature
-
-            if (checkSignature)
-            {
                 var paymentResponse = new PaymentResponse
                 {
                     Amount = amount,
@@ -73,11 +70,6 @@ namespace NESTCOOKING_API.Business.Libraries
                     paymentResponse.Success = false;
                     return paymentResponse;
                 }
-            }
-            else
-            {
-                throw new Exception("Invalid signature");
-            }
         }
         public string GetIpAddress(HttpContext context)
         {

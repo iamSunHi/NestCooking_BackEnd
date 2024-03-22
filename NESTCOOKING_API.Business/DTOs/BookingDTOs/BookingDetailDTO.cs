@@ -16,7 +16,7 @@ namespace NESTCOOKING_API.Business.DTOs.BookingDTOs
         public string? Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime ApprovalStatusDate { get; set; }
-
+        public string PhoneNumber { get; set; } = null!;
         public required object Transaction { get; set; }
     }
 }
