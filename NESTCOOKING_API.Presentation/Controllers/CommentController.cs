@@ -11,7 +11,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
 {
 	[Route("api/comments")]
 	[ApiController]
-	[Authorize]
 	public class CommentController : ControllerBase
 	{
 		private readonly ICommentService _commentService;
