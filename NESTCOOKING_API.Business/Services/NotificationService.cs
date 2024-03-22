@@ -121,7 +121,16 @@ namespace NESTCOOKING_API.Business.Services
 				case StaticDetails.NotificationType_COMMENT:
 					{
 						var target = await _commentRepository.GetAsync(r => r.CommentId == notificationToDb.ReceiverId);
-						notificationToDb.ReceiverId = target.UserId;
+						if (target.Type == StaticDetails.CommentType_COMMENTCHILD)
+						{
+							var parentComment = await _commentRepository.GetAsync(c => c.CommentId == target.ParentCommentId);
+							notificationToDb.ReceiverId = parentComment.UserId;
+						}
+						else
+						{
+							var parentRecipe = await _recipeRepository.GetAsync(r => r.Id == target.RecipeId);
+							notificationToDb.ReceiverId = parentRecipe.UserId;
+						}
 
 						if (notificationToDb.SenderId == notificationToDb.ReceiverId)
 							return;

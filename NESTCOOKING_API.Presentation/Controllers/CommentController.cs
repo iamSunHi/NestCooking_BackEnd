@@ -131,15 +131,6 @@ namespace NESTCOOKING_API.Presentation.Controllers
 					var result = await _commentService.CreateComment(userId, createCommentDTO);
 					if (result != null)
 					{
-						var notificationCreateDTO = new NotificationCreateDTO()
-						{
-							SenderId = userId,
-							ReceiverId = result.CommentId,
-							NotificationType = StaticDetails.NotificationType_COMMENT,
-							TargetType = createCommentDTO.Type
-						};
-						await _notificationService.CreateNotificationAsync(notificationCreateDTO);
-
 						return Ok(ResponseDTO.Accept(result: result));
 					}
 					else
