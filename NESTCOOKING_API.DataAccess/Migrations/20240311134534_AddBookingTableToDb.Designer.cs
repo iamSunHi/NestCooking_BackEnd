@@ -292,6 +292,10 @@ namespace NESTCOOKING_API.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PhoneNumber")
+                       .IsRequired()
+                       .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("TimeEnd")
                         .HasColumnType("datetime2");
 
