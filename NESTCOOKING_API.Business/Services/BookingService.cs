@@ -137,7 +137,7 @@ namespace NESTCOOKING_API.Business.Services
 				{
 					throw new Exception(message: "Booking must be placed at least 2 days from now.");
 				}
-				if (createBooking.TimeEnd <= createBooking.TimeStart || createBooking.TimeStart <= DateTime.UtcNow.AddHours(7))
+				if (createBooking.TimeEnd <= createBooking.TimeStart)
 				{
 					throw new Exception(message: "'Time End' must be greater than 'Time Start'.");
 				}
@@ -478,14 +478,14 @@ namespace NESTCOOKING_API.Business.Services
 
 		public async Task<List<ChefBookingScheduleDTO>> GetChefBookingScheduleDTOs(string chefId)
 		{
-			var listBookings = await _bookingRepository.GetAllAsync(b => b.ChefId == chefId);
+			var listBookings = await _bookingRepository.GetAllAsync(b => b.ChefId == chefId && b.Status == StaticDetails.ActionStatus_ACCEPTED);
 			var result = new List<ChefBookingScheduleDTO>();
 			foreach (var booking in listBookings)
 			{
 				result.Add(new ChefBookingScheduleDTO
 				{
 					TimeStart = booking.TimeStart,
-					TimeEnd = booking.TimeEnd
+					TimeEnd = booking.TimeEnd.AddHours(1)
 				});
 			}
 			return result;

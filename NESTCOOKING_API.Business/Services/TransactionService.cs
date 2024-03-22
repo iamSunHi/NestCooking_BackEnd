@@ -19,107 +19,107 @@ using System.Threading.Tasks;
 
 namespace NESTCOOKING_API.Business.Services
 {
-    public class TransactionService : ITransactionService
-    {
-        private readonly ITransactionRepository _transactionRepository;
-        private readonly IMapper _mapper;
-        public TransactionService(ITransactionRepository transactionRepository, IMapper mapper)
-        {
-            _transactionRepository = transactionRepository;
-            _mapper = mapper;
-        }
-        public async Task<string> CreateTransaction(TransactionInfor transactionInfor, string userId, string payMent)
-        {
-            try
-            {
-                var transaction = new Transaction
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    UserId = userId,
-                    Type = transactionInfor.OrderType,
-                    Amount = transactionInfor.Amount,
-                    Description = transactionInfor.OrderDescription,
-                    Currency = StaticDetails.Currency_VND,
-                    Payment = payMent,
-                    IsSuccess = false,
-                    CreatedAt = DateTime.UtcNow.AddHours(7)
-                };
-                await _transactionRepository.CreateAsync(transaction);
-                return transaction.Id;
+	public class TransactionService : ITransactionService
+	{
+		private readonly ITransactionRepository _transactionRepository;
+		private readonly IMapper _mapper;
+		public TransactionService(ITransactionRepository transactionRepository, IMapper mapper)
+		{
+			_transactionRepository = transactionRepository;
+			_mapper = mapper;
+		}
+		public async Task<string> CreateTransaction(TransactionInfor transactionInfor, string userId, string payMent)
+		{
+			try
+			{
+				var transaction = new Transaction
+				{
+					Id = Guid.NewGuid().ToString(),
+					UserId = userId,
+					Type = transactionInfor.OrderType,
+					Amount = transactionInfor.Amount / StaticDetails.VNDToUSD,
+					Description = transactionInfor.OrderDescription,
+					Currency = StaticDetails.Currency_USD,
+					Payment = payMent,
+					IsSuccess = false,
+					CreatedAt = DateTime.UtcNow.AddHours(7)
+				};
+				await _transactionRepository.CreateAsync(transaction);
+				return transaction.Id;
 
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
+			}
+			catch (Exception ex)
+			{
+				throw new Exception(ex.Message);
+			}
+		}
 
-        public async Task<List<TransactionDTO>> GetTransactionsByUserId(string userId)
-        {
-            try
-            {
-                var transactionList = await _transactionRepository.GetAllAsync(r => r.UserId == userId, includeProperties: "User");
+		public async Task<List<TransactionDTO>> GetTransactionsByUserId(string userId)
+		{
+			try
+			{
+				var transactionList = await _transactionRepository.GetAllAsync(r => r.UserId == userId, includeProperties: "User");
 
-                if (transactionList == null)
-                {
-                    return new List<TransactionDTO>();
-                }
+				if (transactionList == null)
+				{
+					return new List<TransactionDTO>();
+				}
 
-                return _mapper.Map<List<TransactionDTO>>(transactionList);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-        public async Task<List<TransactionDTO>> GetAllTransactions()
-        {
-            try
-            {
-                var transactionList = await _transactionRepository.GetAllAsync(includeProperties: "User");
-                return _mapper.Map<List<TransactionDTO>>(transactionList);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
+				return _mapper.Map<List<TransactionDTO>>(transactionList);
+			}
+			catch (Exception ex)
+			{
+				throw new Exception(ex.Message);
+			}
+		}
+		public async Task<List<TransactionDTO>> GetAllTransactions()
+		{
+			try
+			{
+				var transactionList = await _transactionRepository.GetAllAsync(includeProperties: "User");
+				return _mapper.Map<List<TransactionDTO>>(transactionList);
+			}
+			catch (Exception ex)
+			{
+				throw new Exception(ex.Message);
+			}
+		}
 
-        public async Task TransactionSuccessById(string transactionId, bool isSuccess)
-        {
-            try
-            {
-                var trannsactioncheck = await _transactionRepository.GetAsync(t => t.Id == transactionId);
-                if (trannsactioncheck.IsSuccess == true)
-                {
-                    throw new Exception("Duplicated transaction");
-                }
-                else
-                {
-                    var transaction = _transactionRepository.UpdateTransactionSuccessAsync(transactionId, isSuccess);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
+		public async Task TransactionSuccessById(string transactionId, bool isSuccess)
+		{
+			try
+			{
+				var trannsactioncheck = await _transactionRepository.GetAsync(t => t.Id == transactionId);
+				if (trannsactioncheck.IsSuccess == true)
+				{
+					throw new Exception("Duplicated transaction");
+				}
+				else
+				{
+					var transaction = _transactionRepository.UpdateTransactionSuccessAsync(transactionId, isSuccess);
+				}
+			}
+			catch (Exception ex)
+			{
+				throw new Exception(ex.Message);
+			}
+		}
 
-        public async Task<string> GetTransactionTypeByIdAsync(string transactionId)
-        {
-            try
-            {
-                var transaction = await _transactionRepository.GetAsync(r => r.Id == transactionId);
-                if (transaction == null)
-                {
-                    throw new Exception("Not found Transaction");
-                }
-                return transaction.Type;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-    }
+		public async Task<string> GetTransactionTypeByIdAsync(string transactionId)
+		{
+			try
+			{
+				var transaction = await _transactionRepository.GetAsync(r => r.Id == transactionId);
+				if (transaction == null)
+				{
+					throw new Exception("Not found Transaction");
+				}
+				return transaction.Type;
+			}
+			catch (Exception ex)
+			{
+				throw new Exception(ex.Message);
+			}
+		}
+	}
 }

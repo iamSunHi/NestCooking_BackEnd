@@ -65,7 +65,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
                     var typeTransaction = await _transactionService.GetTransactionTypeByIdAsync(paymentResponse.OrderId);
                     if (paymentResponse.Success)
                     {
-                        var initialAmountTransaction = paymentResponse.Amount / 100;
+                        var initialAmountTransaction = (paymentResponse.Amount / 100) / StaticDetails.VNDToUSD;
                         await _transactionService.TransactionSuccessById(paymentResponse.OrderId, true);
                         if (String.Equals(typeTransaction, StaticDetails.PaymentType_DEPOSIT, StringComparison.OrdinalIgnoreCase))
                         {

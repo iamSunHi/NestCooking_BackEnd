@@ -54,6 +54,8 @@
 		public const string Currency_VND = "VND";
 		public const string Currency_USD = "USD";
 
+		public const double VNDToUSD = 23000.0;
+
 		public const string NotificationType_INFO = "INFO";
 		public const string NotificationType_RECIPE = "RECIPE";
 		public const string NotificationType_REACTION = "REACTION";
