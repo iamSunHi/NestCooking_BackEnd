@@ -50,24 +50,28 @@ namespace NESTCOOKING_API.Business.Libraries
 
             if (checkSignature)
             {
+                var paymentResponse = new PaymentResponse
+                {
+                    Amount = amount,
+                    Success = true,
+                    PaymentMethod = "VnPay",
+                    OrderDescription = orderInfo,
+                    OrderId = orderId.ToString(),
+                    PaymentId = vnPayTranId.ToString(),
+                    TransactionId = vnPayTranId.ToString(),
+                    Token = vnpSecureHash,
+                    VnPayResponseCode = vnpResponseCode
+                };
                 if (vnpResponseCode == "00" && vnpTransactionStatus == "00")
                 {
-                    return new PaymentResponse()
-                    {
-                        Amount = amount,
-                        Success = true,
-                        PaymentMethod = "VnPay",
-                        OrderDescription = orderInfo,
-                        OrderId = orderId.ToString(),
-                        PaymentId = vnPayTranId.ToString(),
-                        TransactionId = vnPayTranId.ToString(),
-                        Token = vnpSecureHash,
-                        VnPayResponseCode = vnpResponseCode
-                    };
+                    return paymentResponse;
+
+
                 }
                 else
                 {
-                    throw new Exception("Payment of errors");
+                    paymentResponse.Success = false;
+                    return paymentResponse;
                 }
             }
             else
