@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace NESTCOOKING_API.DataAccess.Models
 {
@@ -6,9 +7,12 @@ namespace NESTCOOKING_API.DataAccess.Models
 	{
 		[Key]
 		public string Id { get; set; } = null!;
-		public User User { get; set; }
+		public string UserId { get; set; } = null;
 		public string Title { get; set; } = null!;
 		public string Content { get; set; } = null!;
 		public DateTime CreatedAt { get; set; }
+		[JsonIgnore]
+		public User User { get; set; }
+
 	}
 }
