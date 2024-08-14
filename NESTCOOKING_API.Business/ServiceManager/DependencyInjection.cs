@@ -28,7 +28,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
 		{
 			var configBuilder = new ConfigurationBuilder()
 					   .SetBasePath(Directory.GetCurrentDirectory())
-					   .AddJsonFile("appsettings.json");
+					   .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 			var configurationRoot = configBuilder.Build();
 
 			#region Repositories
