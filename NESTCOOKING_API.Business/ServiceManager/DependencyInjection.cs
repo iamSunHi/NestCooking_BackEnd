@@ -144,6 +144,12 @@ namespace NESTCOOKING_API.Business.ServiceManager
 				});
 			}
 
+			// Auto update database
+			using (var applicationDbContext = service.BuildServiceProvider().GetService<ApplicationDbContext>())
+			{
+				applicationDbContext.Database.Migrate();
+			}
+
 			service.AddIdentityCore<User>(options =>
 			{
 				options.Lockout.AllowedForNewUsers = true;
