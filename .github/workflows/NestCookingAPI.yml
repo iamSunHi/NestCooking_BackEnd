@@ -33,8 +33,8 @@ jobs:
     - name: Warren - Configure .NET SDK
       uses: warrenbrasil/dotnet-migrations@v3
       with:
-        project-path: ./NESTCOOKING_API.DataAccess
-        startup-project-path: ./NESTCOOKING_API.Presentation
+        project-path: NESTCOOKING_API.DataAccess
+        startup-project-path: NESTCOOKING_API.Presentation
         dotnet-ef-version: 8.0.0
         context: ApplicationDbContext
         connection: "${{ secrets.CONNECTION_STRING }}"
