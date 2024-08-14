@@ -6,16 +6,14 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var isAzureEnvironment = Environment.GetEnvironmentVariable("AZURE_WEBAPP_NAME") != null;
-if (isAzureEnvironment)
+var dependencyInjection = new DependencyInjection();
+if(builder.Environment.IsDevelopment())
 {
-	var azureDependencyInjection = new AzureDependencyInjection();
-	azureDependencyInjection.ConfigureServices(builder.Services);
+	dependencyInjection.ConfigureServices(builder.Services, "Default");
 }
 else
 {
-	var dependencyInjection = new DependencyInjection();
-	dependencyInjection.ConfigureServices(builder.Services);
+	dependencyInjection.ConfigureServices(builder.Services, "SQLAZURECONNSTR_Server");
 }
 
 builder.Services.AddControllers().AddJsonOptions(options =>

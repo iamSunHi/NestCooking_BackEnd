@@ -1,29 +1,18 @@
 name: Build and deploy .NET Core application to Web App NestCookingAPI
 on:
+  push:
+    branches:
+    - main
   pull_request:
     types: [closed]
     branches:
-    - develop
+    - main
 env:
   AZURE_WEBAPP_NAME: NestCookingAPI
   AZURE_WEBAPP_PACKAGE_PATH: NESTCOOKING_API.Presentation\publish
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 8.0.x
   WORKING_DIRECTORY: NESTCOOKING_API.Presentation
-  DB_CONNECTION_STRING_SERVER: ${{ secrets.DB_CONNECTION_STRING_SERVER }}
-  EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
-  EMAIL_SMTP_SERVER: ${{ secrets.EMAIL_SMTP_SERVER }}
-  EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
-  EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
-  EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-  API_SECRET: ${{ secrets.API_SECRET }}
-  FACEBOOK_APP_ID: ${{ secrets.FACEBOOK_APP_ID }}
-  FACEBOOK_APP_SECRET: ${{ secrets.FACEBOOK_APP_SECRET }}
-  GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-  GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-  CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
-  CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
-  CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
 jobs:
   build:
     runs-on: windows-latest
@@ -41,6 +30,10 @@ jobs:
       run: dotnet test "${{ env.WORKING_DIRECTORY }}" --no-build
     - name: Publish
       run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+    - name: Install dotnet-ef
+      run: dotnet tool install --global dotnet-ef --version 8.*
+    - name: Update database
+      run: dotnet ef database update --project NESTCOOKING_API.DataAccess --startup-project NESTCOOKING_API.Presentation --context ApplicationDbContext
     - name: Publish Artifacts
       uses: actions/upload-artifact@v3
       with:
@@ -59,5 +52,5 @@ jobs:
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.NestCookingAPI_F706 }}
+        publish-profile: ${{ secrets.NestCookingAPI_597E }}
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
