@@ -13,6 +13,7 @@ env:
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 8.0.x
   WORKING_DIRECTORY: NESTCOOKING_API.Presentation
+  SQLAZURECONNSTR_Server: ${{ secrets.CONNECTION_STRING }}
 jobs:
   build:
     runs-on: windows-latest
@@ -33,7 +34,7 @@ jobs:
     - name: Install dotnet-ef
       run: dotnet tool install --global dotnet-ef --version 8.*
     - name: Update database
-      run: dotnet ef database update --connection ${{ secrets.CONNECTION_STRING }} --project NESTCOOKING_API.DataAccess --startup-project NESTCOOKING_API.Presentation --context ApplicationDbContext --no-build
+      run: dotnet ef database update --connection "${{ env.SQLAZURECONNSTR_Server }}" --project NESTCOOKING_API.DataAccess --startup-project NESTCOOKING_API.Presentation --context ApplicationDbContext --no-build
     - name: Publish Artifacts
       uses: actions/upload-artifact@v3
       with:
