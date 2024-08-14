@@ -33,7 +33,7 @@ jobs:
     - name: Install dotnet-ef
       run: dotnet tool install --global dotnet-ef --version 8.*
     - name: Update database
-      run: dotnet ef database update --project NESTCOOKING_API.DataAccess --startup-project NESTCOOKING_API.Presentation --context ApplicationDbContext
+      run: dotnet ef database update --connection ${{ secrets.CONNECTION_STRING }} --project NESTCOOKING_API.DataAccess --startup-project NESTCOOKING_API.Presentation --context ApplicationDbContext
     - name: Publish Artifacts
       uses: actions/upload-artifact@v3
       with:
