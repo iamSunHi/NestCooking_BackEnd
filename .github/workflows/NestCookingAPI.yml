@@ -30,14 +30,6 @@ jobs:
       run: dotnet test "${{ env.WORKING_DIRECTORY }}" --no-build
     - name: Publish
       run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
-    - name: Warren - Configure .NET SDK
-      uses: warrenbrasil/dotnet-migrations@v3
-      with:
-        project-path: NESTCOOKING_API.DataAccess
-        startup-project-path: NESTCOOKING_API.Presentation
-        dotnet-ef-version: 8.0.0
-        context: ApplicationDbContext
-        connection: "${{ secrets.CONNECTION_STRING }}"
     - name: Publish Artifacts
       uses: actions/upload-artifact@v3
       with:
