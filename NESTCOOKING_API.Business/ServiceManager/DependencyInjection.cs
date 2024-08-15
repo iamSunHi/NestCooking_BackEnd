@@ -28,7 +28,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
 		{
 			var configBuilder = new ConfigurationBuilder()
 					   .SetBasePath(Directory.GetCurrentDirectory())
-					   .AddJsonFile("appsettings.json");
+					   .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 			var configurationRoot = configBuilder.Build();
 
 			#region Repositories
@@ -142,6 +142,12 @@ namespace NESTCOOKING_API.Business.ServiceManager
 						options.EnableRetryOnFailure();
 					});
 				});
+			}
+
+			// Auto update database
+			using (var applicationDbContext = service.BuildServiceProvider().GetService<ApplicationDbContext>())
+			{
+				applicationDbContext.Database.Migrate();
 			}
 
 			service.AddIdentityCore<User>(options =>
