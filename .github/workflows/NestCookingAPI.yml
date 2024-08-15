@@ -1,8 +1,5 @@
 name: Build and deploy .NET Core application to Web App NestCookingAPI
 on:
-  push:
-    branches:
-    - main
   pull_request:
     types: [closed]
     branches:
