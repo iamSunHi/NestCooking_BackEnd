@@ -24,13 +24,8 @@ namespace NESTCOOKING_API.Business.ServiceManager
 {
 	public class DependencyInjection
 	{
-		public void ConfigureServices(IServiceCollection service, string databaseName)
+		public void ConfigureServices(IServiceCollection service, IConfiguration configuration, string databaseName)
 		{
-			var configBuilder = new ConfigurationBuilder()
-					   .SetBasePath(Directory.GetCurrentDirectory())
-					   .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-			var configurationRoot = configBuilder.Build();
-
 			#region Repositories
 
 			service.AddScoped<IUserRepository, UserRepository>();
@@ -118,7 +113,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			// Set time Token for Email Confirm
 			service.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromMinutes(20));
 
-			var emailConfig = configurationRoot.GetSection("EmailConfiguration").Get<EmailRequestDTO>();
+			var emailConfig = configuration.GetSection("EmailConfiguration").Get<EmailRequestDTO>();
 			service.AddSingleton(emailConfig);
 
 			// DBContext and Identity
@@ -126,7 +121,7 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			{
 				service.AddDbContext<ApplicationDbContext>(options =>
 				{
-					options.UseSqlServer(configurationRoot.GetConnectionString(databaseName), options =>
+					options.UseSqlServer(configuration.GetConnectionString(databaseName), options =>
 					{
 						options.EnableRetryOnFailure();
 					});
@@ -180,18 +175,18 @@ namespace NESTCOOKING_API.Business.ServiceManager
 				{
 					ValidateIssuer = false,
 					ValidateAudience = false,
-					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configurationRoot["ApiSettings:Secret"])),
+					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["ApiSettings:Secret"])),
 				};
 			})
 			.AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
 			{
-				options.ClientId = configurationRoot["Authentication:Google:ClientId"];
-				options.ClientSecret = configurationRoot["Authentication:Google:ClientSecret"];
+				options.ClientId = configuration["Authentication:Google:ClientId"];
+				options.ClientSecret = configuration["Authentication:Google:ClientSecret"];
 			})
 			.AddFacebook(FacebookDefaults.AuthenticationScheme, options =>
 			{
-				options.AppId = configurationRoot["Authentication:Facebook:AppId"];
-				options.AppSecret = configurationRoot["Authentication:Facebook:AppSecret"];
+				options.AppId = configuration["Authentication:Facebook:AppId"];
+				options.AppSecret = configuration["Authentication:Facebook:AppSecret"];
 			});
 		}
 	}
