@@ -18,14 +18,30 @@ using NESTCOOKING_API.DataAccess.Data;
 using NESTCOOKING_API.DataAccess.Models;
 using NESTCOOKING_API.DataAccess.Repositories;
 using NESTCOOKING_API.DataAccess.Repositories.IRepositories;
+using System.Data.Common;
 using System.Text;
 
 namespace NESTCOOKING_API.Business.ServiceManager
 {
 	public class DependencyInjection
 	{
-		public void ConfigureServices(IServiceCollection service, IConfiguration configuration, string databaseName)
+		public void ConfigureServices(IServiceCollection service, IConfiguration configuration, string databaseName, bool isDevelopment)
 		{
+			string CONNECTION_STRING = isDevelopment ? configuration.GetConnectionString(databaseName) : Environment.GetEnvironmentVariable(databaseName);
+			string API_SECRET = isDevelopment ? configuration["APPSETTING_API_SECRET"] : Environment.GetEnvironmentVariable("APPSETTING_API_SECRET");
+			string EMAIL_FROM = isDevelopment ? configuration["APPSETTING_EMAIL_FROM"] : Environment.GetEnvironmentVariable("APPSETTING_EMAIL_FROM");
+			string EMAIL_SMTP_SERVER = isDevelopment ? configuration["APPSETTING_EMAIL_SMTP_SERVER"] : Environment.GetEnvironmentVariable("APPSETTING_EMAIL_SMTP_SERVER");
+			int EMAIL_PORT = isDevelopment ? int.Parse(configuration["APPSETTING_EMAIL_PORT"]) : int.Parse(Environment.GetEnvironmentVariable("APPSETTING_EMAIL_PORT"));
+			string EMAIL_USERNAME = isDevelopment ? configuration["APPSETTING_EMAIL_USERNAME"] : Environment.GetEnvironmentVariable("APPSETTING_EMAIL_USERNAME");
+			string EMAIL_PASSWORD = isDevelopment ? configuration["APPSETTING_EMAIL_PASSWORD"] : Environment.GetEnvironmentVariable("APPSETTING_EMAIL_PASSWORD");
+			string FACEBOOK_APP_ID = isDevelopment ? configuration["APPSETTING_FACEBOOK_APP_ID"] : Environment.GetEnvironmentVariable("APPSETTING_FACEBOOK_APP_ID");
+			string FACEBOOK_APP_SECRET = isDevelopment ? configuration["APPSETTING_FACEBOOK_APP_SECRET"] : Environment.GetEnvironmentVariable("APPSETTING_FACEBOOK_APP_SECRET");
+			string GOOGLE_CLIENT_ID = isDevelopment ? configuration["APPSETTING_GOOGLE_CLIENT_ID"] : Environment.GetEnvironmentVariable("APPSETTING_GOOGLE_CLIENT_ID");
+			string GOOGLE_CLIENT_SECRET = isDevelopment ? configuration["APPSETTING_GOOGLE_CLIENT_SECRET"] : Environment.GetEnvironmentVariable("APPSETTING_GOOGLE_CLIENT_SECRET");
+			string CLOUDINARY_CLOUD_NAME = isDevelopment ? configuration["APPSETTING_CLOUDINARY_CLOUD_NAME"] : Environment.GetEnvironmentVariable("APPSETTING_CLOUDINARY_CLOUD_NAME");
+			string CLOUDINARY_API_KEY = isDevelopment ? configuration["APPSETTING_CLOUDINARY_API_KEY"] : Environment.GetEnvironmentVariable("APPSETTING_CLOUDINARY_API_KEY");
+			string CLOUDINARY_API_SECRET = isDevelopment ? configuration["APPSETTING_CLOUDINARY_API_SECRET"] : Environment.GetEnvironmentVariable("APPSETTING_CLOUDINARY_API_SECRET");
+
 			#region Repositories
 
 			service.AddScoped<IUserRepository, UserRepository>();
@@ -112,17 +128,17 @@ namespace NESTCOOKING_API.Business.ServiceManager
 
 			service.AddSingleton(new EmailRequestDTO
 			{
-				From = configuration["APPSETTING_EMAIL_FROM"],
-				SmtpServer = configuration["APPSETTING_EMAIL_SMTP_SERVER"],
-				Port = int.Parse(configuration["APPSETTING_EMAIL_PORT"]),
-				UserName = configuration["APPSETTING_EMAIL_USERNAME"],
-				Password = configuration["APPSETTING_EMAIL_PASSWORD"]
+				From = EMAIL_FROM,
+				SmtpServer = EMAIL_SMTP_SERVER,
+				Port = EMAIL_PORT,
+				UserName = EMAIL_USERNAME,
+				Password = EMAIL_PASSWORD
 			});
 
 			// DBContext and Identity
 			service.AddDbContext<ApplicationDbContext>(options =>
 			{
-				options.UseSqlServer(configuration.GetConnectionString(databaseName), options =>
+				options.UseSqlServer(CONNECTION_STRING, options =>
 				{
 					options.EnableRetryOnFailure();
 				});
@@ -169,13 +185,13 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			})
 			.AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
 			{
-				options.ClientId = configuration["APPSETTING_GOOGLE_CLIENT_ID"];
-				options.ClientSecret = configuration["APPSETTING_GOOGLE_CLIENT_SECRET"];
+				options.ClientId = GOOGLE_CLIENT_ID;
+				options.ClientSecret = GOOGLE_CLIENT_SECRET;
 			})
 			.AddFacebook(FacebookDefaults.AuthenticationScheme, options =>
 			{
-				options.AppId = configuration["APPSETTING_FACEBOOK_APP_ID"];
-				options.AppSecret = configuration["APPSETTING_FACEBOOK_APP_SECRET"];
+				options.AppId = FACEBOOK_APP_ID;
+				options.AppSecret = FACEBOOK_APP_SECRET;
 			});
 
 			// For admin statistic
