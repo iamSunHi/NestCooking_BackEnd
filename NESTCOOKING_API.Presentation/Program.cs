@@ -7,14 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var dependencyInjection = new DependencyInjection();
-if(builder.Environment.IsDevelopment())
-{
-	dependencyInjection.ConfigureServices(builder.Services, builder.Configuration, "Default");
-}
-else
-{
-	dependencyInjection.ConfigureServices(builder.Services, builder.Configuration, "SQLAZURECONNSTR_Server");
-}
+dependencyInjection.ConfigureServices(builder.Services, builder.Configuration, "SQLAZURECONNSTR_Server");
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
