@@ -86,9 +86,6 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			service.AddScoped<IPurchasedRecipesService, PurchasedRecipesService>();
 			service.AddScoped<IBookingService, BookingService>();
 			service.AddScoped<IBookingLineService, BookingLineService>();
-			// For admin statistic
-			//service.AddHostedService<StatisticBackgroundService>();
-			service.AddScoped<IStatisticService, StatisticService>();
 
 			#endregion Services
 
@@ -180,6 +177,10 @@ namespace NESTCOOKING_API.Business.ServiceManager
 				options.AppId = configuration["APPSETTING_FACEBOOK_APP_ID"];
 				options.AppSecret = configuration["APPSETTING_FACEBOOK_APP_SECRET"];
 			});
+
+			// For admin statistic
+			service.AddHostedService<StatisticBackgroundService>();
+			service.AddScoped<IStatisticService, StatisticService>();
 		}
 	}
 }
