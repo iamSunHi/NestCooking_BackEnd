@@ -115,11 +115,11 @@ namespace NESTCOOKING_API.Business.ServiceManager
 
 			service.AddSingleton(new EmailRequestDTO
 			{
-				From = configuration["EMAIL_FROM"],
-				SmtpServer = configuration["EMAIL_SMTP_SERVER"],
-				Port = int.Parse(configuration["EMAIL_PORT"]),
-				UserName = configuration["EMAIL_USERNAME"],
-				Password = configuration["EMAIL_PASSWORD"]
+				From = configuration["APPSETTING_EMAIL_FROM"],
+				SmtpServer = configuration["APPSETTING_EMAIL_SMTP_SERVER"],
+				Port = int.Parse(configuration["APPSETTING_EMAIL_PORT"]),
+				UserName = configuration["APPSETTING_EMAIL_USERNAME"],
+				Password = configuration["APPSETTING_EMAIL_PASSWORD"]
 			});
 
 			// DBContext and Identity
@@ -167,18 +167,18 @@ namespace NESTCOOKING_API.Business.ServiceManager
 				{
 					ValidateIssuer = false,
 					ValidateAudience = false,
-					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["API_SECRET"])),
+					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["APPSETTING_API_SECRET"])),
 				};
 			})
 			.AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
 			{
-				options.ClientId = configuration["GOOGLE_CLIENT_ID"];
-				options.ClientSecret = configuration["GOOGLE_CLIENT_SECRET"];
+				options.ClientId = configuration["APPSETTING_GOOGLE_CLIENT_ID"];
+				options.ClientSecret = configuration["APPSETTING_GOOGLE_CLIENT_SECRET"];
 			})
 			.AddFacebook(FacebookDefaults.AuthenticationScheme, options =>
 			{
-				options.AppId = configuration["FACEBOOK_APP_ID"];
-				options.AppSecret = configuration["FACEBOOK_APP_SECRET"];
+				options.AppId = configuration["APPSETTING_FACEBOOK_APP_ID"];
+				options.AppSecret = configuration["APPSETTING_FACEBOOK_APP_SECRET"];
 			});
 		}
 	}
