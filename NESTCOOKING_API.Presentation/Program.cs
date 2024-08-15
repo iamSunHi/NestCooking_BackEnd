@@ -9,11 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 var dependencyInjection = new DependencyInjection();
 if(builder.Environment.IsDevelopment())
 {
-	dependencyInjection.ConfigureServices(builder.Services, "Default");
+	dependencyInjection.ConfigureServices(builder.Services, builder.Configuration, "Default");
 }
 else
 {
-	dependencyInjection.ConfigureServices(builder.Services, "SQLAZURECONNSTR_Server");
+	dependencyInjection.ConfigureServices(builder.Services, builder.Configuration, "SQLAZURECONNSTR_Server");
 }
 
 builder.Services.AddControllers().AddJsonOptions(options =>
