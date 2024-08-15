@@ -24,7 +24,7 @@ namespace NESTCOOKING_API.Business.Libraries
         public VnPayLibrary(IConfiguration configuration)
         {
             _configuration = configuration;
-            hashSecret = _configuration["VnPay:HashSecret"];
+            hashSecret = string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AZURE_WEBAPP_NAME")) ? configuration["APPSETTING_VNPAY_HASHSECRET"] : Environment.GetEnvironmentVariable("APPSETTING_VNPAY_HASHSECRET");
             _requestData = new SortedList<string, string>(new VnPayCompare());
             _responseData = new SortedList<string, string>(new VnPayCompare());
         }
