@@ -23,7 +23,7 @@ namespace NESTCOOKING_API.Business.Authorization
 		public JwtUtils(IRoleRepository roleRepository, IConfiguration configuration)
 		{
 			_roleRepository = roleRepository;
-			secretKey = configuration.GetSection("ApiSettings:Secret").Value;
+			secretKey = configuration["APPSETTING_API_SECRET"];
 		}
 
 		public async Task<string> GenerateJwtToken(User user)
