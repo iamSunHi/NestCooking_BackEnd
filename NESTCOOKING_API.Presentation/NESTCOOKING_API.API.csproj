@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NESTCOOKING_API.Business\NESTCOOKING_API.Business.csproj" />
+    <ProjectReference Include="..\NESTCOOKING_API.Testing\NESTCOOKING_API.Testing.csproj" />
     <ProjectReference Include="..\NESTCOOKING_API.Utility\NESTCOOKING_API.Utility.csproj" />
   </ItemGroup>
 
