@@ -1,3 +1,4 @@
+using FluentValidation;
 using System.ComponentModel;
 
 namespace NESTCOOKING_API.Business.DTOs.RecipeDTOs
@@ -9,5 +10,13 @@ namespace NESTCOOKING_API.Business.DTOs.RecipeDTOs
         [DefaultValue(null)]
         public string? IngredientTipId { get; set; } = null;
     };
+    public class CreateIngredientDTOValidator : AbstractValidator<CreateIngredientDTO>
+    {
+        public CreateIngredientDTOValidator()
+        {
+            RuleFor(x => x.Name).NotEmpty().WithMessage("Name Not null");
+            RuleFor(x => x.Amount).NotEmpty().WithMessage("Amount not null");
+        }
+    }
 
 }
