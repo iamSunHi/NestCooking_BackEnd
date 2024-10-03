@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using NESTCOOKING_API.Business.Authorization;
 using NESTCOOKING_API.Business.BackgroundServices;
 using NESTCOOKING_API.Business.DTOs.EmailDTOs;
+using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
 using NESTCOOKING_API.Business.Libraries;
 using NESTCOOKING_API.Business.Mapping;
 using NESTCOOKING_API.Business.Services;
@@ -197,6 +200,15 @@ namespace NESTCOOKING_API.Business.ServiceManager
 			// For admin statistic
 			service.AddHostedService<StatisticBackgroundService>();
 			service.AddScoped<IStatisticService, StatisticService>();
-		}
+
+            // Fluent validation
+            service.AddFluentValidation(fv =>
+                fv.RegisterValidatorsFromAssemblyContaining<CreateRecipeDTOValidator>());
+
+            service.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true;
+            });
+        }
 	}
 }
