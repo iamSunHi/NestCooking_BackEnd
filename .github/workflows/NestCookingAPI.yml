@@ -28,8 +28,7 @@ jobs:
     - name: Update database
       run: |
         dotnet tool install --global dotnet-ef
-        dotnet tool restore
-        dotnet ef database update -s NESTCOOKING_API.Presentation --connection "${{ secrets.CONNECTION_STRING }}"
+        dotnet ef database update -s {{ env.WORKING_DIRECTORY }} -p {{ env.DATA_DIRECTORY }} --configuration Release --connection "${{ secrets.CONNECTION_STRING }}"
     - name: Test
       run: dotnet test "${{ env.TESTING_DIRECTORY }}" --no-build
     - name: Publish
