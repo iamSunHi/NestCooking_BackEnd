@@ -25,10 +25,11 @@ jobs:
       run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
     - name: Build
       run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
-    - name: Install EF Core global
-      run: dotnet tool install --global dotnet-ef
     - name: Update database
-      run: dotnet ef database update -s ${{ env.WORKING_DIRECTORY }} -p ${{ env.DATA_DIRECTORY }} --configuration Release
+      run: |
+        dotnet tool install --global dotnet-ef
+        dotnet tool restore
+        dotnet ef database update -s NESTCOOKING_API.Presentation --connection "${{ secrets.CONNECTION_STRING }}"
     - name: Test
       run: dotnet test "${{ env.TESTING_DIRECTORY }}" --no-build
     - name: Publish
