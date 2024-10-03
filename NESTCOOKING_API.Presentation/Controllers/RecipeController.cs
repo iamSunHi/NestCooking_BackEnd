@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NESTCOOKING_API.API.Helpers;
 using NESTCOOKING_API.Business.Authentication;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.RecipeDTOs;
@@ -119,6 +120,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 		[HttpPost]
 		[Authorize]
+		[ApiValidatorFilter]
 		public async Task<IActionResult> CreateRecipeAsync([FromBody] CreateRecipeDTO createRecipeDTO)
 		{
 			try

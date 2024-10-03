@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NESTCOOKING_API.API.Helpers;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.UserDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
@@ -93,6 +94,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 		[HttpPatch]
 		[Authorize]
+		[ApiValidatorFilter]
 		public async Task<IActionResult> EditProfile([FromBody] UpdateUserDTO updateUserDTO)
 		{
 			var userId = HttpContext.User.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
