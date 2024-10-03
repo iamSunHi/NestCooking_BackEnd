@@ -1,3 +1,4 @@
+using FluentValidation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
@@ -24,4 +25,18 @@ namespace NESTCOOKING_API.Business.DTOs.RecipeDTOs
 		[Range(0.0, double.MaxValue)]
 		public double? BookingPrice { get; set; }
 	}
+    public class UpdateRecipeDTOValidator : AbstractValidator<UpdateRecipeDTO>
+    {
+        public UpdateRecipeDTOValidator()
+        {
+            RuleFor(x => x.Title).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.Description).NotEmpty().MaximumLength(500);
+            RuleFor(x => x.CookingTime).GreaterThan(0);
+            RuleFor(x => x.Portion).GreaterThan(0);
+            RuleFor(x => x.Categories).NotEmpty();
+            RuleFor(x => x.Ingredients).NotEmpty();
+            RuleFor(x => x.Instructors).NotEmpty();
+            RuleFor(x => x.Difficult).GreaterThan(0.0);
+        }
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NESTCOOKING_API.API.Helpers;
 using NESTCOOKING_API.Business.Authentication;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.NotificationDTOs;
@@ -25,7 +26,8 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 		[HttpPost]
 		[Authorize]
-		public async Task<IActionResult> AddReaction([FromBody] ReactionDTO reactionDTO)
+        [ApiValidatorFilter]
+        public async Task<IActionResult> AddReaction([FromBody] ReactionDTO reactionDTO)
 		{
 			try
 			{
