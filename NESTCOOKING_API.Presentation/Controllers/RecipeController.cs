@@ -141,6 +141,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
 
 		[HttpPatch("{recipeId}")]
 		[Authorize]
+		[ApiValidatorFilter]
 		public async Task<IActionResult> UpdateRecipeAsync([FromRoute] string recipeId, [FromBody] UpdateRecipeDTO updateRecipeDTO)
 		{
 			try

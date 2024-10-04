@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NESTCOOKING_API.API.Helpers;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.PaymentDTOs;
 using NESTCOOKING_API.Business.DTOs.TransactionDTOs;
@@ -31,6 +32,7 @@ namespace NESTCOOKING_API.Presentation.Controllers
         }
         [HttpPost("create")]
         [Authorize]
+        [ApiValidatorFilter]
         public async Task<IActionResult> CreatePaymentUrl([FromBody] TransactionInfor transactionInfor)
         {
             try

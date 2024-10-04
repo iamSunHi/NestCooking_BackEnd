@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NESTCOOKING_API.API.Helpers;
 using NESTCOOKING_API.Business.DTOs;
 using NESTCOOKING_API.Business.DTOs.ReportDTOs;
 using NESTCOOKING_API.Business.Services.IServices;
@@ -35,7 +36,8 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CreateReport([FromBody] CreateReportDTO createReportDTO)
+        [ApiValidatorFilter]
+        public async Task<IActionResult> CreateReport([FromBody] CreateReportDTO createReportDTO)
 		{
 			try
 			{
@@ -68,7 +70,8 @@ namespace NESTCOOKING_API.Presentation.Controllers
 		}
 
 		[HttpPatch]
-		public async Task<IActionResult> UpdateReport([FromBody] UpdateReportDTO updatedReportDTO)
+        [ApiValidatorFilter]
+        public async Task<IActionResult> UpdateReport([FromBody] UpdateReportDTO updatedReportDTO)
 		{
 			try
 			{
