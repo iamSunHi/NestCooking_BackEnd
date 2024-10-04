@@ -21,16 +21,10 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
-    - name: Set connection string to environment variable
-      run: setx SQLAZURECONNSTR_Server "${{ secrets.CONNECTION_STRING }}"
     - name: Restore
       run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
     - name: Build
       run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
-    - name: Update database
-      run: |
-        dotnet tool install --global dotnet-ef
-        dotnet ef database update -s ${{ env.WORKING_DIRECTORY }} -p ${{ env.DATA_DIRECTORY }} --configuration Release --connection "${{ secrets.CONNECTION_STRING }}"
     - name: Test
       run: dotnet test "${{ env.TESTING_DIRECTORY }}" --no-build
     - name: Publish
