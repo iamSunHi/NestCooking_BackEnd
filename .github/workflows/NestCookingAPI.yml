@@ -21,6 +21,8 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+    - name: Set connection string to environment variable
+      run: setx SQLAZURECONNSTR_Server "${{ secrets.CONNECTION_STRING }}"
     - name: Restore
       run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
     - name: Build
