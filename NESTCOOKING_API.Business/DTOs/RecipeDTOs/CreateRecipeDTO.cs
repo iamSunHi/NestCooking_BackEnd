@@ -30,7 +30,8 @@ namespace NESTCOOKING_API.Business.DTOs.RecipeDTOs
     {
         public CreateRecipeDTOValidator()
         {
-            RuleFor(x => x.Title).NotEmpty().MaximumLength(100);
+			//
+            RuleFor(x => x.Title).NotEmpty().MaximumLength(100).WithMessage("cicd");
             RuleFor(x => x.Description).NotEmpty().MaximumLength(500);
             RuleFor(x => x.CookingTime).GreaterThan(0);
             RuleFor(x => x.Portion).GreaterThan(0);
